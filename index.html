@@ -5,22 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BloxForLife | Bio</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Added FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <div class="profile-card">
             
-            <!-- Requirement #1: Updated pfp to blox.jpg -->
             <div class="pfp-container">
-                <img src="blox.jpg" alt="Profile" class="avatar">
+                <!-- ID added so Lanyard can swap the image -->
+                <img src="blox.jpg" alt="Profile" class="avatar" id="discord-pfp">
             </div>
             
             <h1>BloxForLife</h1>
             
             <div class="bio">
-                <!-- Removed Roblox Community Manager -->
                 <p>Discord Bot Developer</p>
             </div>
 
@@ -28,24 +26,40 @@
                 <i class="fa-regular fa-clock"></i> <span id="local-time">Loading time...</span> (EEST)
             </div>
 
-            <!-- Requirement #2: Updated to lyin2me.mp3 and added autoplay -->
             <div class="music-player">
                 <i class="fa-solid fa-music music-icon"></i>
-                <audio id="bg-music" src="lyin2me.mp3" loop autoplay></audio>
+                <audio id="bg-music" src="lyin2me.mp3" loop></audio>
                 <button id="play-btn" class="ctrl-btn"><i class="fa-solid fa-play"></i> Play</button>
                 <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.3">
             </div>
 
             <div class="links">
-                <!-- Added icons to buttons for better aesthetics -->
                 <a href="https://discord.com/users/1075335630353080340" target="_blank" class="btn discord"><i class="fa-brands fa-discord"></i> Discord</a>
                 <a href="https://www.roblox.com/users/4548670369/profile" target="_blank" class="btn roblox"><i class="fa-solid fa-gamepad"></i> Roblox</a>
                 <a href="https://github.com/BloxForLife" target="_blank" class="btn github"><i class="fa-brands fa-github"></i> GitHub</a>
+                <a href="https://docs.google.com/document/d/11pyDSeXnB-HiSzZjVJNPtorc352CkmRGuYWCB3ZZ16c/edit?usp=sharing" target="_blank" class="btn roleplay"><i class="fa-solid fa-book-open"></i> My Roleplay Experience</a>
             </div>
         </div>
     </div>
 
     <script>
+        // --- LANYARD API (DISCORD PFP FETCHER) ---
+        const discordId = '1075335630353080340';
+        fetch(`https://api.lanyard.rest/v1/users/${discordId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data.discord_user.avatar) {
+                    const avatarHash = data.data.discord_user.avatar;
+                    // Check if the avatar is an animated GIF or a static PNG
+                    const extension = avatarHash.startsWith('a_') ? 'gif' : 'png';
+                    const avatarUrl = `https://cdn.discordapp.com/avatars/${discordId}/${avatarHash}.${extension}?size=512`;
+                    document.getElementById('discord-pfp').src = avatarUrl;
+                } else {
+                    console.log("Could not load Lanyard data. Ensure you are in the Lanyard Discord server.");
+                }
+            })
+            .catch(err => console.error('Lanyard Fetch Error:', err));
+
         // --- LIVE CLOCK SCRIPT ---
         function updateTime() {
             const timeOptions = { 
@@ -67,17 +81,23 @@
         const volumeSlider = document.getElementById('volume-slider');
 
         music.volume = 0.3;
+        let hasAutoplayed = false;
 
-        // Attempt to auto-play on page load and update the button if successful
-        music.play().then(() => {
-            playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
-        }).catch((error) => {
-            // Browser blocked autoplay; user must click play manually
-            console.log("Autoplay blocked by browser. User must interact first.");
+        // Click anywhere to play
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#play-btn') || e.target.closest('#volume-slider')) return;
+
+            if (!hasAutoplayed && music.paused) {
+                music.play().then(() => {
+                    playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
+                    hasAutoplayed = true;
+                }).catch(err => console.log("Audio play blocked", err));
+            }
         });
 
-        // Play/Pause toggle with icon updates
+        // Play/Pause button
         playBtn.addEventListener('click', () => {
+            hasAutoplayed = true; 
             if (music.paused) {
                 music.play();
                 playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
