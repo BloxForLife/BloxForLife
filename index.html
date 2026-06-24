@@ -5,45 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BloxForLife | Bio</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Added FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <div class="profile-card">
-            <img src="avatar.jpg" alt="Profile" class="avatar">
             
-            <!-- Requirement #1: Name updated -->
+            <!-- Requirement #1: Updated pfp to blox.jpg -->
+            <div class="pfp-container">
+                <img src="blox.jpg" alt="Profile" class="avatar">
+            </div>
+            
             <h1>BloxForLife</h1>
             
             <div class="bio">
-                <p>Discord Bot Developer & Roblox Community Manager</p>
+                <!-- Removed Roblox Community Manager -->
+                <p>Discord Bot Developer</p>
             </div>
 
-            <!-- Requirement #4: Live EEST Time -->
             <div class="time-container">
-                <span id="local-time">Loading time...</span> (EEST)
+                <i class="fa-regular fa-clock"></i> <span id="local-time">Loading time...</span> (EEST)
             </div>
 
-            <!-- Requirement #5 & #6: Music and Volume Bar -->
+            <!-- Requirement #2: Updated to lyin2me.mp3 and added autoplay -->
             <div class="music-player">
-                <audio id="bg-music" src="lying2me.mp3" loop></audio>
-                <button id="play-btn" class="ctrl-btn">▶ Play</button>
+                <i class="fa-solid fa-music music-icon"></i>
+                <audio id="bg-music" src="lyin2me.mp3" loop autoplay></audio>
+                <button id="play-btn" class="ctrl-btn"><i class="fa-solid fa-play"></i> Play</button>
                 <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.3">
             </div>
 
-            <!-- Requirement #2: Actual Links -->
             <div class="links">
-                <a href="https://discord.com/users/1075335630353080340" target="_blank" class="btn discord">Discord</a>
-                <a href="https://www.roblox.com/users/4548670369/profile" target="_blank" class="btn roblox">Roblox</a>
-                <a href="https://github.com/BloxForLife" target="_blank" class="btn github">GitHub</a>
+                <!-- Added icons to buttons for better aesthetics -->
+                <a href="https://discord.com/users/1075335630353080340" target="_blank" class="btn discord"><i class="fa-brands fa-discord"></i> Discord</a>
+                <a href="https://www.roblox.com/users/4548670369/profile" target="_blank" class="btn roblox"><i class="fa-solid fa-gamepad"></i> Roblox</a>
+                <a href="https://github.com/BloxForLife" target="_blank" class="btn github"><i class="fa-brands fa-github"></i> GitHub</a>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript to make the time tick and music work -->
     <script>
         // --- LIVE CLOCK SCRIPT ---
         function updateTime() {
-            // EEST runs on the same timezone rules as Cairo
             const timeOptions = { 
                 timeZone: 'Africa/Cairo', 
                 hour: '2-digit', 
@@ -54,7 +58,6 @@
             const timeString = new Date().toLocaleTimeString('en-US', timeOptions);
             document.getElementById('local-time').textContent = timeString;
         }
-        // Update time immediately, then every 1 second
         updateTime();
         setInterval(updateTime, 1000);
 
@@ -63,21 +66,28 @@
         const playBtn = document.getElementById('play-btn');
         const volumeSlider = document.getElementById('volume-slider');
 
-        // Initial volume setting
         music.volume = 0.3;
 
-        // Play/Pause toggle
+        // Attempt to auto-play on page load and update the button if successful
+        music.play().then(() => {
+            playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
+        }).catch((error) => {
+            // Browser blocked autoplay; user must click play manually
+            console.log("Autoplay blocked by browser. User must interact first.");
+        });
+
+        // Play/Pause toggle with icon updates
         playBtn.addEventListener('click', () => {
             if (music.paused) {
                 music.play();
-                playBtn.textContent = '⏸ Pause';
+                playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
             } else {
                 music.pause();
-                playBtn.textContent = '▶ Play';
+                playBtn.innerHTML = '<i class="fa-solid fa-play"></i> Play';
             }
         });
 
-        // Volume slider hookup
+        // Volume slider
         volumeSlider.addEventListener('input', (e) => {
             music.volume = e.target.value;
         });
