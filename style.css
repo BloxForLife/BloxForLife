@@ -1,3 +1,4 @@
+/* Reset and Base */
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
 
 body {
@@ -17,6 +18,7 @@ body {
     100% { background-position: 0% 50%; }
 }
 
+/* Card Styling */
 .profile-card {
     background: rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(20px);
@@ -28,31 +30,46 @@ body {
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
 }
 
-.avatar {
-    width: 130px; height: 130px; border-radius: 50%; border: 4px solid #fff;
-    margin-bottom: 20px; object-fit: cover;
-}
-
-.time-container {
-    background: rgba(255, 255, 255, 0.15);
-    padding: 10px 20px;
-    border-radius: 30px;
-    display: inline-flex;
-    margin-bottom: 25px;
-}
-
+/* Specific Fix for Controls */
 .music-player {
-    display: flex; align-items: center; justify-content: center; gap: 15px;
-    margin-bottom: 30px; background: rgba(255, 255, 255, 0.15);
-    padding: 15px; border-radius: 16px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 15px !important;
+    margin-bottom: 30px !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    padding: 15px !important;
+    border-radius: 16px !important;
 }
 
-.links { display: flex; flex-direction: column; gap: 12px; }
-
-.btn {
-    padding: 16px; color: #fff; text-decoration: none; border-radius: 14px;
-    font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.1); transition: 0.3s;
+.ctrl-btn {
+    background: #fff !important;
+    color: #000 !important;
+    border: none !important;
+    padding: 10px 20px !important;
+    border-radius: 20px !important;
+    cursor: pointer !important;
+    font-weight: bold !important;
 }
 
-.btn:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.2); }
+input[type=range] {
+    -webkit-appearance: none;
+    width: 140px;
+    background: transparent;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 2px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: #fff;
+    margin-top: -7px;
+}
