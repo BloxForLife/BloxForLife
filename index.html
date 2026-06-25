@@ -3,187 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BloxForLife | Portfolio</title>
+    <title>BloxForLife | Bio</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="layout">
-        
-        <aside class="sidebar card">
-            <div id="dc-banner" class="banner"></div>
-            <div class="profile-header">
-                <div class="avatar-wrapper">
-                    <img id="dc-avatar" src="blox.jpg" alt="Avatar" class="avatar">
-                    <div id="dc-status" class="status-indicator"></div>
-                </div>
-                <h1 id="dc-name">BloxForLife</h1>
-                <p class="pronouns">Developer</p>
+    <div class="container">
+        <div class="profile-card">
+            
+            <div class="pfp-container">
+                <img src="blox.jpg" alt="Profile" class="avatar" id="discord-pfp">
             </div>
             
-            <div class="bio-section">
-                <p id="dc-bio">Discord Bot Developer & Programmer.</p>
-                
-                <div class="badges">
-                    <div class="badge age-badge" id="age-container">
-                        <i class="fa-solid fa-cake-candles"></i> 
-                        <span class="static-age">14 years old</span>
-                        <span class="live-age" id="live-age">Loading...</span>
-                    </div>
-                </div>
+            <h1>BloxForLife</h1>
+            
+            <div class="bio">
+                <p>Discord Bot Developer</p>
             </div>
 
-            <div class="activity-card">
-                <p class="activity-label">CUSTOM STATUS</p>
-                <div class="activity-content">
-                    <i class="fa-solid fa-thought-bubble"></i>
-                    <span id="custom-status">Thinking...</span>
-                </div>
+            <div class="time-container">
+                <i class="fa-regular fa-clock"></i> <span id="local-time">Loading time...</span> (EEST)
             </div>
-        </aside>
 
-        <main class="content">
-            <div class="bento-grid">
-                
-                <div class="card col-span-1">
-                    <h2>Projects</h2>
-                    <div class="list-container">
-                        <a href="#" class="list-item">
-                            <div class="item-icon" style="color: #FF5A5A;"><i class="fa-solid fa-code"></i></div>
-                            <div class="item-text">
-                                <h3>My Portfolio</h3>
-                                <p>This website right here!</p>
-                            </div>
-                        </a>
-                        <a href="#" class="list-item">
-                            <div class="item-icon" style="color: #5865F2;"><i class="fa-solid fa-robot"></i></div>
-                            <div class="item-text">
-                                <h3>Discord Bot</h3>
-                                <p>Custom multi-purpose bot.</p>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="card col-span-1">
-                    <h2>My Socials</h2>
-                    <div class="list-container">
-                        <a href="https://github.com/BloxForLife" target="_blank" class="list-item simple">
-                            <i class="fa-brands fa-github"></i> GitHub
-                        </a>
-                        <a href="https://discord.com/users/1075335630353080340" target="_blank" class="list-item simple">
-                            <i class="fa-brands fa-discord"></i> Discord
-                        </a>
-                        <a href="https://www.roblox.com/users/4548670369/profile" target="_blank" class="list-item simple">
-                            <i class="fa-solid fa-gamepad"></i> Roblox
-                        </a>
-                        <a href="https://docs.google.com/document/d/11pyDSeXnB-HiSzZjVJNPtorc352CkmRGuYWCB3ZZ16c/edit" target="_blank" class="list-item simple">
-                            <i class="fa-solid fa-book-open"></i> Roleplay Experience
-                        </a>
-                    </div>
-                </div>
-
-                <div class="card col-span-2">
-                    <h2>What I use</h2>
-                    <div class="tools-grid">
-                        
-                        <div class="tool-item">
-                            <div class="tool-icon" style="color: #007ACC;"><i class="fa-solid fa-code"></i></div>
-                            <div class="tool-info">
-                                <h3>VS Code</h3>
-                                <p>Editor</p>
-                            </div>
-                        </div>
-
-                        <div class="tool-item">
-                            <div class="tool-icon" style="color: #4CAF50;"><i class="fa-solid fa-terminal"></i></div>
-                            <div class="tool-info">
-                                <h3>Terminal</h3>
-                                <p>Python</p>
-                            </div>
-                        </div>
-
-                        <div class="tool-item">
-                            <div class="tool-icon" style="color: #5865F2;"><i class="fa-brands fa-discord"></i></div>
-                            <div class="tool-info">
-                                <h3>Discord</h3>
-                                <p>Communication</p>
-                            </div>
-                        </div>
-
-                        <div class="tool-item">
-                            <div class="tool-icon" style="color: #FFFFFF;"><i class="fa-solid fa-cube"></i></div>
-                            <div class="tool-info">
-                                <h3>Roblox</h3>
-                                <p>Playing</p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
+            <div class="music-player">
+                <i class="fa-solid fa-music music-icon"></i>
+                <audio id="bg-music" src="lyin2me.mp3" loop></audio>
+                <button id="play-btn" class="ctrl-btn"><i class="fa-solid fa-play"></i> Play</button>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.3">
             </div>
-        </main>
+
+            <div class="links">
+                <a href="https://discord.com/users/1075335630353080340" target="_blank" class="btn discord"><i class="fa-brands fa-discord"></i> Discord</a>
+                <a href="https://www.roblox.com/users/4548670369/profile" target="_blank" class="btn roblox"><i class="fa-solid fa-gamepad"></i> Roblox</a>
+                <a href="https://github.com/BloxForLife" target="_blank" class="btn github"><i class="fa-brands fa-github"></i> GitHub</a>
+                <a href="https://docs.google.com/document/d/11pyDSeXnB-HiSzZjVJNPtorc352CkmRGuYWCB3ZZ16c/edit?usp=sharing" target="_blank" class="btn roleplay"><i class="fa-solid fa-book-open"></i> My Roleplay Experience</a>
+            </div>
+        </div>
     </div>
 
     <script>
-        // --- 1. LANYARD API (DISCORD INTEGRATION) ---
+        // --- 1. LANYARD API (DISCORD PFP FETCHER) ---
         const discordId = '1075335630353080340';
         fetch(`https://api.lanyard.rest/v1/users/${discordId}`)
-            .then(res => res.json())
+            .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    const u = data.data.discord_user;
-                    const lanyardData = data.data;
-
-                    // Set Banner (Fallback to dark color if none)
-                    if (u.banner) {
-                        document.getElementById('dc-banner').style.backgroundImage = `url('https://cdn.discordapp.com/banners/${discordId}/${u.banner}.png?size=512')`;
-                    }
-                    
-                    // Set Avatar
-                    document.getElementById('dc-avatar').src = `https://cdn.discordapp.com/avatars/${discordId}/${u.avatar}.png?size=256`;
-                    
-                    // Set Name
-                    document.getElementById('dc-name').innerText = u.global_name || u.username;
-
-                    // Set Status Indicator Color
-                    const statusDot = document.getElementById('dc-status');
-                    const statusColors = {
-                        online: '#43b581',
-                        idle: '#faa61a',
-                        dnd: '#f04747',
-                        offline: '#747f8d'
-                    };
-                    statusDot.style.backgroundColor = statusColors[lanyardData.discord_status] || statusColors.offline;
-
-                    // Set Custom Status / Thinking text
-                    const customStatusText = document.getElementById('custom-status');
-                    if (lanyardData.activities.length > 0) {
-                        const customAct = lanyardData.activities.find(act => act.type === 4); // Type 4 is custom status
-                        if (customAct && customAct.state) {
-                            customStatusText.innerText = customAct.state;
-                        }
-                    }
+                if (data.success && data.data.discord_user.avatar) {
+                    const avatarHash = data.data.discord_user.avatar;
+                    const extension = avatarHash.startsWith('a_') ? 'gif' : 'png';
+                    const avatarUrl = `https://cdn.discordapp.com/avatars/${discordId}/${avatarHash}.${extension}?size=512`;
+                    document.getElementById('discord-pfp').src = avatarUrl;
                 }
             })
-            .catch(err => console.error("Lanyard error:", err));
+            .catch(err => console.error('Lanyard Fetch Error:', err));
 
-        // --- 2. LIVE AGE COUNTER SCRIPT ---
-        const birthDate = new Date('2012-01-27T00:00:00');
-        const liveAgeElement = document.getElementById('live-age');
-
-        function updateAge() {
-            const now = new Date();
-            const diff = now.getTime() - birthDate.getTime();
-            // Calculate age in exact decimal years
-            const ageInYears = diff / (1000 * 60 * 60 * 24 * 365.25);
-            liveAgeElement.innerText = ageInYears.toFixed(9) + " yrs";
+        // --- 2. LIVE CLOCK SCRIPT ---
+        function updateTime() {
+            const timeOptions = { 
+                timeZone: 'Africa/Cairo', // EEST Timezone
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: true 
+            };
+            const timeString = new Date().toLocaleTimeString('en-US', timeOptions);
+            document.getElementById('local-time').textContent = timeString;
         }
+        updateTime();
+        setInterval(updateTime, 1000);
 
-        // Update the counter rapidly to show the numbers ticking
-        setInterval(updateAge, 50);
-        updateAge();
+        // --- 3. MUSIC PLAYER SCRIPT ---
+        const music = document.getElementById('bg-music');
+        const playBtn = document.getElementById('play-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+
+        music.volume = 0.3;
+        let hasAutoplayed = false;
+
+        // Click anywhere to play functionality
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#play-btn') || e.target.closest('#volume-slider')) return;
+            if (!hasAutoplayed && music.paused) {
+                music.play().then(() => {
+                    playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
+                    hasAutoplayed = true;
+                }).catch(err => console.log("Audio play blocked: ", err));
+            }
+        });
+
+        // Manual control toggle
+        playBtn.addEventListener('click', () => {
+            hasAutoplayed = true;
+            if (music.paused) {
+                music.play();
+                playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
+            } else {
+                music.pause();
+                playBtn.innerHTML = '<i class="fa-solid fa-play"></i> Play';
+            }
+        });
+
+        // Volume slider mechanism
+        volumeSlider.addEventListener('input', (e) => {
+            music.volume = e.target.value;
+        });
     </script>
 </body>
 </html>
