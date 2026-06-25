@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BloxForLife | Premium Portfolio</title>
+    <title>BloxForLife</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -22,18 +22,18 @@
             
             <h1 class="animate-up delay-1">BloxForLife</h1>
             
-            <div class="bio animate-up delay-2">
+            <div class="custom-status animate-up delay-2" id="custom-status-badge" style="display: none;">
+                <span id="custom-status-emoji"></span>
+                <span id="custom-status-text">Thinking...</span>
+            </div>
+            
+            <div class="bio animate-up delay-3">
                 <p>Discord Bot Developer</p>
-                <div class="custom-status" id="custom-status-badge" style="display: none;">
-                    <i class="fa-solid fa-thought-bubble"></i> <span id="custom-status-text">Thinking...</span>
-                </div>
             </div>
 
-            <div class="tech-stack animate-up delay-3">
-                <div class="tech-icon"><i class="fa-brands fa-python"></i></div>
-                <div class="tech-icon"><i class="fa-brands fa-node-js"></i></div>
-                <div class="tech-icon"><i class="fa-brands fa-js"></i></div>
-                <div class="tech-icon"><i class="fa-solid fa-database"></i></div>
+            <div class="python-banner animate-up delay-3">
+                <i class="fa-brands fa-python"></i>
+                <span>Python Developer</span>
             </div>
 
             <div class="time-container animate-up delay-4">
@@ -66,7 +66,7 @@
     </div>
 
     <script>
-        // --- 1. LANYARD API (LIVE DATA FETCHER) ---
+        // --- LANYARD API (LIVE DATA FETCHER) ---
         const discordId = '1075335630353080340';
         
         function fetchLanyardData() {
@@ -87,11 +87,26 @@
                         const statusColors = { online: '#23a559', idle: '#f0b232', dnd: '#f23f42', offline: '#80848e' };
                         document.getElementById('discord-status').style.backgroundColor = statusColors[lData.discord_status] || statusColors.offline;
 
-                        // 3. Custom Status
+                        // 3. Custom Status (WITH EMOJI SUPPORT)
                         const customAct = lData.activities.find(act => act.type === 4);
                         const customBadge = document.getElementById('custom-status-badge');
-                        if (customAct && customAct.state) {
-                            document.getElementById('custom-status-text').innerText = customAct.state;
+                        const emojiContainer = document.getElementById('custom-status-emoji');
+                        
+                        if (customAct && (customAct.state || customAct.emoji)) {
+                            document.getElementById('custom-status-text').innerText = customAct.state || '';
+                            
+                            // Handle Emoji (Custom Discord PNG/GIF or Standard Unicode)
+                            if (customAct.emoji) {
+                                if (customAct.emoji.id) {
+                                    const ext = customAct.emoji.animated ? 'gif' : 'png';
+                                    emojiContainer.innerHTML = `<img src="https://cdn.discordapp.com/emojis/${customAct.emoji.id}.${ext}" class="status-emoji" alt="emoji">`;
+                                } else {
+                                    emojiContainer.innerText = customAct.emoji.name;
+                                }
+                            } else {
+                                emojiContainer.innerHTML = ''; // Clear if no emoji
+                            }
+                            
                             customBadge.style.display = 'inline-flex';
                         } else {
                             customBadge.style.display = 'none';
@@ -112,11 +127,10 @@
                 .catch(err => console.error('Lanyard Error:', err));
         }
 
-        // Fetch immediately, then update every 10 seconds so Spotify stays live
         fetchLanyardData();
         setInterval(fetchLanyardData, 10000);
 
-        // --- 2. LIVE CLOCK SCRIPT ---
+        // --- LIVE CLOCK ---
         function updateTime() {
             const timeOptions = { timeZone: 'Africa/Cairo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
             document.getElementById('local-time').textContent = new Date().toLocaleTimeString('en-US', timeOptions);
@@ -124,7 +138,7 @@
         updateTime();
         setInterval(updateTime, 1000);
 
-        // --- 3. BACKGROUND MUSIC PLAYER SCRIPT ---
+        // --- BACKGROUND MUSIC PLAYER ---
         const music = document.getElementById('bg-music');
         const playBtn = document.getElementById('play-btn');
         const volumeSlider = document.getElementById('volume-slider');
