@@ -23,6 +23,12 @@ body {
 
 .container { padding: 0 20px; width: 100%; display: flex; justify-content: center; }
 
+.btn.roblox img {
+    margin-right: 5px;
+    object-fit: contain;
+}
+
+
 /* Dark Glassmorphism Card */
 .profile-card {
     background: rgba(15, 15, 20, 0.6);
