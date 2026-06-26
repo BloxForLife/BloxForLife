@@ -106,10 +106,10 @@ body {
 
 /* Custom low-key color treatment for secret elements */
 .console-line.secret-line {
-    color: #34343a !important;
+    color: #1a1a20 !important; /* Made even more subtle to hide in the noise */
     font-style: italic;
 }
-.console-line.secret-line .prompt { color: #44444a !important; }
+.console-line.secret-line .prompt { color: #222228 !important; }
 
 .console-line.sub-secret-line {
     color: #23a559 !important;
@@ -118,8 +118,7 @@ body {
 .console-line.sub-secret-line .prompt { color: #23a559 !important; }
 
 /* Accent targeted line colors */
-.console-line:nth-child(3) { color: #23a559; }
-.console-line:nth-child(10) { color: #ffd343; font-weight: bold; }
+.console-line:nth-child(4) { color: #23a559; }
 
 @keyframes terminalLinePop {
     from { opacity: 0; transform: translateY(4px); }
