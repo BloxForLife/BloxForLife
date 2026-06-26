@@ -14,6 +14,103 @@ body {
     padding: 40px 0;
 }
 
+/* --- CONSOLE LOADING OVERLAY --- */
+#console-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #020205;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+#console-loader.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.console-box {
+    width: 650px;
+    max-width: 100%;
+    height: 380px;
+    background: rgba(10, 10, 16, 0.85);
+    border: 1px solid rgba(55, 118, 171, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(55, 118, 171, 0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.console-header {
+    background: rgba(20, 20, 30, 0.9);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.console-header .dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.console-header .dot.red { background: #f23f42; }
+.console-header .dot.yellow { background: #f0b232; }
+.console-header .dot.green { background: #23a559; }
+
+.console-title {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    color: #71717a;
+    margin-left: 6px;
+    font-weight: bold;
+}
+
+.console-body {
+    padding: 18px;
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #05050a;
+}
+
+.console-line {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    color: #3776ab; /* Clean developer python-blue tint */
+    line-height: 1.5;
+    word-break: break-all;
+    animation: terminalLinePop 0.15s ease-out forwards;
+}
+
+.console-line .prompt {
+    color: #ffd343; /* Yellow token execution symbol */
+    font-weight: bold;
+    margin-right: 4px;
+}
+
+/* Make success highlight pop naturally */
+.console-line:nth-child(3) { color: #23a559; }
+.console-line:nth-child(9) { color: #ffd343; font-weight: bold; }
+
+@keyframes terminalLinePop {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Rest of your custom app background */
 .bg-grid {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
     background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
@@ -135,12 +232,6 @@ h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px
 
 .section-header i { font-size: 16px; color: #a1a1aa; }
 
-.yt-music-icon {
-    width: 18px; height: 18px;
-    vertical-align: middle;
-    flex-shrink: 0;
-}
-
 .section-body {
     font-size: 14px;
     color: #a1a1aa;
@@ -170,9 +261,7 @@ h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px
     gap: 8px;
 }
 
-.webring-title i {
-    color: #f0b232;
-}
+.webring-title i { color: #f0b232; }
 
 .webring-links {
     display: flex;
@@ -244,9 +333,6 @@ h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 
-.rp-icon { background: rgba(88, 101, 242, 0.15); border: 1px solid rgba(88,101,242,0.3); }
-.rp-icon i { font-size: 20px; color: #5865F2; }
-
 .fbi-icon { background: rgba(0, 40, 104, 0.3); border: 1px solid rgba(255,215,0,0.3); }
 
 .project-name { font-size: 14px; font-weight: 700; color: #fff; }
@@ -284,60 +370,18 @@ h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px
 }
 .ctrl-btn:hover { background: #e0e0e0; transform: scale(1.05); }
 
-/* Volume control wrapper */
-.volume-control {
-    display: flex; align-items: center; gap: 8px;
-}
-.volume-label {
-    font-size: 12px; color: #a1a1aa; white-space: nowrap;
-    display: flex; align-items: center; gap: 5px;
-}
+.volume-control { display: flex; align-items: center; gap: 8px; }
+.volume-label { font-size: 12px; color: #a1a1aa; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
 .volume-label i { font-size: 14px; }
 
-/* Cross-browser range slider */
 input[type=range] {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    width: 100px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 2px;
-    outline: none;
-    cursor: pointer;
+    -webkit-appearance: none; -moz-appearance: none; appearance: none;
+    width: 100px; height: 4px; background: rgba(255, 255, 255, 0.2); border-radius: 2px; outline: none; cursor: pointer;
 }
-
-/* Webkit (Chrome, Safari, Edge) thumb */
-input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    height: 16px; width: 16px;
-    border-radius: 50%;
-    background: #fff;
-    cursor: pointer;
-}
-
-/* Firefox thumb */
-input[type=range]::-moz-range-thumb {
-    height: 16px; width: 16px;
-    border-radius: 50%;
-    background: #fff;
-    border: none;
-    cursor: pointer;
-}
-
-/* Firefox track */
-input[type=range]::-moz-range-track {
-    width: 100%; height: 4px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 2px;
-}
-
-/* Firefox progress fill */
-input[type=range]::-moz-range-progress {
-    height: 4px;
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 2px;
-}
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #fff; cursor: pointer; }
+input[type=range]::-moz-range-thumb { height: 16px; width: 16px; border-radius: 50%; background: #fff; border: none; cursor: pointer; }
+input[type=range]::-moz-range-track { width: 100%; height: 4px; background: rgba(255, 255, 255, 0.2); border-radius: 2px; }
+input[type=range]::-moz-range-progress { height: 4px; background: rgba(255, 255, 255, 0.6); border-radius: 2px; }
 
 /* Links */
 .links { display: flex; flex-direction: column; gap: 15px; }
@@ -371,11 +415,5 @@ input[type=range]::-moz-range-progress {
 .delay-8 { animation-delay: 0.8s; }
 .delay-9 { animation-delay: 0.9s; }
 
-@keyframes popIn {
-    0% { opacity: 0; transform: scale(0.8); }
-    100% { opacity: 1; transform: scale(1); }
-}
-@keyframes fadeInUp {
-    0% { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
+@keyframes popIn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes fadeInUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
