@@ -149,35 +149,69 @@ h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px
 
 /* Lanyard Cafe Embedded Badge Styles */
 .lanyard-badge {
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.07);
     margin-top: 15px;
-    padding: 12px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.02);
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.02);
     text-align: center;
-    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
-.lanyard-badge a {
-    text-decoration: none;
-    color: #80848e;
-    font-size: 0.85rem;
+
+.webring-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #a1a1aa;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
 }
-.lanyard-badge i {
+
+.webring-title i {
     color: #f0b232;
 }
-.lanyard-badge:hover {
-    background: rgba(240, 178, 50, 0.05);
-    border-color: rgba(240, 178, 50, 0.3);
+
+.webring-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
-.lanyard-badge a strong {
-    transition: color 0.3s ease;
+
+.webring-links a {
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
 }
-.lanyard-badge:hover a strong {
+
+.webring-nav {
+    color: #fff;
+    opacity: 0.7;
+}
+
+.webring-nav:hover {
+    opacity: 1;
     color: #f0b232;
+}
+
+.webring-home {
+    color: #f0b232;
+    background: rgba(240, 178, 50, 0.1);
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(240, 178, 50, 0.2);
+}
+
+.webring-home:hover {
+    background: rgba(240, 178, 50, 0.2);
+    transform: scale(1.02);
 }
 
 /* Projects */
