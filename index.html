@@ -127,19 +127,28 @@
     <script>
         const discordId = '1075335630353080340';
 
-        // --- CONSOLE LOADING ENGINE ---
+        // --- CONSOLE LOADING ENGINE WITH EXTRA YAPPING ---
         const consoleLines = [
             { text: "⚡ Initializing BloxForLife kernel architecture...", delay: 400 },
-            { text: "📡 Establishing secure handshake with api.lanyard.rest...", delay: 700 },
-            { text: "🟩 Lanyard WebSocket connection: SUCCESS", delay: 500 },
+            { text: "⚙️ Loading local environments, variables, and bash assets...", delay: 350 },
+            { text: "📡 Establishing secure handshake with api.lanyard.rest...", delay: 650 },
+            { text: "🟩 Lanyard WebSocket connection: SUCCESS", delay: 400 },
             { text: "📦 Fetching user asset packages: discordId (1075335630353080340)...", delay: 800 },
-            { text: "🛠️ Compiling Python development modules...", delay: 600 },
+            { text: "📂 Mapping asset endpoints, caching global DOM trees...", delay: 300 },
+            { text: "🛠️ Compiling Python development modules and asyncio drivers...", delay: 600 },
+            { text: "🔧 Syncing pip wheels, upgrading dynamic discord.py dependencies...", delay: 450 },
             { text: "⚠️ yes half of this was made by AI (maybe more)", delay: 950, secret: true },
             { text: "🤫 ignore the line above", delay: 500, secondarySecret: true },
+            { text: "⛓️ Resolving asynchronous framework threads and loops...", delay: 400 },
+            { text: "🛸 Testing sub-process connection relays to backend shards...", delay: 350 },
             { text: "🏎️ Allocating processing memory for Lego Red Bull F1 Set fund...", delay: 700 },
-            { text: "☕ Pinging Lanyard Cafe Webring infrastructure...", delay: 800 },
+            { text: "📊 Reading real-time wallet tracking and integration tables...", delay: 300 },
+            { text: "☕ Pinging Lanyard Cafe Webring infrastructure routes...", delay: 750 },
+            { text: "🕸️ Webring query complete: fetched nav pointers securely.", delay: 400 },
             { text: "🎵 Audio framework integrated: lyin2me.mp3 staged.", delay: 450 },
-            { text: "✨ System operational. Awaiting user clearance entry patch...", delay: 600 }
+            { text: "🌀 Checking local client hardware acceleration pipelines...", delay: 350 },
+            { text: "🎨 Building glassmorphism styles, CSS properties, and fonts...", delay: 300 },
+            { text: "✨ System operational. Awaiting user clearance entry patch...", delay: 500 }
         ];
 
         const logContainer = document.getElementById("console-log");
@@ -174,143 +183,3 @@
             }
         }
         window.addEventListener("DOMContentLoaded", printLogLine);
-
-        // --- INTERACTIVE SCREEN UNLOCK SYSTEM ---
-        const music = document.getElementById('bg-music');
-        const playBtn = document.getElementById('play-btn');
-        let hasAutoplayed = false;
-
-        document.getElementById("console-loader").addEventListener("click", () => {
-            if (!setupFinished) return;
-            
-            if (!hasAutoplayed && music.paused) {
-                music.play().then(() => {
-                    playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
-                    hasAutoplayed = true;
-                }).catch(() => {});
-            }
-
-            const loader = document.getElementById("console-loader");
-            loader.classList.add("fade-out");
-            setTimeout(() => loader.style.display = "none", 500);
-        });
-
-
-        // --- LANYARD API (LIVE DATA FETCHER) ---
-        function fetchLanyardData() {
-            fetch(`https://api.lanyard.rest/v1/users/${discordId}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        const u = data.data.discord_user;
-                        const lData = data.data;
-
-                        // 1. Avatar
-                        if (u.avatar) {
-                            const ext = u.avatar.startsWith('a_') ? 'gif' : 'png';
-                            document.getElementById('discord-pfp').src = `https://cdn.discordapp.com/avatars/${discordId}/${u.avatar}.${ext}?size=512`;
-                        }
-
-                        // 2. Status Dot Color
-                        const statusColors = { online: '#23a559', idle: '#f0b232', dnd: '#f23f42', offline: '#80848e' };
-                        document.getElementById('discord-status').style.backgroundColor = statusColors[lData.discord_status] || statusColors.offline;
-
-                        // 3. Custom Status
-                        const customAct = lData.activities.find(act => act.type === 4);
-                        const customBadge = document.getElementById('custom-status-badge');
-                        const emojiContainer = document.getElementById('custom-status-emoji');
-                        
-                        if (customAct && (customAct.state || customAct.emoji)) {
-                            document.getElementById('custom-status-text').innerText = customAct.state || '';
-                            
-                            if (customAct.emoji) {
-                                if (customAct.emoji.id) {
-                                    const ext = customAct.emoji.animated ? 'gif' : 'png';
-                                    emojiContainer.innerHTML = `<img src="https://cdn.discordapp.com/emojis/${customAct.emoji.id}.${ext}" class="status-emoji" alt="emoji">`;
-                                } else {
-                                    emojiContainer.innerText = customAct.emoji.name;
-                                }
-                            } else {
-                                emojiContainer.innerHTML = ''; 
-                            }
-                            
-                            customBadge.style.display = 'inline-flex';
-                        } else {
-                            customBadge.style.display = 'none';
-                        }
-
-                        // 4. Spotify Widget
-                        const spotWidget = document.getElementById('spotify-widget');
-                        if (lData.listening_to_spotify && lData.spotify) {
-                            document.getElementById('spot-art').src = lData.spotify.album_art_url;
-                            document.getElementById('spot-title').innerText = lData.spotify.song;
-                            document.getElementById('spot-artist').innerText = lData.spotify.artist;
-                            spotWidget.style.display = 'flex';
-                        } else {
-                            spotWidget.style.display = 'none';
-                        }
-                    }
-                })
-                .catch(err => console.error('Lanyard Error:', err));
-        }
-
-        // --- LANYARD WEBRING NAVIGATION FETCHER ---
-        function fetchWebringNav() {
-            fetch(`https://lanyard.cafe/api/nav/${discordId}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.prev && data.next) {
-                        document.getElementById('webring-prev').href = data.prev.url;
-                        document.getElementById('webring-next').href = data.next.url;
-                    } else {
-                        document.getElementById('webring-prev').href = "https://c.stupid.cat"; 
-                        document.getElementById('webring-next').href = "https://aureal.dev";   
-                    }
-                })
-                .catch(() => {
-                    document.getElementById('webring-prev').href = "https://c.stupid.cat";
-                    document.getElementById('webring-next').href = "https://aureal.dev";
-                });
-        }
-
-        fetchLanyardData();
-        fetchWebringNav();
-        setInterval(fetchLanyardData, 10000);
-
-        // --- LIVE CLOCK ---
-        function updateTime() {
-            const timeOptions = { timeZone: 'Africa/Cairo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-            document.getElementById('local-time').textContent = new Date().toLocaleTimeString('en-US', timeOptions);
-        }
-        updateTime();
-        setInterval(updateTime, 1000);
-
-        // --- GENERAL PROFILE BODY MUSIC CONTROL LOGIC ---
-        const volumeSlider = document.getElementById('volume-slider');
-        music.volume = 0.3;
-
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('#play-btn') || e.target.closest('#volume-slider') || e.target.closest('#console-loader')) return;
-            if (!hasAutoplayed && music.paused) {
-                music.play().then(() => {
-                    playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
-                    hasAutoplayed = true;
-                }).catch(() => {});
-            }
-        });
-
-        playBtn.addEventListener('click', () => {
-            hasAutoplayed = true;
-            if (music.paused) {
-                music.play();
-                playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
-            } else {
-                music.pause();
-                playBtn.innerHTML = '<i class="fa-solid fa-play"></i> Play';
-            }
-        });
-
-        volumeSlider.addEventListener('input', (e) => music.volume = e.target.value);
-    </script>
-</body>
-</html>
