@@ -85,17 +85,19 @@
                 </div>
             </div>
 
-            <!-- REQUIRED LANYARD CAFE WIDGET -->
-<div class="section-card lanyard-badge animate-up delay-5">
-    <div class="webring-title">
-        <i class="fa-solid fa-mug-hot"></i> Lanyard Cafe Webring
-    </div>
-    <div class="webring-links">
-        <a href="https://lanyard.cafe/api/prev?id=1075335630353080340" class="webring-nav"><i class="fa-solid fa-chevron-left"></i> Prev</a>
-        <a href="https://lanyard.cafe" target="_blank" class="webring-home">Home</a>
-        <a href="https://lanyard.cafe/api/next?id=1075335630353080340" class="webring-nav">Next <i class="fa-solid fa-chevron-right"></i></a>
-    </div>
-</div>
+            <!-- REQUIRED LANYARD CAFE WEBRING WIDGET -->
+            <div class="section-card lanyard-badge animate-up delay-5">
+                <div class="webring-title">
+                    <i class="fa-solid fa-mug-hot"></i> Lanyard Cafe Webring
+                </div>
+                <div class="webring-links">
+                    <a href="https://lanyard.cafe" id="webring-prev" class="webring-nav"><i class="fa-solid fa-chevron-left"></i> Prev</a>
+                    <a href="https://lanyard.cafe" target="_blank" class="webring-home">
+                        <img src="lanyard.webp" alt="Lanyard Cafe Logo" class="webring-img">
+                    </a>
+                    <a href="https://lanyard.cafe" id="webring-next" class="webring-nav">Next <i class="fa-solid fa-chevron-right"></i></a>
+                </div>
+            </div>
 
             <div class="links">
                 <a href="https://paypal.me/MichealJames196" target="_blank" class="btn paypal animate-up delay-6"><i class="fa-brands fa-paypal"></i> Donate via PayPal 🏎️</a>
@@ -110,9 +112,9 @@
     </div>
 
     <script>
-        // --- LANYARD API (LIVE DATA FETCHER) ---
         const discordId = '1075335630353080340';
-        
+
+        // --- LANYARD API (LIVE DATA FETCHER) ---
         function fetchLanyardData() {
             fetch(`https://api.lanyard.rest/v1/users/${discordId}`)
                 .then(res => res.json())
@@ -170,7 +172,28 @@
                 .catch(err => console.error('Lanyard Error:', err));
         }
 
+        // --- LANYARD WEBRING NAVIGATION FETCHER ---
+        function fetchWebringNav() {
+            fetch(`https://lanyard.cafe/api/nav/${discordId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.prev && data.next) {
+                        document.getElementById('webring-prev').href = data.prev.url;
+                        document.getElementById('webring-next').href = data.next.url;
+                    } else {
+                        // Safe Fallbacks while your PR is still pending merge
+                        document.getElementById('webring-prev').href = "https://lanyard.cafe";
+                        document.getElementById('webring-next').href = "https://lanyard.cafe";
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('webring-prev').href = "https://lanyard.cafe";
+                    document.getElementById('webring-next').href = "https://lanyard.cafe";
+                });
+        }
+
         fetchLanyardData();
+        fetchWebringNav();
         setInterval(fetchLanyardData, 10000);
 
         // --- LIVE CLOCK ---
