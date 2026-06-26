@@ -91,11 +91,11 @@
                     <i class="fa-solid fa-mug-hot"></i> Lanyard Cafe Webring
                 </div>
                 <div class="webring-links">
-                    <a href="https://lanyard.cafe" id="webring-prev" class="webring-nav"><i class="fa-solid fa-chevron-left"></i> Prev</a>
+                    <a href="https://c.stupid.cat" id="webring-prev" class="webring-nav"><i class="fa-solid fa-chevron-left"></i> Prev</a>
                     <a href="https://lanyard.cafe" target="_blank" class="webring-home">
                         <img src="lanyard.webp" alt="Lanyard Cafe Logo" class="webring-img">
                     </a>
-                    <a href="https://lanyard.cafe" id="webring-next" class="webring-nav">Next <i class="fa-solid fa-chevron-right"></i></a>
+                    <a href="https://aureal.dev" id="webring-next" class="webring-nav">Next <i class="fa-solid fa-chevron-right"></i></a>
                 </div>
             </div>
 
@@ -177,18 +177,20 @@
             fetch(`https://lanyard.cafe/api/nav/${discordId}`)
                 .then(res => res.json())
                 .then(data => {
+                    // Once you are officially merged, this will take over dynamically!
                     if (data && data.prev && data.next) {
                         document.getElementById('webring-prev').href = data.prev.url;
                         document.getElementById('webring-next').href = data.next.url;
                     } else {
-                        // Safe Fallbacks while your PR is still pending merge
-                        document.getElementById('webring-prev').href = "https://lanyard.cafe";
-                        document.getElementById('webring-next').href = "https://lanyard.cafe";
+                        // Hardcoded neighbors from the list while PR is pending
+                        document.getElementById('webring-prev').href = "https://c.stupid.cat"; // clove
+                        document.getElementById('webring-next').href = "https://aureal.dev";   // aureal
                     }
                 })
                 .catch(() => {
-                    document.getElementById('webring-prev').href = "https://lanyard.cafe";
-                    document.getElementById('webring-next').href = "https://lanyard.cafe";
+                    // Fallback targets so it never links to blank pages if API drops
+                    document.getElementById('webring-prev').href = "https://c.stupid.cat";
+                    document.getElementById('webring-next').href = "https://aureal.dev";
                 });
         }
 
