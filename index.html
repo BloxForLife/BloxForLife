@@ -19,6 +19,9 @@
             <div class="console-body" id="console-log">
                 </div>
         </div>
+        <div id="enter-prompt" class="enter-prompt">
+            <span class="blink-text">[ CLICK ANYWHERE TO ENTER SITE ]</span>
+        </div>
     </div>
 
     <div class="bg-grid"></div>
@@ -132,24 +135,28 @@
             { text: "📦 Fetching user asset packages: discordId (1075335630353080340)...", delay: 800 },
             { text: "🛠️ Compiling Python development modules...", delay: 600 },
             { text: "⚠️ yes half of this was made by AI (maybe more)", delay: 950, secret: true },
+            { text: "🤫 ignore the line above", delay: 500, secondarySecret: true },
             { text: "🏎️ Allocating processing memory for Lego Red Bull F1 Set fund...", delay: 700 },
             { text: "☕ Pinging Lanyard Cafe Webring infrastructure...", delay: 800 },
             { text: "🎵 Audio framework integrated: lyin2me.mp3 staged.", delay: 450 },
-            { text: "✨ System operational. Launching graphical interface...", delay: 600 }
+            { text: "✨ System operational. Awaiting user clearance entry patch...", delay: 600 }
         ];
 
         const logContainer = document.getElementById("console-log");
         let currentLine = 0;
+        let setupFinished = false;
 
         function printLogLine() {
             if (currentLine < consoleLines.length) {
                 const item = consoleLines[currentLine];
                 const p = document.createElement("p");
                 
-                // Style your secret easter egg line differently if flagged
                 if (item.secret) {
                     p.className = "console-line secret-line";
                     p.innerHTML = `<span class="prompt">?</span> ${item.text}`;
+                } else if (item.secondarySecret) {
+                    p.className = "console-line sub-secret-line";
+                    p.innerHTML = `<span class="prompt">!</span> ${item.text}`;
                 } else {
                     p.className = "console-line";
                     p.innerHTML = `<span class="prompt">></span> ${item.text}`;
@@ -161,13 +168,32 @@
                 setTimeout(printLogLine, item.delay);
             } else {
                 setTimeout(() => {
-                    const loader = document.getElementById("console-loader");
-                    loader.classList.add("fade-out");
-                    setTimeout(() => loader.style.display = "none", 500);
-                }, 900); // Gives users an extra beat to scan the finished log
+                    document.getElementById("enter-prompt").classList.add("visible");
+                    setupFinished = true;
+                }, 400);
             }
         }
         window.addEventListener("DOMContentLoaded", printLogLine);
+
+        // --- INTERACTIVE SCREEN UNLOCK SYSTEM ---
+        const music = document.getElementById('bg-music');
+        const playBtn = document.getElementById('play-btn');
+        let hasAutoplayed = false;
+
+        document.getElementById("console-loader").addEventListener("click", () => {
+            if (!setupFinished) return;
+            
+            if (!hasAutoplayed && music.paused) {
+                music.play().then(() => {
+                    playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
+                    hasAutoplayed = true;
+                }).catch(() => {});
+            }
+
+            const loader = document.getElementById("console-loader");
+            loader.classList.add("fade-out");
+            setTimeout(() => loader.style.display = "none", 500);
+        });
 
 
         // --- LANYARD API (LIVE DATA FETCHER) ---
@@ -259,12 +285,9 @@
         updateTime();
         setInterval(updateTime, 1000);
 
-        // --- BACKGROUND MUSIC PLAYER ---
-        const music = document.getElementById('bg-music');
-        const playBtn = document.getElementById('play-btn');
+        // --- GENERAL PROFILE BODY MUSIC CONTROL LOGIC ---
         const volumeSlider = document.getElementById('volume-slider');
         music.volume = 0.3;
-        let hasAutoplayed = false;
 
         document.addEventListener('click', (e) => {
             if (e.target.closest('#play-btn') || e.target.closest('#volume-slider') || e.target.closest('#console-loader')) return;
