@@ -8,6 +8,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <div id="console-loader">
+        <div class="console-box">
+            <div class="console-header">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+                <span class="console-title">system_boot.sh</span>
+            </div>
+            <div class="console-body" id="console-log">
+                </div>
+        </div>
+    </div>
+
     <div class="bg-grid"></div>
 
     <div class="container">
@@ -40,13 +53,11 @@
                 <span>Discord Bot Dev</span>
             </div>
 
-            <!-- About Me -->
             <div class="section-card animate-up delay-3">
                 <div class="section-header"><i class="fa-solid fa-user"></i> About Me</div>
                 <p class="section-body">Hey! I'm BloxForLife, 14 years old. I'm a Discord bot developer and Python bot developer. Currently working some gigs to save up for the Technic Red Bull F1 Lego set, any donations are appreciated!!!</p>
             </div>
 
-            <!-- Projects -->
             <div class="section-card animate-up delay-4">
                 <div class="section-header"><i class="fa-solid fa-code-branch"></i> Projects</div>
                 <div class="projects-list">
@@ -85,7 +96,6 @@
                 </div>
             </div>
 
-            <!-- REQUIRED LANYARD CAFE WEBRING WIDGET -->
             <div class="section-card lanyard-badge animate-up delay-5">
                 <div class="webring-title">
                     <i class="fa-solid fa-mug-hot"></i> Lanyard Cafe Webring
@@ -113,6 +123,46 @@
 
     <script>
         const discordId = '1075335630353080340';
+
+        // --- CONSOLE LOADING ENGINE ---
+        const consoleLines = [
+            { text: "⚡ Initializing BloxForLife kernel architecture...", delay: 100 },
+            { text: "📡 Establishing secure handshake with api.lanyard.rest...", delay: 400 },
+            { text: "🟩 Lanyard WebSocket connection: SUCCESS", delay: 200 },
+            { text: "📦 Fetching user asset packages: discordId (1075335630353080340)...", delay: 350 },
+            { text: "🛠️ Compiling Python development modules...", delay: 300 },
+            { text: "🏎️ Allocating processing memory for Lego Red Bull F1 Set fund...", delay: 250 },
+            { text: "☕ Pinging Lanyard Cafe Webring infrastructure...", delay: 400 },
+            { text: "🎵 Audio framework integrated: lyin2me.mp3 staged.", delay: 150 },
+            { text: "✨ System operational. Launching graphical interface...", delay: 300 }
+        ];
+
+        const logContainer = document.getElementById("console-log");
+        let currentLine = 0;
+
+        function printLogLine() {
+            if (currentLine < consoleLines.length) {
+                const item = consoleLines[currentLine];
+                const p = document.createElement("p");
+                p.className = "console-line";
+                p.innerHTML = `<span class="prompt">></span> ${item.text}`;
+                logContainer.appendChild(p);
+                logContainer.scrollTop = logContainer.scrollHeight; // Auto scroll down
+                currentLine++;
+                setTimeout(printLogLine, item.delay);
+            } else {
+                // Done loading! Smoothly exit console screen after a short beat
+                setTimeout(() => {
+                    const loader = document.getElementById("console-loader");
+                    loader.classList.add("fade-out");
+                    // Wipe from DOM completely after fade completes
+                    setTimeout(() => loader.style.display = "none", 500);
+                }, 600);
+            }
+        }
+        // Start console execution immediately on load
+        window.addEventListener("DOMContentLoaded", printLogLine);
+
 
         // --- LANYARD API (LIVE DATA FETCHER) ---
         function fetchLanyardData() {
@@ -177,18 +227,15 @@
             fetch(`https://lanyard.cafe/api/nav/${discordId}`)
                 .then(res => res.json())
                 .then(data => {
-                    // Once you are officially merged, this will take over dynamically!
                     if (data && data.prev && data.next) {
                         document.getElementById('webring-prev').href = data.prev.url;
                         document.getElementById('webring-next').href = data.next.url;
                     } else {
-                        // Hardcoded neighbors from the list while PR is pending
-                        document.getElementById('webring-prev').href = "https://c.stupid.cat"; // clove
-                        document.getElementById('webring-next').href = "https://aureal.dev";   // aureal
+                        document.getElementById('webring-prev').href = "https://c.stupid.cat"; 
+                        document.getElementById('webring-next').href = "https://aureal.dev";   
                     }
                 })
                 .catch(() => {
-                    // Fallback targets so it never links to blank pages if API drops
                     document.getElementById('webring-prev').href = "https://c.stupid.cat";
                     document.getElementById('webring-next').href = "https://aureal.dev";
                 });
@@ -214,7 +261,7 @@
         let hasAutoplayed = false;
 
         document.addEventListener('click', (e) => {
-            if (e.target.closest('#play-btn') || e.target.closest('#volume-slider')) return;
+            if (e.target.closest('#play-btn') || e.target.closest('#volume-slider') || e.target.closest('#console-loader')) return;
             if (!hasAutoplayed && music.paused) {
                 music.play().then(() => {
                     playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
