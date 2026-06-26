@@ -101,6 +101,16 @@ body {
     margin-right: 4px;
 }
 
+/* Custom low-key color treatment for the secret line */
+.console-line.secret-line {
+    color: #4b4b53 !important; /* Muted slate gray */
+    font-style: italic;
+}
+
+.console-line.secret-line .prompt {
+    color: #71717a !important;
+}
+
 /* Make success highlight pop naturally */
 .console-line:nth-child(3) { color: #23a559; }
 .console-line:nth-child(9) { color: #ffd343; font-weight: bold; }
