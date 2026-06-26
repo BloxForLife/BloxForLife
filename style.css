@@ -179,8 +179,8 @@ h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px
     justify-content: space-between;
     align-items: center;
     background: rgba(0, 0, 0, 0.2);
-    padding: 8px 12px;
-    border-radius: 10px;
+    padding: 6px 14px;
+    border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -194,6 +194,9 @@ h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px
 .webring-nav {
     color: #fff;
     opacity: 0.7;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .webring-nav:hover {
@@ -202,16 +205,25 @@ h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px
 }
 
 .webring-home {
-    color: #f0b232;
-    background: rgba(240, 178, 50, 0.1);
-    padding: 4px 12px;
-    border-radius: 6px;
-    border: 1px solid rgba(240, 178, 50, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
 }
 
-.webring-home:hover {
-    background: rgba(240, 178, 50, 0.2);
-    transform: scale(1.02);
+.webring-img {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 0 4px rgba(240, 178, 50, 0.2));
+    transition: transform 0.2s ease;
+}
+
+.webring-home:hover .webring-img {
+    transform: scale(1.08);
 }
 
 /* Projects */
