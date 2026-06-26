@@ -24,10 +24,13 @@ body {
     background: #020205;
     z-index: 9999;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 20px;
+    gap: 25px;
     transition: opacity 0.5s ease, visibility 0.5s ease;
+    cursor: pointer;
 }
 
 #console-loader.fade-out {
@@ -89,35 +92,65 @@ body {
 .console-line {
     font-family: 'Courier New', Courier, monospace;
     font-size: 14px;
-    color: #3776ab; /* Clean developer python-blue tint */
+    color: #3776ab;
     line-height: 1.5;
     word-break: break-all;
     animation: terminalLinePop 0.15s ease-out forwards;
 }
 
 .console-line .prompt {
-    color: #ffd343; /* Yellow token execution symbol */
+    color: #ffd343;
     font-weight: bold;
     margin-right: 4px;
 }
 
-/* Custom low-key color treatment for the secret line */
+/* Custom low-key color treatment for secret elements */
 .console-line.secret-line {
-    color: #4b4b53 !important; /* Muted slate gray */
+    color: #34343a !important;
     font-style: italic;
 }
+.console-line.secret-line .prompt { color: #44444a !important; }
 
-.console-line.secret-line .prompt {
-    color: #71717a !important;
+.console-line.sub-secret-line {
+    color: #23a559 !important;
+    font-weight: bold;
 }
+.console-line.sub-secret-line .prompt { color: #23a559 !important; }
 
-/* Make success highlight pop naturally */
+/* Accent targeted line colors */
 .console-line:nth-child(3) { color: #23a559; }
-.console-line:nth-child(9) { color: #ffd343; font-weight: bold; }
+.console-line:nth-child(10) { color: #ffd343; font-weight: bold; }
 
 @keyframes terminalLinePop {
     from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- CLICK TO ENTER ROW --- */
+.enter-prompt {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+}
+.enter-prompt.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.blink-text {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    color: #ffd343;
+    font-weight: bold;
+    letter-spacing: 1px;
+    animation: textBlink 1.2s step-end infinite;
+    text-shadow: 0 0 10px rgba(255, 211, 67, 0.3);
+}
+
+@keyframes textBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }
 
 /* Rest of your custom app background */
@@ -159,7 +192,7 @@ body {
 
 h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px; }
 
-/* Upgraded Custom Status Badge */
+/* Custom Status Badge */
 .custom-status {
     background: rgba(0, 0, 0, 0.4);
     padding: 8px 16px;
@@ -207,18 +240,9 @@ h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px
     flex-wrap: wrap;
 }
 
-.python-banner i {
-    font-size: 22px;
-    color: #FFD343;
-}
-
+.python-banner i { font-size: 22px; color: #FFD343; }
 .python-banner .fa-discord { color: #5865F2; }
-
-.banner-divider {
-    color: rgba(255,255,255,0.2);
-    font-weight: 300;
-    font-size: 20px;
-}
+.banner-divider { color: rgba(255,255,255,0.2); font-weight: 300; font-size: 20px; }
 
 /* Section Cards */
 .section-card {
@@ -239,14 +263,8 @@ h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px
     gap: 9px;
     margin-bottom: 10px;
 }
-
 .section-header i { font-size: 16px; color: #a1a1aa; }
-
-.section-body {
-    font-size: 14px;
-    color: #a1a1aa;
-    line-height: 1.6;
-}
+.section-body { font-size: 14px; color: #a1a1aa; line-height: 1.6; }
 
 /* Lanyard Cafe Embedded Badge Styles */
 .lanyard-badge {
@@ -270,7 +288,6 @@ h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px
     justify-content: center;
     gap: 8px;
 }
-
 .webring-title i { color: #f0b232; }
 
 .webring-links {
@@ -283,82 +300,31 @@ h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.webring-links a {
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
+.webring-links a { text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.2s ease; }
+.webring-nav { color: #fff; opacity: 0.7; display: flex; align-items: center; gap: 4px; }
+.webring-nav:hover { opacity: 1; color: #f0b232; }
 
-.webring-nav {
-    color: #fff;
-    opacity: 0.7;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.webring-nav:hover {
-    opacity: 1;
-    color: #f0b232;
-}
-
-.webring-home {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-}
-
-.webring-img {
-    height: 28px;
-    width: auto;
-    object-fit: contain;
-    display: block;
-    filter: drop-shadow(0 0 4px rgba(240, 178, 50, 0.2));
-    transition: transform 0.2s ease;
-}
-
-.webring-home:hover .webring-img {
-    transform: scale(1.08);
-}
+.webring-home { display: flex; align-items: center; justify-content: center; padding: 2px; border-radius: 8px; transition: all 0.2s ease; }
+.webring-img { height: 28px; width: auto; object-fit: contain; display: block; filter: drop-shadow(0 0 4px rgba(240, 178, 50, 0.2)); transition: transform 0.2s ease; }
+.webring-home:hover .webring-img { transform: scale(1.08); }
 
 /* Projects */
 .projects-list { display: flex; flex-direction: column; gap: 12px; }
-
-.project-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    padding: 12px 14px;
-}
-
-.project-icon {
-    width: 42px; height: 42px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-
+.project-item { display: flex; align-items: center; gap: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 14px; }
+.project-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .fbi-icon { background: rgba(0, 40, 104, 0.3); border: 1px solid rgba(255,215,0,0.3); }
-
 .project-name { font-size: 14px; font-weight: 700; color: #fff; }
 .project-desc { font-size: 12px; color: #71717a; margin-top: 2px; }
 
 /* Clock Badge */
 .time-container {
-    background: rgba(255, 255, 255, 0.05); padding: 8px 20px;
-    border-radius: 30px; display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255, 255, 255, 0.05); padding: 8px 20px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px;
     font-size: 14px; margin-bottom: 25px; color: #a1a1aa; border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Spotify Live Widget */
 .spotify-widget {
-    display: flex; align-items: center; gap: 15px; background: rgba(30, 215, 96, 0.1);
-    padding: 15px; border-radius: 16px; margin-bottom: 25px;
+    display: flex; align-items: center; gap: 15px; background: rgba(30, 215, 96, 0.1); padding: 15px; border-radius: 16px; margin-bottom: 25px;
     border: 1px solid rgba(30, 215, 96, 0.2); text-align: left;
 }
 .spot-art { width: 50px; height: 50px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
@@ -370,8 +336,7 @@ h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px
 /* Local Music Player */
 .music-player {
     display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 35px;
-    background: rgba(255, 255, 255, 0.05); padding: 15px 25px; border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.05); padding: 15px 25px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05);
 }
 .music-icon { color: #a1a1aa; font-size: 20px; }
 .ctrl-btn {
@@ -379,7 +344,6 @@ h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px
     cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: 0.2s;
 }
 .ctrl-btn:hover { background: #e0e0e0; transform: scale(1.05); }
-
 .volume-control { display: flex; align-items: center; gap: 8px; }
 .volume-label { font-size: 12px; color: #a1a1aa; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
 .volume-label i { font-size: 14px; }
