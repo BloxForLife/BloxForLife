@@ -24,31 +24,49 @@
         </div>
     </div>
 
+    <div id="chaos-red-tint"></div>
+
+    <div id="chaos-hud">
+        <div class="hud-main-title">PROTECT THE SITE</div>
+        <div class="hud-sub-metrics">
+            <div class="hud-timer-box">TIME LEFT: <span id="chaos-timer">02:00</span></div>
+            <div class="health-bar-container">
+                <div class="health-bar-label">SYSTEM INTEGRITY</div>
+                <div class="health-bar-track">
+                    <div id="health-bar-fill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="qte-indicator-box"></div>
+
     <div class="bg-grid"></div>
 
     <div class="container">
-        <div class="profile-card">
+        <div class="profile-card" id="target-card">
             
-            <div class="pfp-wrapper animate-pop">
+            <div class="pfp-wrapper animate-pop chaos-target" id="target-pfp">
                 <div class="pfp-container">
                     <img src="blox.jpg" alt="Profile" class="avatar" id="discord-pfp">
                 </div>
                 <div class="status-dot" id="discord-status"></div>
+                <div id="pfp-defense-wall"><i class="fa-solid fa-shield-halved"></i> WALL</div>
             </div>
             
-            <h1 class="animate-up delay-1">BloxForLife</h1>
+            <h1 class="animate-up delay-1 chaos-target" id="target-title">BloxForLife</h1>
             
             <div class="custom-status animate-up delay-2" id="custom-status-badge" style="display: none;">
                 <span id="custom-status-emoji"></span>
                 <span id="custom-status-text">Thinking...</span>
             </div>
             
-            <div class="bio animate-up delay-3">
+            <div class="bio animate-up delay-3 chaos-target" id="target-bio">
                 <p>Discord Bot Developer</p>
                 <p class="donate-text">Donate me some money to get me the Technic Red Bull F1 Lego set!!!</p>
             </div>
 
-            <div class="python-banner animate-up delay-3">
+            <div class="python-banner animate-up delay-3 chaos-target" id="target-banner">
                 <i class="fa-brands fa-python"></i>
                 <span>Python Developer</span>
                 <span class="banner-divider">|</span>
@@ -56,12 +74,12 @@
                 <span>Discord Bot Dev</span>
             </div>
 
-            <div class="section-card animate-up delay-3">
+            <div class="section-card animate-up delay-3 chaos-target" id="target-about">
                 <div class="section-header"><i class="fa-solid fa-user"></i> About Me</div>
                 <p class="section-body">Hey! I'm BloxForLife, 14 years old. I'm a Discord bot developer and Python bot developer. Currently working some gigs to save up for the Technic Red Bull F1 Lego set, any donations are appreciated!!!</p>
             </div>
 
-            <div class="section-card animate-up delay-4">
+            <div class="section-card animate-up delay-4 chaos-target" id="target-projects">
                 <div class="section-header"><i class="fa-solid fa-code-branch"></i> Projects</div>
                 <div class="projects-list">
                     <a href="fbi.html" class="project-item" style="text-decoration: none; color: inherit;">
@@ -80,7 +98,7 @@
                 <i class="fa-regular fa-clock"></i> <span id="local-time">Loading time...</span> (EEST)
             </div>
 
-            <div class="spotify-widget animate-up delay-4" id="spotify-widget" style="display: none;">
+            <div class="spotify-widget animate-up delay-4 chaos-target" id="spotify-widget" style="display: none;">
                 <img id="spot-art" src="" alt="Album Art" class="spot-art">
                 <div class="spot-info">
                     <div class="spot-title" id="spot-title">Song Name</div>
@@ -92,6 +110,7 @@
             <div class="music-player animate-up delay-5">
                 <i class="fa-solid fa-music music-icon"></i>
                 <audio id="bg-music" src="lyin2me.mp3" loop></audio>
+                <audio id="chaos-music" src="creation-of-hatred.mp3"></audio>
                 <button id="play-btn" class="ctrl-btn"><i class="fa-solid fa-play"></i> Play</button>
                 <div class="volume-control">
                     <span class="volume-label"><i class="fa-solid fa-volume-low"></i> Vol</span>
@@ -99,7 +118,7 @@
                 </div>
             </div>
 
-            <div class="section-card lanyard-badge animate-up delay-5">
+            <div class="section-card lanyard-badge animate-up delay-5 chaos-target" id="target-lanyard">
                 <div class="webring-title">
                     <i class="fa-solid fa-mug-hot"></i> Lanyard Cafe Webring
                 </div>
@@ -113,13 +132,13 @@
             </div>
 
             <div class="links">
-                <a href="https://paypal.me/MichealJames196" target="_blank" class="btn paypal animate-up delay-6"><i class="fa-brands fa-paypal"></i> Donate via PayPal 🏎️</a>
-                <a href="https://discord.com/users/1075335630353080340" target="_blank" class="btn discord animate-up delay-6"><i class="fa-brands fa-discord"></i> Discord</a>
-                <a href="https://www.roblox.com/users/4548670369/profile" target="_blank" class="btn roblox animate-up delay-7">
+                <a href="https://paypal.me/MichealJames196" target="_blank" class="btn paypal animate-up delay-6 chaos-target" id="target-link1"><i class="fa-brands fa-paypal"></i> Donate via PayPal 🏎️</a>
+                <a href="https://discord.com/users/1075335630353080340" target="_blank" class="btn discord animate-up delay-6 chaos-target" id="target-link2"><i class="fa-brands fa-discord"></i> Discord</a>
+                <a href="https://www.roblox.com/users/4548670369/profile" target="_blank" class="btn roblox animate-up delay-7 chaos-target" id="target-link3">
                     <img src="https://git.gay/doughmination/c.stupid.cat/raw/branch/main/assets/socials/roblox.svg" alt="Roblox" style="width: 20px; height: 20px;"> Roblox
                 </a>
-                <a href="https://github.com/BloxForLife" target="_blank" class="btn github animate-up delay-8"><i class="fa-brands fa-github"></i> GitHub</a>
-                <a href="https://docs.google.com/document/d/11pyDSeXnB-HiSzZjVJNPtorc352CkmRGuYWCB3ZZ16c/edit?usp=sharing" target="_blank" class="btn roleplay animate-up delay-9"><i class="fa-solid fa-book-open"></i> My Roleplay Experience</a>
+                <a href="https://github.com/BloxForLife" target="_blank" class="btn github animate-up delay-8 chaos-target" id="target-link4"><i class="fa-brands fa-github"></i> GitHub</a>
+                <a href="https://docs.google.com/document/d/11pyDSeXnB-HiSzZjVJNPtorc352CkmRGuYWCB3ZZ16c/edit?usp=sharing" target="_blank" class="btn roleplay animate-up delay-9 chaos-target" id="target-experience"><i class="fa-solid fa-book-open"></i> My Roleplay Experience</a>
             </div>
         </div>
     </div>
@@ -127,28 +146,28 @@
     <script>
         const discordId = '1075335630353080340';
 
-        // --- CONSOLE LOADING ENGINE WITH EXTRA YAPPING ---
+        // --- CONSOLE LOADING ENGINE (#1 IMPLEMENTATION) ---
         const consoleLines = [
-            { text: "⚡ Initializing BloxForLife kernel architecture...", delay: 400 },
-            { text: "⚙️ Loading local environments, variables, and bash assets...", delay: 350 },
-            { text: "📡 Establishing secure handshake with api.lanyard.rest...", delay: 650 },
-            { text: "🟩 Lanyard WebSocket connection: SUCCESS", delay: 400 },
-            { text: "📦 Fetching user asset packages: discordId (1075335630353080340)...", delay: 800 },
-            { text: "📂 Mapping asset endpoints, caching global DOM trees...", delay: 300 },
-            { text: "🛠️ Compiling Python development modules and asyncio drivers...", delay: 600 },
-            { text: "🔧 Syncing pip wheels, upgrading dynamic discord.py dependencies...", delay: 450 },
-            { text: "⚠️ yes half of this was made by AI (maybe more)", delay: 950, secret: true },
-            { text: "🤫 ignore the line above", delay: 500, secondarySecret: true },
-            { text: "⛓️ Resolving asynchronous framework threads and loops...", delay: 400 },
-            { text: "🛸 Testing sub-process connection relays to backend shards...", delay: 350 },
-            { text: "🏎️ Allocating processing memory for Lego Red Bull F1 Set fund...", delay: 700 },
-            { text: "📊 Reading real-time wallet tracking and integration tables...", delay: 300 },
-            { text: "☕ Pinging Lanyard Cafe Webring infrastructure routes...", delay: 750 },
-            { text: "🕸️ Webring query complete: fetched nav pointers securely.", delay: 400 },
-            { text: "🎵 Audio framework integrated: lyin2me.mp3 staged.", delay: 450 },
-            { text: "🌀 Checking local client hardware acceleration pipelines...", delay: 350 },
-            { text: "🎨 Building glassmorphism styles, CSS properties, and fonts...", delay: 300 },
-            { text: "✨ System operational. Awaiting user clearance entry patch...", delay: 500 }
+            { text: "⚡ Initializing BloxForLife kernel architecture...", delay: 350 },
+            { text: "⚙️ Loading local environments, variables, and bash assets...", delay: 300 },
+            { text: "📡 Establishing secure handshake with api.lanyard.rest...", delay: 400 },
+            { text: "🟩 Lanyard WebSocket connection: SUCCESS", delay: 200 },
+            { text: "📦 Fetching user asset packages: discordId (1075335630353080340)...", delay: 400 },
+            { text: "📂 Mapping asset endpoints, caching global DOM trees...", delay: 200 },
+            { text: "🛠️ Compiling Python development modules and asyncio drivers...", delay: 400 },
+            { text: "🔧 Syncing pip wheels, upgrading dynamic discord.py dependencies...", delay: 300 },
+            { text: "⚠️ yes half of this was made by AI (maybe more)", delay: 500, secret: true },
+            { text: "🤫 ignore the line above", delay: 300, secondarySecret: true },
+            { text: "⛓️ Resolving asynchronous framework threads and loops...", delay: 250 },
+            { text: "🛸 Testing sub-process connection relays to backend shards...", delay: 200 },
+            { text: "🏎️ Allocating processing memory for Lego Red Bull F1 Set fund...", delay: 400 },
+            { text: "📊 Reading real-time wallet tracking and integration tables...", delay: 200 },
+            { text: "☕ Pinging Lanyard Cafe Webring infrastructure routes...", delay: 400 },
+            { text: "🕸️ Webring query complete: fetched nav pointers securely.", delay: 200 },
+            { text: "🎵 Audio framework integrated: lyin2me.mp3 staged.", delay: 300 },
+            { text: "🌀 Checking local client hardware acceleration pipelines...", delay: 200 },
+            { text: "🎨 Building glassmorphism styles, CSS properties, and fonts...", delay: 200 },
+            { text: "🚨 DONT TYPE CHAOS", delay: 600, chaosWarn: true }
         ];
 
         const logContainer = document.getElementById("console-log");
@@ -166,6 +185,9 @@
                 } else if (item.secondarySecret) {
                     p.className = "console-line sub-secret-line";
                     p.innerHTML = `<span class="prompt">!</span> ${item.text}`;
+                } else if (item.chaosWarn) {
+                    p.className = "console-line danger-warn-line";
+                    p.innerHTML = `<span class="prompt">[CRITICAL]</span> ${item.text}`;
                 } else {
                     p.className = "console-line";
                     p.innerHTML = `<span class="prompt">></span> ${item.text}`;
@@ -184,25 +206,516 @@
         }
         window.addEventListener("DOMContentLoaded", printLogLine);
 
-        // --- INTERACTIVE SCREEN UNLOCK SYSTEM ---
+        // --- SYSTEM COOLDOWNS & STATE ENGINE ---
         const music = document.getElementById('bg-music');
+        const chaosMusic = document.getElementById('chaos-music');
         const playBtn = document.getElementById('play-btn');
         let hasAutoplayed = false;
+        let gameActive = false;
+        let systemHealth = 100;
+        let gameTimer = 120; // 2 Minutes
+        let activeQTEKey = null;
+        let qteSuccessCallback = null;
+        let qteFailureCallback = null;
+        let qteTimeoutRef = null;
+        let songTimeouts = [];
 
+        // Unlock overlay click handler
         document.getElementById("console-loader").addEventListener("click", () => {
             if (!setupFinished) return;
-            
-            if (!hasAutoplayed && music.paused) {
+            triggerSiteEntrance();
+        });
+
+        function triggerSiteEntrance() {
+            if (!hasAutoplayed && music.paused && !gameActive) {
                 music.play().then(() => {
                     playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
                     hasAutoplayed = true;
                 }).catch(() => {});
             }
-
             const loader = document.getElementById("console-loader");
             loader.classList.add("fade-out");
             setTimeout(() => loader.style.display = "none", 500);
+        }
+
+        // --- KEYBOARD CAPTURE BUFFER ---
+        let inputBuffer = "";
+        window.addEventListener("keydown", (e) => {
+            // Process game QTE inputs primarily if active
+            if (gameActive && activeQTEKey) {
+                if (e.key.toLowerCase() === activeQTEKey.toLowerCase()) {
+                    clearTimeout(qteTimeoutRef);
+                    hideQTEPrompt();
+                    if (qteSuccessCallback) qteSuccessCallback();
+                }
+                return;
+            }
+
+            // Normal buffer scanning for 'chaos' text trigger
+            inputBuffer += e.key.toLowerCase();
+            if (inputBuffer.endsWith("chaos")) {
+                inputBuffer = "";
+                if (!gameActive) {
+                    // Step out of loader if user hasn't clicked but typed chaos
+                    document.getElementById("console-loader").style.display = "none";
+                    initializeChaosSequence();
+                }
+            }
+            if (inputBuffer.length > 20) inputBuffer = inputBuffer.substring(1);
         });
+
+        // --- DAMAGE MANAGEMENT ---
+        function applySystemDamage() {
+            if (!gameActive) return;
+            systemHealth -= 20;
+            if (systemHealth < 0) systemHealth = 0;
+            document.getElementById("health-bar-fill").style.width = systemHealth + "%";
+            
+            // Screen Flash Impact
+            document.body.classList.add("heavy-impact");
+            setTimeout(() => document.body.classList.remove("heavy-impact"), 300);
+
+            if (systemHealth <= 0) {
+                endChaosMatch(false);
+            }
+        }
+
+        // --- QTE INTERFACE UI REFACTOR ---
+        function displayQTEPrompt(targetElement, key) {
+            activeQTEKey = key;
+            const box = document.getElementById("qte-indicator-box");
+            const rect = targetElement.getBoundingClientRect();
+
+            box.innerText = key.toUpperCase();
+            box.style.top = (rect.top + window.scrollY + (rect.height / 2) - 30) + "px";
+            box.style.left = (rect.left + window.scrollX + (rect.width / 2) - 30) + "px";
+            box.classList.add("active");
+        }
+
+        function hideQTEPrompt() {
+            activeQTEKey = null;
+            document.getElementById("qte-indicator-box").classList.remove("active");
+        }
+
+        // --- TARGET SELECTION FOR OFF-TIMING IMPACTS ---
+        function getRandObject() {
+            const pools = [
+                document.getElementById("target-title"),
+                document.getElementById("target-bio"),
+                document.getElementById("target-banner"),
+                document.getElementById("target-about"),
+                document.getElementById("target-projects"),
+                document.getElementById("target-lanyard"),
+                document.getElementById("target-link1"),
+                document.getElementById("target-link2"),
+                document.getElementById("target-link3"),
+                document.getElementById("target-link4")
+            ];
+            return pools[Math.floor(Math.random() * pools.length)];
+        }
+
+        // ==========================================================================
+        // 🎬 THE TIMED ELEMENT KINETIC SCRIPT ENGINE (#2 - #5 IMPLEMENTATIONS)
+        // ==========================================================================
+        function initializeChaosSequence() {
+            gameActive = true;
+            systemHealth = 100;
+            gameTimer = 120;
+            document.getElementById("health-bar-fill").style.width = "100%";
+            
+            // Pause standard musical playback context
+            music.pause();
+            playBtn.disabled = true;
+
+            // #2 STAGE: Fast Visual Plane Intercept (2 Seconds)
+            const jet = document.createElement("div");
+            jet.id = "cinema-fiery-plane";
+            jet.innerHTML = `<i class="fa-solid fa-plane-slashed"></i><span class="fire-tail">🔥</span>`;
+            document.body.appendChild(jet);
+
+            setTimeout(() => {
+                jet.remove();
+                // Play Creation of Hatred Loop
+                chaosMusic.currentTime = 0;
+                chaosMusic.play().catch(() => {});
+                
+                // Active HUD visibility toggles & Environmental loops
+                document.getElementById("chaos-hud").classList.add("active");
+                document.getElementById("chaos-red-tint").classList.add("active");
+                document.body.classList.add("shake-screen");
+
+                // Launch clock countdown wrapper
+                startChaosClock();
+            }, 2000);
+
+            // SCHEDULE CINEMATIC TIMESTAMPS
+            setStageTimeout(8, stage_At08s);
+            setStageTimeout(10, stage_At10s);
+            setStageTimeout(16, stage_At16s);
+            setStageTimeout(23, stage_At23s);
+            setStageTimeout(30, stage_At30s);
+            setStageTimeout(37, stage_At37s);
+            setStageTimeout(45, stage_At45s);
+            setStageTimeout(52, stage_At52s);
+            setStageTimeout(58, stage_At58s);
+            setStageTimeout(65, stage_At65s);
+            setStageTimeout(72, stage_At72s); // Rifle sequence starts
+        }
+
+        function setStageTimeout(seconds, callback) {
+            // Offset logic to sync up with music activation timeline delay
+            const ref = setTimeout(callback, (seconds * 1000) + 2000);
+            songTimeouts.push(ref);
+        }
+
+        function startChaosClock() {
+            const clockRef = setInterval(() => {
+                if (!gameActive) { clearInterval(clockRef); return; }
+                gameTimer--;
+                if (gameTimer <= 0) {
+                    gameTimer = 0;
+                    clearInterval(clockRef);
+                    endChaosMatch(true);
+                }
+                const m = Math.floor(gameTimer / 60).toString().padStart(2, '0');
+                const s = (gameTimer % 60).toString().padStart(2, '0');
+                document.getElementById("chaos-timer").innerText = `${m}:${s}`;
+            }, 1000);
+        }
+
+        // --- STAGE DEFINITIONS ---
+
+        // #3 & #4 STAGE: 0:08 - F1 Crash on Roleplay Block (Unpreventable Cinematic Event)
+        function stage_At08s() {
+            const target = document.getElementById("target-experience");
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            const car = document.createElement("div");
+            car.className = "projectile-element absolute-f1-redbull";
+            car.innerHTML = `<i class="fa-solid fa-car-side"></i><span>🏎️ RedBull</span>`;
+            document.body.appendChild(car);
+
+            // Animate crash vector over 2 seconds
+            const rect = target.getBoundingClientRect();
+            car.style.left = "-200px";
+            car.style.top = (rect.top + window.scrollY) + "px";
+
+            setTimeout(() => {
+                car.style.left = (rect.left + 50) + "px";
+                car.style.transform = "rotate(15deg) scale(1.2)";
+            }, 50);
+
+            setTimeout(() => {
+                car.remove();
+                target.classList.add("broken");
+                target.style.transform = "translate(-20px, 15px) rotate(-8deg)";
+                applySystemDamage(); // Deals unpreventable structural drop
+            }, 2000);
+        }
+
+        // #5 STAGE: 0:10 - Sword Flies into PFP (Auto Saved by Shield Wall)
+        function stage_At10s() {
+            const pfp = document.getElementById("target-pfp");
+            pfp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            const sword = document.createElement("div");
+            sword.className = "projectile-element moving-sword";
+            sword.innerHTML = `<i class="fa-solid fa-gavel"></i>`; // Sword representation
+            document.body.appendChild(sword);
+
+            const pfpRect = pfp.getBoundingClientRect();
+            sword.style.left = window.innerWidth + "px";
+            sword.style.top = (pfpRect.top + window.scrollY) + "px";
+
+            setTimeout(() => {
+                sword.style.left = (pfpRect.right + 40) + "px";
+            }, 50);
+
+            // Trigger wall visualization right before hitting
+            setTimeout(() => {
+                const wall = document.getElementById("pfp-defense-wall");
+                wall.classList.add("active");
+                
+                setTimeout(() => {
+                    sword.remove();
+                    wall.classList.remove("active");
+                    
+                    // Update profile status string dynamically
+                    const statusText = document.getElementById("custom-status-text");
+                    const statusBadge = document.getElementById("custom-status-badge");
+                    statusText.innerText = "Woah, close one";
+                    statusBadge.style.display = "inline-flex";
+                }, 400);
+            }, 1600);
+        }
+
+        // 0:16 - Python Asset Attack (Requires W input to deploy bouncing slime)
+        function stage_At16s() {
+            executeQTESequence('w', 'fa-brands fa-python', '#ffd343', 'slime');
+        }
+
+        // 0:23 - Aston Martin F1 Attack (Requires S input to trigger Uno Reverse)
+        function stage_At23s() {
+            executeQTESequence('s', 'fa-solid fa-car-side', '#006643', 'uno');
+        }
+
+        // 0:30 - JS Script Falling Attack (Requires D input for Slime bounce)
+        function stage_At30s() {
+            executeQTESequence('d', 'fa-brands fa-js', '#f7df1e', 'slime');
+        }
+
+        // 0:37 - CSS Script Attack (Requires A input for Slime bounce)
+        function stage_At37s() {
+            executeQTESequence('a', 'fa-brands fa-css3-alt', '#264de4', 'slime');
+        }
+
+        // 0:45 - Bagel Throw (Requires S input for Sword Slice)
+        function stage_At45s() {
+            executeQTESequence('s', 'fa-solid fa-circle-dot', '#e3c194', 'slice');
+        }
+
+        // 0:52 - Orange Drop (Requires A input for Sword Slice)
+        function stage_At52s() {
+            executeQTESequence('a', 'fa-solid fa-solid fa-lemon', '#ff9900', 'slice');
+        }
+
+        // 0:58 - Gotham Chess Drop (Passes safely without structural collision impact)
+        function stage_At58s() {
+            const target = getRandObject();
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            const gotham = document.createElement("div");
+            gotham.className = "projectile-element gotham-drop";
+            gotham.innerHTML = `<i class="fa-solid fa-chess-knight"></i><span style="font-size:10px;display:block;">GOTHAM</span>`;
+            document.body.appendChild(gotham);
+
+            gotham.style.left = (window.innerWidth / 2 - 25) + "px";
+            gotham.style.top = "-100px";
+
+            setTimeout(() => {
+                gotham.style.top = (window.innerHeight + 100) + "px";
+                gotham.style.transform = "rotate(720deg)";
+            }, 50);
+
+            setTimeout(() => gotham.remove(), 2100);
+        }
+
+        // 1:05 - Chess Queen Drop (Requires W input for Slice)
+        function stage_At65s() {
+            executeQTESequence('w', 'fa-solid fa-chess-queen', '#ffffff', 'slice');
+        }
+
+        // 1:12 to 1:28 - Gatling/Rifle Deflection Sequence
+        function stage_At72s() {
+            const target = getRandObject();
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Spawn Static Rifle Weapon Layer
+            const rifle = document.createElement("div");
+            rifle.id = "cinema-rifle-weapon";
+            rifle.innerHTML = `<i class="fa-solid fa-gun"></i>`;
+            document.body.appendChild(rifle);
+            
+            let fireCount = 0;
+            const maxFires = 8; // Once every 2 seconds over a 16-second threshold window
+
+            function fireRifleBullet() {
+                if (!gameActive || fireCount >= maxFires) {
+                    rifle.remove();
+                    return;
+                }
+                
+                const keys = ['w', 'a', 's', 'd'];
+                const selectedKey = keys[Math.floor(Math.random() * keys.length)];
+                
+                // Flash weapon indicator barrel
+                rifle.classList.add("muzzle-flash");
+                setTimeout(() => rifle.classList.remove("muzzle-flash"), 150);
+
+                // Spawn Linear Bullet Streak Asset
+                const bullet = document.createElement("div");
+                bullet.className = "bullet-streak-line";
+                document.body.appendChild(bullet);
+
+                const rRect = rifle.getBoundingClientRect();
+                const tRect = target.getBoundingClientRect();
+
+                bullet.style.left = rRect.left + "px";
+                bullet.style.top = rRect.top + "px";
+
+                // Map vector position to target block element
+                setTimeout(() => {
+                    bullet.style.left = (tRect.left + tRect.width / 2) + "px";
+                    bullet.style.top = (tRect.top + tRect.height / 2) + "px";
+                }, 50);
+
+                // Display instantaneous QTE window parameters
+                displayQTEPrompt(target, selectedKey);
+                
+                let resolved = false;
+                const QTE_Duration = 1200; // Fast pacing bullet frame allowance
+
+                const localTimeout = setTimeout(() => {
+                    hideQTEPrompt();
+                    if (!resolved) {
+                        bullet.remove();
+                        target.classList.add("broken");
+                        target.style.transform = `translate(${Math.random()*40-20}px, 15px) rotate(${Math.random()*20-10}deg)`;
+                        applySystemDamage();
+                    }
+                }, QTE_Duration);
+
+                activeQTEKey = selectedKey;
+                qteSuccessCallback = () => {
+                    resolved = true;
+                    clearTimeout(localTimeout);
+                    bullet.remove();
+                    
+                    // Render particle burst or katana streak decoration effect
+                    const spark = document.createElement("div");
+                    spark.className = "katana-deflect-spark";
+                    spark.innerHTML = `⚔️`;
+                    spark.style.left = tRect.left + "px";
+                    spark.style.top = tRect.top + "px";
+                    document.body.appendChild(spark);
+                    setTimeout(() => spark.remove(), 400);
+                };
+
+                fireCount++;
+                setTimeout(fireRifleBullet, 2000);
+            }
+
+            fireRifleBullet();
+        }
+
+        // --- MASTER FUNCTION FOR PROCEDURAL QUICK-TIME EVENTS ---
+        function executeQTESequence(key, iconClass, colorHex, defenseType) {
+            if (!gameActive) return;
+            
+            const target = getRandObject();
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Instantiation of the dropping threats
+            const obj = document.createElement("div");
+            obj.className = "projectile-element generic-faller";
+            obj.innerHTML = `<i class="${iconClass}"></i>`;
+            obj.style.color = colorHex;
+            document.body.appendChild(obj);
+
+            const tRect = target.getBoundingClientRect();
+            obj.style.left = (tRect.left + (tRect.width / 2) - 20) + "px";
+            obj.style.top = "-60px";
+
+            // Kick off standard descent transitions over a strict 2-second flight model
+            setTimeout(() => {
+                obj.style.top = (tRect.top + window.scrollY - 80) + "px";
+            }, 50);
+
+            // Open operational key inputs window 1 second before scheduled impact point
+            setTimeout(() => {
+                if (!gameActive) return;
+                displayQTEPrompt(target, key);
+                
+                qteTimeoutRef = setTimeout(() => {
+                    // Fail state execution path
+                    hideQTEPrompt();
+                    obj.style.top = (tRect.top + window.scrollY) + "px";
+                    setTimeout(() => {
+                        obj.remove();
+                        target.classList.add("broken");
+                        target.style.transform = `translate(${Math.random()*40-20}px, 15px) rotate(${Math.random()*20-10}deg)`;
+                        applySystemDamage();
+                    }, 200);
+                }, 1000); // 1 Second limit to click core button
+
+                qteSuccessCallback = () => {
+                    hideQTEPrompt();
+                    
+                    if (defenseType === 'slime') {
+                        // Deploy bouncy green shield layer
+                        const slime = document.createElement("div");
+                        slime.className = "defense-shield-overlay slime-block";
+                        slime.innerText = "🟩 SLIME";
+                        target.appendChild(slime);
+
+                        obj.style.transition = "all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+                        obj.style.top = "-300px";
+                        obj.style.transform = "scale(0.2)";
+                        
+                        setTimeout(() => { slime.remove(); obj.remove(); }, 600);
+
+                    } else if (defenseType === 'uno') {
+                        // Uno Reverse redirection flip logic
+                        const uno = document.createElement("div");
+                        uno.className = "defense-shield-overlay uno-card";
+                        uno.innerText = "🟥 REVERSE";
+                        target.appendChild(uno);
+
+                        obj.style.transition = "all 0.8s ease-in";
+                        obj.style.top = "-200px";
+                        obj.style.left = window.innerWidth + "px";
+                        
+                        setTimeout(() => { uno.remove(); obj.remove(); }, 800);
+
+                    } else if (defenseType === 'slice') {
+                        // Visual slice breakdown tracking layers
+                        obj.innerHTML = `<div style="display:inline-block; transform:translateX(-10px) rotate(-20deg)"><i class="${iconClass}"></i></div>
+                                         <div style="display:inline-block; transform:translateX(10px) rotate(20deg)"><i class="${iconClass}"></i></div>`;
+                        obj.style.transition = "all 0.5s ease-out";
+                        obj.style.opacity = "0";
+                        obj.style.top = (tRect.top + window.scrollY + 40) + "px";
+                        
+                        setTimeout(() => obj.remove(), 500);
+                    }
+                };
+            }, 1000);
+        }
+
+        // --- END OF COMBAT STATE MATRIX HANDLING ---
+        function endChaosMatch(isVictory) {
+            gameActive = false;
+            hideQTEPrompt();
+            clearTimeout(qteTimeoutRef);
+            songTimeouts.forEach(t => clearTimeout(t));
+            songTimeouts = [];
+
+            // Remove environmental objects safely
+            document.querySelectorAll(".projectile-element").forEach(p => p.remove());
+            document.querySelectorAll(".bullet-streak-line").forEach(b => b.remove());
+            const rifle = document.getElementById("cinema-rifle-weapon");
+            if (rifle) rifle.remove();
+
+            document.getElementById("chaos-hud").classList.remove("active");
+            document.getElementById("chaos-red-tint").classList.remove("active");
+            document.body.classList.remove("shake-screen");
+            chaosMusic.pause();
+
+            if (isVictory) {
+                // Victory Screen Transition State
+                const winBanner = document.createElement("div");
+                winBanner.id = "victory-screen-overlay";
+                winBanner.innerHTML = `<h1>VICTORY</h1><p>Site Structural Integrity Preserved. Returning home in 1 minute...</p>`;
+                document.body.appendChild(winBanner);
+
+                setTimeout(() => {
+                    winBanner.remove();
+                    revertToStandardProfile();
+                }, 60000); // 1 Minute Return Cooldown
+            } else {
+                alert("SYSTEM DESTROYED. REBOOTING ARCHITECTURE.");
+                revertToStandardProfile();
+            }
+        }
+
+        function revertToStandardProfile() {
+            document.querySelectorAll(".chaos-target").forEach(t => {
+                t.classList.remove("broken");
+                t.style.transform = "";
+            });
+            playBtn.disabled = false;
+            if (hasAutoplayed) music.play().catch(() => {});
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
         // --- LANYARD API (LIVE DATA FETCHER) ---
         function fetchLanyardData() {
@@ -223,28 +736,28 @@
                         const statusColors = { online: '#23a559', idle: '#f0b232', dnd: '#f23f42', offline: '#80848e' };
                         document.getElementById('discord-status').style.backgroundColor = statusColors[lData.discord_status] || statusColors.offline;
 
-                        // 3. Custom Status
-                        const customAct = lData.activities.find(act => act.type === 4);
-                        const customBadge = document.getElementById('custom-status-badge');
-                        const emojiContainer = document.getElementById('custom-status-emoji');
-                        
-                        if (customAct && (customAct.state || customAct.emoji)) {
-                            document.getElementById('custom-status-text').innerText = customAct.state || '';
+                        // 3. Custom Status (Only modify if game mode isn't writing overrides)
+                        if (!gameActive) {
+                            const customAct = lData.activities.find(act => act.type === 4);
+                            const customBadge = document.getElementById('custom-status-badge');
+                            const emojiContainer = document.getElementById('custom-status-emoji');
                             
-                            if (customAct.emoji) {
-                                if (customAct.emoji.id) {
-                                    const ext = customAct.emoji.animated ? 'gif' : 'png';
-                                    emojiContainer.innerHTML = `<img src="https://cdn.discordapp.com/emojis/${customAct.emoji.id}.${ext}" class="status-emoji" alt="emoji">`;
+                            if (customAct && (customAct.state || customAct.emoji)) {
+                                document.getElementById('custom-status-text').innerText = customAct.state || '';
+                                if (customAct.emoji) {
+                                    if (customAct.emoji.id) {
+                                        const ext = customAct.emoji.animated ? 'gif' : 'png';
+                                        emojiContainer.innerHTML = `<img src="https://cdn.discordapp.com/emojis/${customAct.emoji.id}.${ext}" class="status-emoji" alt="emoji">`;
+                                    } else {
+                                        emojiContainer.innerText = customAct.emoji.name;
+                                    }
                                 } else {
-                                    emojiContainer.innerText = customAct.emoji.name;
+                                    emojiContainer.innerHTML = ''; 
                                 }
+                                customBadge.style.display = 'inline-flex';
                             } else {
-                                emojiContainer.innerHTML = ''; 
+                                customBadge.style.display = 'none';
                             }
-                            
-                            customBadge.style.display = 'inline-flex';
-                        } else {
-                            customBadge.style.display = 'none';
                         }
 
                         // 4. Spotify Widget
@@ -296,10 +809,11 @@
         // --- GENERAL PROFILE BODY MUSIC CONTROL LOGIC ---
         const volumeSlider = document.getElementById('volume-slider');
         music.volume = 0.3;
+        chaosMusic.volume = 0.3;
 
         document.addEventListener('click', (e) => {
             if (e.target.closest('#play-btn') || e.target.closest('#volume-slider') || e.target.closest('#console-loader')) return;
-            if (!hasAutoplayed && music.paused) {
+            if (!hasAutoplayed && music.paused && !gameActive) {
                 music.play().then(() => {
                     playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
                     hasAutoplayed = true;
@@ -318,7 +832,10 @@
             }
         });
 
-        volumeSlider.addEventListener('input', (e) => music.volume = e.target.value);
+        volumeSlider.addEventListener('input', (e) => {
+            music.volume = e.target.value;
+            chaosMusic.volume = e.target.value;
+        });
     </script>
 </body>
 </html>
