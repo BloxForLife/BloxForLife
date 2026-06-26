@@ -126,15 +126,16 @@
 
         // --- CONSOLE LOADING ENGINE ---
         const consoleLines = [
-            { text: "⚡ Initializing BloxForLife kernel architecture...", delay: 100 },
-            { text: "📡 Establishing secure handshake with api.lanyard.rest...", delay: 400 },
-            { text: "🟩 Lanyard WebSocket connection: SUCCESS", delay: 200 },
-            { text: "📦 Fetching user asset packages: discordId (1075335630353080340)...", delay: 350 },
-            { text: "🛠️ Compiling Python development modules...", delay: 300 },
-            { text: "🏎️ Allocating processing memory for Lego Red Bull F1 Set fund...", delay: 250 },
-            { text: "☕ Pinging Lanyard Cafe Webring infrastructure...", delay: 400 },
-            { text: "🎵 Audio framework integrated: lyin2me.mp3 staged.", delay: 150 },
-            { text: "✨ System operational. Launching graphical interface...", delay: 300 }
+            { text: "⚡ Initializing BloxForLife kernel architecture...", delay: 400 },
+            { text: "📡 Establishing secure handshake with api.lanyard.rest...", delay: 700 },
+            { text: "🟩 Lanyard WebSocket connection: SUCCESS", delay: 500 },
+            { text: "📦 Fetching user asset packages: discordId (1075335630353080340)...", delay: 800 },
+            { text: "🛠️ Compiling Python development modules...", delay: 600 },
+            { text: "⚠️ yes half of this was made by AI (maybe more)", delay: 950, secret: true },
+            { text: "🏎️ Allocating processing memory for Lego Red Bull F1 Set fund...", delay: 700 },
+            { text: "☕ Pinging Lanyard Cafe Webring infrastructure...", delay: 800 },
+            { text: "🎵 Audio framework integrated: lyin2me.mp3 staged.", delay: 450 },
+            { text: "✨ System operational. Launching graphical interface...", delay: 600 }
         ];
 
         const logContainer = document.getElementById("console-log");
@@ -144,23 +145,28 @@
             if (currentLine < consoleLines.length) {
                 const item = consoleLines[currentLine];
                 const p = document.createElement("p");
-                p.className = "console-line";
-                p.innerHTML = `<span class="prompt">></span> ${item.text}`;
+                
+                // Style your secret easter egg line differently if flagged
+                if (item.secret) {
+                    p.className = "console-line secret-line";
+                    p.innerHTML = `<span class="prompt">?</span> ${item.text}`;
+                } else {
+                    p.className = "console-line";
+                    p.innerHTML = `<span class="prompt">></span> ${item.text}`;
+                }
+                
                 logContainer.appendChild(p);
-                logContainer.scrollTop = logContainer.scrollHeight; // Auto scroll down
+                logContainer.scrollTop = logContainer.scrollHeight;
                 currentLine++;
                 setTimeout(printLogLine, item.delay);
             } else {
-                // Done loading! Smoothly exit console screen after a short beat
                 setTimeout(() => {
                     const loader = document.getElementById("console-loader");
                     loader.classList.add("fade-out");
-                    // Wipe from DOM completely after fade completes
                     setTimeout(() => loader.style.display = "none", 500);
-                }, 600);
+                }, 900); // Gives users an extra beat to scan the finished log
             }
         }
-        // Start console execution immediately on load
         window.addEventListener("DOMContentLoaded", printLogLine);
 
 
