@@ -1,14 +1,3 @@
-/* ==========================================================================
-   1. GLOBAL SYSTEM RESETS & VARIABLE CONFIGURATIONS
-   ========================================================================== */
-:root {
-    --bg-primary: #0a0a0c;
-    --card-bg: rgba(255, 255, 255, 0.03);
-    --card-border: rgba(255, 255, 255, 0.08);
-    --text-main: #f3f4f6;
-    --text-muted: #9ca3af;
-}
-
 * {
     margin: 0;
     padding: 0;
@@ -16,35 +5,8 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-body {
-    background-color: var(--bg-primary);
-    color: var(--text-main);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow-x: hidden;
-    position: relative;
-    padding: 40px 20px;
-}
-
-/* Original Clean Fixed Cyber Grid Overlay */
-.bg-grid {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-    background-size: 30px 30px;
-    z-index: 1;
-    pointer-events: none;
-}
-
 /* ==========================================================================
-   2. CONSOLE LOADING TERMINAL ENGINE
+   1. LOADING TERMINAL
    ========================================================================== */
 #console-loader {
     position: fixed;
@@ -105,7 +67,7 @@ body {
 .console-title {
     font-family: monospace;
     font-size: 13px;
-    color: var(--text-muted);
+    color: #9ca3af;
     margin-left: 6px;
 }
 
@@ -114,14 +76,14 @@ body {
     font-family: 'Courier New', Courier, monospace;
     font-size: 14px;
     color: #38bdf8;
-    line-height: 1.6;
+    line-height: 1.4;
     overflow-y: auto;
     flex-grow: 1;
     scroll-behavior: smooth;
 }
 
 .console-line {
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     white-space: pre-wrap;
     word-break: break-all;
 }
@@ -160,7 +122,7 @@ body {
 }
 
 /* ==========================================================================
-   3. CORE UI CONTAINER & STRUCTURE
+   2. CONTAINER FRAMEWORK
    ========================================================================== */
 .container {
     position: relative;
@@ -170,10 +132,10 @@ body {
 }
 
 .profile-card {
-    background: var(--card-bg);
+    background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--card-border);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 24px;
     padding: 35px 30px;
     text-align: center;
@@ -181,7 +143,7 @@ body {
 }
 
 /* ==========================================================================
-   4. COMPONENT ARCHITECTURES (AVATAR, BIO, BADGES)
+   3. USER IDENTITY & DEV BANNER
    ========================================================================== */
 .pfp-wrapper {
     position: relative;
@@ -250,7 +212,7 @@ h1 {
 }
 
 .bio {
-    color: var(--text-muted);
+    color: #9ca3af;
     font-size: 15px;
     line-height: 1.5;
     margin-bottom: 20px;
@@ -263,15 +225,14 @@ h1 {
     font-weight: 500;
 }
 
-/* Restored Premium Python & Discord Gradient Stack Banner */
 .python-banner {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    background: linear-gradient(90deg, rgba(55, 118, 171, 0.15) 0%, rgba(88, 101, 242, 0.15) 100%);
-    border: 1px solid rgba(125, 211, 252, 0.25);
-    box-shadow: 0 0 15px rgba(55, 118, 171, 0.1);
+    background: linear-gradient(90deg, rgba(55, 118, 171, 0.25) 0%, rgba(88, 101, 242, 0.25) 100%);
+    border: 1px solid rgba(125, 211, 252, 0.4);
+    box-shadow: 0 0 20px rgba(55, 118, 171, 0.2);
     padding: 12px 16px;
     border-radius: 12px;
     font-size: 14px;
@@ -289,13 +250,13 @@ h1 {
 }
 
 .banner-divider {
-    color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.3);
     font-weight: 300;
     margin: 0 4px;
 }
 
 /* ==========================================================================
-   5. PROFILE LAYOUT CARDS (ABOUT, PROJECTS, WIDGETS)
+   4. LAYOUT CARDS
    ========================================================================== */
 .section-card {
     background: rgba(255, 255, 255, 0.02);
@@ -311,7 +272,7 @@ h1 {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--text-muted);
+    color: #9ca3af;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
@@ -368,18 +329,18 @@ h1 {
 .project-name {
     font-size: 14px;
     font-weight: 600;
-    color: var(--text-main);
+    color: #f3f4f6;
     margin-bottom: 2px;
 }
 
 .project-desc {
     font-size: 12px;
-    color: var(--text-muted);
+    color: #9ca3af;
 }
 
 .time-container {
     font-size: 13px;
-    color: var(--text-muted);
+    color: #9ca3af;
     margin: 20px 0;
     display: flex;
     align-items: center;
@@ -442,16 +403,16 @@ h1 {
 }
 
 /* ==========================================================================
-   6. RESTORED & ALIGNED MUSIC PLAYER ROW
+   5. GRID MUSIC PLAYER
    ========================================================================== */
 .music-player {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 16px;
     padding: 12px 18px;
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    justify-content: space-between;
     gap: 14px;
     margin-bottom: 20px;
     width: 100%;
@@ -459,7 +420,7 @@ h1 {
 
 .music-icon {
     font-size: 14px;
-    color: var(--text-muted);
+    color: #9ca3af;
     display: inline-flex;
     align-items: center;
 }
@@ -467,7 +428,7 @@ h1 {
 .ctrl-btn {
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text-main);
+    color: #f3f4f6;
     padding: 8px 16px;
     border-radius: 8px;
     font-size: 13px;
@@ -478,6 +439,7 @@ h1 {
     gap: 6px;
     transition: background 0.2s, border-color 0.2s;
     user-select: none;
+    justify-self: start;
 }
 
 .ctrl-btn:hover {
@@ -489,11 +451,12 @@ h1 {
     display: flex;
     align-items: center;
     gap: 8px;
+    justify-self: end;
 }
 
 .volume-label {
     font-size: 11px;
-    color: var(--text-muted);
+    color: #9ca3af;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -519,7 +482,7 @@ h1 {
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: var(--text-main);
+    background: #f3f4f6;
     transition: transform 0.1s ease;
 }
 
@@ -532,7 +495,7 @@ h1 {
     height: 12px;
     border: none;
     border-radius: 50%;
-    background: var(--text-main);
+    background: #f3f4f6;
     transition: transform 0.1s ease;
 }
 
@@ -541,7 +504,7 @@ h1 {
 }
 
 /* ==========================================================================
-   7. CLEAN LANYARD WEBRING PLACEMENT (CENTERED BLOCK)
+   6. WEBRING
    ========================================================================== */
 .lanyard-badge {
     text-align: center !important;
@@ -552,7 +515,7 @@ h1 {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--text-muted);
+    color: #9ca3af;
     margin-bottom: 12px;
     display: flex;
     align-items: center;
@@ -568,7 +531,7 @@ h1 {
 }
 
 .webring-nav {
-    color: var(--text-main);
+    color: #f3f4f6;
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
@@ -602,7 +565,7 @@ h1 {
 }
 
 /* ==========================================================================
-   8. HYPERLINK BUTTON DIRECTORIES
+   7. LINKS DIRECTORIES
    ========================================================================== */
 .links {
     display: flex;
@@ -682,7 +645,7 @@ h1 {
 }
 
 /* ==========================================================================
-   9. STAGGERED KEYFRAME ANIMATION DISPATCHERS
+   8. INTERPOLATION KEYFRAMES
    ========================================================================== */
 .animate-pop {
     animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
