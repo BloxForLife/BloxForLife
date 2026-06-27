@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. GLOBAL CORE ARCHITECTURE & SYSTEM BACKGROUND
+   1. GLOBAL SYSTEM RESETS & VARIABLE CONFIGURATIONS
    ========================================================================== */
 :root {
     --bg-primary: #0a0a0c;
@@ -28,7 +28,7 @@ body {
     padding: 40px 20px;
 }
 
-/* Original Fixed Cyber Grid and Ambient Glow Overlay */
+/* Original Clean Fixed Cyber Grid Overlay */
 .bg-grid {
     position: fixed;
     top: 0;
@@ -43,21 +43,8 @@ body {
     pointer-events: none;
 }
 
-body::before {
-    content: "";
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
-    z-index: 1;
-    pointer-events: none;
-}
-
 /* ==========================================================================
-   2. ORIGINAL SYSTEM BOOT CONSOLE SCREEN
+   2. CONSOLE LOADING TERMINAL ENGINE
    ========================================================================== */
 #console-loader {
     position: fixed;
@@ -173,7 +160,7 @@ body::before {
 }
 
 /* ==========================================================================
-   3. CORE CARD FRAMEWORK
+   3. CORE UI CONTAINER & STRUCTURE
    ========================================================================== */
 .container {
     position: relative;
@@ -194,7 +181,7 @@ body::before {
 }
 
 /* ==========================================================================
-   4. USER IDENTITY COMPONENTS (AVATAR, BIO, HEADINGS)
+   4. COMPONENT ARCHITECTURES (AVATAR, BIO, BADGES)
    ========================================================================== */
 .pfp-wrapper {
     position: relative;
@@ -276,7 +263,7 @@ h1 {
     font-weight: 500;
 }
 
-/* Original Premium Python & Discord Gradient Stack Banner */
+/* Restored Premium Python & Discord Gradient Stack Banner */
 .python-banner {
     display: flex;
     align-items: center;
@@ -308,7 +295,7 @@ h1 {
 }
 
 /* ==========================================================================
-   5. CONTAINER CARDS & DYNAMIC INTERFACES
+   5. PROFILE LAYOUT CARDS (ABOUT, PROJECTS, WIDGETS)
    ========================================================================== */
 .section-card {
     background: rgba(255, 255, 255, 0.02);
@@ -455,7 +442,7 @@ h1 {
 }
 
 /* ==========================================================================
-   6. PERFECTLY ALIGNED MUSIC PLAYER ROW
+   6. RESTORED & ALIGNED MUSIC PLAYER ROW
    ========================================================================== */
 .music-player {
     background: rgba(255, 255, 255, 0.02);
@@ -473,7 +460,7 @@ h1 {
 .music-icon {
     font-size: 14px;
     color: var(--text-muted);
-    display: flex;
+    display: inline-flex;
     align-items: center;
 }
 
@@ -615,7 +602,7 @@ h1 {
 }
 
 /* ==========================================================================
-   8. EXTERNAL DIRECTORY NAV LINK BUTTONS
+   8. HYPERLINK BUTTON DIRECTORIES
    ========================================================================== */
 .links {
     display: flex;
@@ -695,7 +682,7 @@ h1 {
 }
 
 /* ==========================================================================
-   9. VISUAL TRANSITIONS & MOVEMENT KEYFRAMES
+   9. STAGGERED KEYFRAME ANIMATION DISPATCHERS
    ========================================================================== */
 .animate-pop {
     animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
