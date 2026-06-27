@@ -99,8 +99,17 @@
                 </div>
             </div>
 
-            <div class="webring-embed-container animate-up delay-5">
-                <script src="https://lanyard.cafe/api/embed.js" data-theme="dark"></script>
+            <div class="section-card lanyard-badge animate-up delay-5">
+                <div class="webring-title">
+                    <i class="fa-solid fa-mug-hot"></i> Lanyard Cafe Webring
+                </div>
+                <div class="webring-links">
+                    <a href="https://c.stupid.cat" id="webring-prev" class="webring-nav"><i class="fa-solid fa-chevron-left"></i> Prev</a>
+                    <a href="https://lanyard.cafe" target="_blank" class="webring-home">
+                        <img src="lanyard.webp" alt="Lanyard Cafe Logo" class="webring-img">
+                    </a>
+                    <a href="https://schuh.wtf" id="webring-next" class="webring-nav">Next <i class="fa-solid fa-chevron-right"></i></a>
+                </div>
             </div>
 
             <div class="links">
@@ -135,7 +144,7 @@
             { text: "🏎️ Allocating processing memory for Lego Red Bull F1 Set fund...", delay: 300 },
             { text: "📊 Reading real-time wallet tracking and integration tables...", delay: 150 },
             { text: "☕ Pinging Lanyard Cafe Webring infrastructure routes...", delay: 300 },
-            { text: "🕸️ Native script embedded. Separation of styling rule check: PASSED.", delay: 150 },
+            { text: "🕸️ Native loop arrays resolved cleanly. UI structure locked.", delay: 150 },
             { text: "🎵 Audio framework integrated: lyin2me.mp3 staged.", delay: 200 },
             { text: "🎨 Building glassmorphism styles, CSS properties, and fonts...", delay: 150 },
             { text: "🚀 System layout mapping optimized. Boot process finished.", delay: 300 }
@@ -247,7 +256,33 @@
                 .catch(err => console.error('Lanyard Error:', err));
         }
 
+        // --- NATIVE DYNAMIC WEBRING MAPPER ---
+        function fetchWebringNav() {
+            fetch('https://lanyard.cafe/api/all')
+                .then(res => res.json())
+                .then(members => {
+                    if (members && members.length > 0) {
+                        // Find where your domain sits in Aureal's compiled repo array
+                        const myIndex = members.findIndex(m => m.url.includes(window.location.hostname) || m.id === discordId);
+                        
+                        if (myIndex !== -1) {
+                            // You are fully merged! Grab exact neighbors smoothly
+                            const prevIdx = (myIndex - 1 + members.length) % members.length;
+                            const nextIdx = (myIndex + 1) % members.length;
+                            document.getElementById('webring-prev').href = members[prevIdx].url;
+                            document.getElementById('webring-next').href = members[nextIdx].url;
+                        } else {
+                            // PR is pending: automatically wrap around outer boundaries perfectly
+                            document.getElementById('webring-prev').href = members[members.length - 1].url;
+                            document.getElementById('webring-next').href = members[0].url;
+                        }
+                    }
+                })
+                .catch(err => console.error('Webring fetch fallback engaged:', err));
+        }
+
         fetchLanyardData();
+        fetchWebringNav();
         setInterval(fetchLanyardData, 10000);
 
         // --- LIVE CLOCK ---
