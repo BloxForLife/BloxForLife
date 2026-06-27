@@ -1,163 +1,700 @@
-/* Universal Reset */
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+/* ==========================================================================
+   1. GLOBAL SYSTEM RESETS & VARIABLE CONFIGURATIONS
+   ========================================================================== */
+:root {
+    --bg-primary: #0a0a0c;
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --glow-color: rgba(255, 255, 255, 0.1);
+    
+    /* Brand Accent Palettes */
+    --accent-python: #3776ab;
+    --accent-discord: #5865f2;
+    --accent-roblox: #000000;
+    --accent-github: #24292e;
+    --accent-paypal: #00457c;
+}
 
-/* Premium Dark Background with Subtle Grid */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
 body {
-    background-color: #050505;
-    background-image: radial-gradient(circle at 50% 0%, #1a153a 0%, #050505 60%);
-    color: #ffffff;
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
     overflow-x: hidden;
-    padding: 40px 0;
+    position: relative;
+    padding: 40px 20px;
 }
 
-/* --- CONSOLE LOADING OVERLAY --- */
+/* Background Cyber Grid Asset */
+.bg-grid {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 30px 30px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   2. CONSOLE LOADING TERMINAL ENGINE
+   ========================================================================== */
 #console-loader {
     position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: #020205;
-    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #050505;
+    z-index: 10000;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 20px; gap: 25px;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
+    padding: 20px;
     cursor: pointer;
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-#console-loader.fade-out { opacity: 0; visibility: hidden; }
+#console-loader.fade-out {
+    opacity: 0;
+    transform: scale(1.02);
+    pointer-events: none;
+}
 
 .console-box {
-    width: 650px; max-width: 100%; height: 380px;
-    background: rgba(10, 10, 16, 0.85);
-    border: 1px solid rgba(55, 118, 171, 0.2);
-    border-radius: 12px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(55, 118, 171, 0.05);
-    display: flex; flex-direction: column; overflow: hidden;
-    backdrop-filter: blur(10px);
+    width: 100%;
+    max-width: 700px;
+    height: 400px;
+    background-color: rgba(10, 10, 12, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .console-header {
-    background: rgba(20, 20, 30, 0.9);
-    padding: 12px 16px; display: flex; align-items: center; gap: 8px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    background-color: rgba(255, 255, 255, 0.03);
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.console-header .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
-.console-header .dot.red { background: #f23f42; }
-.console-header .dot.yellow { background: #f0b232; }
-.console-header .dot.green { background: #23a559; }
-.console-title { font-family: 'Courier New', Courier, monospace; font-size: 13px; color: #71717a; margin-left: 6px; font-weight: bold; }
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
 
-.console-body { padding: 18px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background: #05050a; }
+.dot.red { background-color: #ef4444; }
+.dot.yellow { background-color: #eab308; }
+.dot.green { background-color: #22c55e; }
 
-.console-line { font-family: 'Courier New', Courier, monospace; font-size: 14px; color: #3776ab; line-height: 1.5; word-break: break-all; animation: terminalLinePop 0.15s ease-out forwards; }
-.console-line .prompt { color: #ffd343; font-weight: bold; margin-right: 4px; }
+.console-title {
+    font-family: monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-left: 6px;
+}
 
-.console-line.secret-line { color: #1a1a20 !important; font-style: italic; }
-.console-line.secret-line .prompt { color: #222228 !important; }
-.console-line.sub-secret-line { color: #23a559 !important; font-weight: bold; }
-.console-line.sub-secret-line .prompt { color: #23a559 !important; }
+.console-body {
+    padding: 15px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    color: #38bdf8;
+    line-height: 1.6;
+    overflow-y: auto;
+    flex-grow: 1;
+    scroll-behavior: smooth;
+}
 
-@keyframes terminalLinePop { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.console-line {
+    margin-bottom: 6px;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
 
-.enter-prompt { opacity: 0; transform: translateY(10px); transition: opacity 0.4s ease, transform 0.4s ease; pointer-events: none; }
-.enter-prompt.visible { opacity: 1; transform: translateY(0); }
-.blink-text { font-family: 'Courier New', Courier, monospace; font-size: 14px; color: #ffd343; font-weight: bold; letter-spacing: 1px; animation: textBlink 1.2s step-end infinite; text-shadow: 0 0 10px rgba(255, 211, 67, 0.3); }
+.console-line .prompt {
+    color: #ef4444;
+    user-select: none;
+    margin-right: 8px;
+}
 
-@keyframes textBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+/* Secret Easter Egg Terminal Output Rules */
+.secret-line {
+    color: rgba(239, 68, 68, 0.4) !important;
+    font-style: italic;
+}
 
-.bg-grid { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; }
-.container { padding: 0 20px; width: 100%; display: flex; justify-content: center; }
+.sub-secret-line {
+    color: rgba(56, 189, 248, 0.4) !important;
+    font-style: italic;
+}
 
-/* Profile Card Styling */
-.profile-card { background: rgba(15, 15, 20, 0.6); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 50px; border-radius: 24px; text-align: center; width: 600px; max-width: 100%; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.05); transition: transform 0.1s ease; }
+.enter-prompt {
+    margin-top: 25px;
+    font-family: monospace;
+    font-size: 14px;
+    color: #22c55e;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
 
-.pfp-wrapper { position: relative; display: inline-block; margin-bottom: 15px; }
-.avatar { width: 130px; height: 130px; border-radius: 50%; border: 4px solid #1a1a24; object-fit: cover; box-shadow: 0 0 30px rgba(88, 101, 242, 0.2); }
-.status-dot { position: absolute; bottom: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; background-color: #80848e; border: 5px solid #1a1a24; }
+.enter-prompt.visible {
+    opacity: 1;
+}
 
-h1 { font-size: 38px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px; }
+.blink-text {
+    animation: terminalPulse 1.5s infinite;
+}
 
-.custom-status { background: rgba(0, 0, 0, 0.4); padding: 8px 16px; border-radius: 20px; font-size: 14px; color: #e4e4e7; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); }
-.status-emoji { width: 20px; height: 20px; vertical-align: middle; }
+/* ==========================================================================
+   3. CORE UI CONTAINER & STRUCTURE
+   ========================================================================== */
+.container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 540px;
+}
 
-.bio { margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.bio p { font-size: 18px; color: #a1a1aa; font-weight: 500; }
-.donate-text { font-size: 13px !important; color: #f0b232 !important; font-weight: 600 !important; background: rgba(240, 178, 50, 0.1); border: 1px solid rgba(240, 178, 50, 0.25); padding: 6px 14px; border-radius: 20px; }
+.profile-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 35px 30px;
+    text-align: center;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+}
 
-.python-banner { background: linear-gradient(90deg, rgba(55, 118, 171, 0.2), rgba(255, 211, 67, 0.1)); border: 1px solid rgba(55, 118, 171, 0.3); color: #fff; padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 16px; font-weight: 700; margin-bottom: 25px; letter-spacing: 0.5px; flex-wrap: wrap; }
-.python-banner i { font-size: 22px; color: #FFD343; }
-.python-banner .fa-discord { color: #5865F2; }
-.banner-divider { color: rgba(255,255,255,0.2); font-weight: 300; font-size: 20px; }
+/* ==========================================================================
+   4. COMPONENT ARCHITECTURES (AVATAR, BIO, BADGES)
+   ========================================================================== */
+.pfp-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px auto;
+}
 
-.section-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 16px; padding: 18px 20px; margin-bottom: 18px; text-align: left; }
-.section-header { font-size: 15px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
-.section-header i { font-size: 16px; color: #a1a1aa; }
-.section-body { font-size: 14px; color: #a1a1aa; line-height: 1.6; }
+.pfp-container {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.02);
+}
 
-/* Lanyard Cafe Webring Widget */
-.lanyard-badge { border: 1px solid rgba(255,255,255,0.07); margin-top: 15px; padding: 16px; border-radius: 16px; background: rgba(255, 255, 255, 0.02); text-align: center; display: flex; flex-direction: column; gap: 12px; }
-.webring-title { font-size: 14px; font-weight: 700; color: #a1a1aa; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.webring-title i { color: #f0b232; }
-.webring-links { display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.2); padding: 6px 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); }
-.webring-links a { text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.2s ease; }
-.webring-nav { color: #fff; opacity: 0.7; display: flex; align-items: center; gap: 4px; }
-.webring-nav:hover { opacity: 1; color: #f0b232; }
-.webring-home { display: flex; align-items: center; justify-content: center; padding: 2px; border-radius: 8px; transition: all 0.2s ease; }
-.webring-img { height: 28px; width: auto; object-fit: contain; display: block; filter: drop-shadow(0 0 4px rgba(240, 178, 50, 0.2)); transition: transform 0.2s ease; }
-.webring-home:hover .webring-img { transform: scale(1.08); }
+.avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
-.projects-list { display: flex; flex-direction: column; gap: 12px; }
-.project-item { display: flex; align-items: center; gap: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 14px; }
-.project-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.fbi-icon { background: rgba(0, 40, 104, 0.3); border: 1px solid rgba(255,215,0,0.3); }
-.project-name { font-size: 14px; font-weight: 700; color: #fff; }
-.project-desc { font-size: 12px; color: #71717a; margin-top: 2px; }
+.status-dot {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 4px solid #0d0d11;
+    background-color: #80848e;
+    transition: background-color 0.3s ease;
+}
 
-.time-container { background: rgba(255, 255, 255, 0.05); padding: 8px 20px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 25px; color: #a1a1aa; border: 1px solid rgba(255, 255, 255, 0.05); }
+h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 12px;
+}
 
-/* Spotify Widget */
-.spotify-widget { display: flex; align-items: center; gap: 15px; background: rgba(30, 215, 96, 0.1); padding: 15px; border-radius: 16px; margin-bottom: 25px; border: 1px solid rgba(30, 215, 96, 0.2); text-align: left; }
-.spot-art { width: 50px; height: 50px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-.spot-info { flex-grow: 1; overflow: hidden; }
-.spot-title { font-weight: 700; font-size: 15px; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-.spot-artist { font-size: 13px; color: #1ed760; }
-.spot-logo { font-size: 24px; color: #1ed760; margin-right: 10px; }
+/* Dynamic Lanyard Status Tags */
+.custom-status {
+    display: none; /* Controlled dynamically via active JS engine class manipulation */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #e5e7eb;
+    margin: 0 auto 18px auto;
+    max-width: max-content;
+}
 
-/* Music Player */
-.music-player { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 35px; background: rgba(255, 255, 255, 0.05); padding: 15px 25px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05); }
-.music-icon { color: #a1a1aa; font-size: 20px; }
-.ctrl-btn { background: #fff; color: #000; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-.ctrl-btn:hover { background: #e0e0e0; transform: scale(1.05); }
-.volume-control { display: flex; align-items: center; gap: 8px; }
-.volume-label { font-size: 12px; color: #a1a1aa; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
-.volume-label i { font-size: 14px; }
+.custom-status.visible-flex {
+    display: inline-flex;
+}
 
-input[type=range] { -webkit-appearance: none; -moz-appearance: none; appearance: none; width: 100px; height: 4px; background: rgba(255, 255, 255, 0.2); border-radius: 2px; outline: none; cursor: pointer; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #fff; cursor: pointer; }
-input[type=range]::-moz-range-thumb { height: 16px; width: 16px; border-radius: 50%; background: #fff; border: none; cursor: pointer; }
+.status-emoji {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
 
-/* Grid Buttons */
-.links { display: flex; flex-direction: column; gap: 15px; }
-.btn { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 18px; color: #fff; text-decoration: none; border-radius: 14px; font-size: 16px; font-weight: 600; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.03); }
-.btn i { font-size: 20px; }
+.bio {
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
 
-.btn:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.2); }
-.btn.discord:hover { background: rgba(88, 101, 242, 0.2); border-color: #5865F2; color: #fff; }
-.btn.roblox:hover { background: rgba(255, 255, 255, 0.9); border-color: #fff; color: #000; }
-.btn.github:hover { background: rgba(43, 49, 55, 0.8); border-color: #8b949e; }
-.btn.roleplay:hover { background: rgba(15, 157, 88, 0.2); border-color: #0F9D58; }
-.btn.paypal:hover { background: rgba(0, 112, 186, 0.2); border-color: #009cde; }
+.donate-text {
+    font-size: 13px;
+    color: #fbbf24;
+    margin-top: 6px;
+    font-weight: 500;
+}
 
-/* Entrances and Animations */
-.animate-pop { animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-.animate-up { animation: fadeInUp 0.6s cubic-bezier(0.25, 1, 0.5, 1) both; }
-.delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; } .delay-4 { animation-delay: 0.4s; } .delay-5 { animation-delay: 0.5s; } .delay-6 { animation-delay: 0.6s; } .delay-7 { animation-delay: 0.7s; } .delay-8 { animation-delay: 0.8s; } .delay-9 { animation-delay: 0.9s; }
+/* Python / Discord Stack Banner Row */
+.python-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: rgba(55, 118, 171, 0.08);
+    border: 1px solid rgba(55, 118, 171, 0.2);
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #7dd3fc;
+    margin-bottom: 24px;
+}
 
-@keyframes popIn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
-@keyframes fadeInUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+.python-banner i {
+    font-size: 16px;
+}
+
+.banner-divider {
+    color: rgba(255, 255, 255, 0.15);
+    font-weight: 300;
+}
+
+/* ==========================================================================
+   5. PROFILE LAYOUT CARDS (ABOUT, PROJECTS, WIDGETS)
+   ========================================================================== */
+.section-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 18px;
+    text-align: left;
+    margin-bottom: 16px;
+}
+
+.section-header {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-body {
+    font-size: 14px;
+    color: #d1d5db;
+    line-height: 1.6;
+}
+
+/* Projects Directory Sub-components */
+.project-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 12px;
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+}
+
+.project-item:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.project-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+}
+
+.fbi-logo-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.project-info {
+    flex-grow: 1;
+}
+
+.project-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 2px;
+}
+
+.project-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* Real-Time Local Time Display Container */
+.time-container {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* Spotify Active Listening Widget Architecture */
+.spotify-widget {
+    display: none; /* Controlled dynamically via active JS engine class manipulation */
+    align-items: center;
+    gap: 14px;
+    background: rgba(30, 215, 96, 0.06);
+    border: 1px solid rgba(30, 215, 96, 0.15);
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 16px;
+    text-align: left;
+    text-decoration: none;
+    color: inherit;
+}
+
+.spotify-widget.visible-flex {
+    display: flex;
+}
+
+.spot-art {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.spot-info {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.spot-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+
+.spot-artist {
+    font-size: 12px;
+    color: #a7f3d0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.spot-logo {
+    color: #1ed760;
+    font-size: 20px;
+    margin-right: 6px;
+}
+
+/* Audio Controller Interface Rules */
+.music-player {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.music-icon {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.ctrl-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.ctrl-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.volume-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+#volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 70px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+}
+
+#volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text-main);
+    cursor: pointer;
+}
+
+#volume-slider::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text-main);
+    cursor: pointer;
+}
+
+/* Anchor Point Wrapper block for Embed Layer */
+.webring-embed-container {
+    width: 100%;
+}
+
+/* ==========================================================================
+   6. HYPERLINK DEPLOYMENT DIRECTORIES (BUTTON LINKS)
+   ========================================================================== */
+.links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btn {
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: 14px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(255, 255, 255, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn:hover::before {
+    opacity: 1;
+}
+
+/* Individual Brand Theming Declarations */
+.btn.paypal {
+    background: linear-gradient(135deg, #00457c, #0079c1);
+    box-shadow: 0 4px 15px rgba(0, 69, 124, 0.3);
+}
+
+.btn.discord {
+    background: linear-gradient(135deg, #5865f2, #4752c4);
+    box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+}
+
+.btn.roblox {
+    background: linear-gradient(135deg, #111113, #252529);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.roblox-icon-img {
+    width: 20px;
+    height: 20px;
+}
+
+.btn.github {
+    background: linear-gradient(135deg, #24292e, #1a1e22);
+    box-shadow: 0 4px 15px rgba(36, 41, 46, 0.3);
+}
+
+.btn.roleplay {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+/* ==========================================================================
+   7. STAGGERED KEYFRAME ANIMATION DISPATCHERS
+   ========================================================================== */
+.animate-pop {
+    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-up {
+    opacity: 0;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Cascade Animation Index Delay Steps */
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.18s; }
+.delay-3 { animation-delay: 0.26s; }
+.delay-4 { animation-delay: 0.34s; }
+.delay-5 { animation-delay: 0.42s; }
+.delay-6 { animation-delay: 0.5s; }
+.delay-7 { animation-delay: 0.56s; }
+.delay-8 { animation-delay: 0.62s; }
+.delay-9 { animation-delay: 0.68s; }
+
+@keyframes popIn {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideUp {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes terminalPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* ==========================================================================
+   8. CRITICAL LANYARD CAFE EMBEDDED WIDGET OVERRIDES
+   ========================================================================== */
+
+/* Intercepts and isolates the external floating element injected by embed.js */
+#lanyard-cafe-webring,
+div[style*="position: fixed"][style*="bottom"] {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    margin: 20px auto 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 16px !important;
+    padding: 15px !important;
+    display: flex !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    z-index: 99 !important;
+    box-shadow: none !important;
+}
+
+/* Forces embedded anchor layouts to adopt local styling fonts and colors */
+#lanyard-cafe-webring a,
+div[style*="position: fixed"][style*="bottom"] a {
+    color: #ffffff !important;
+    text-decoration: none !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    transition: opacity 0.2s ease !important;
+}
+
+#lanyard-cafe-webring a:hover,
+div[style*="position: fixed"][style*="bottom"] a:hover {
+    opacity: 0.7 !important;
+}
