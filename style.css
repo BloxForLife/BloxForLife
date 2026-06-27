@@ -1,12 +1,25 @@
+/* ==========================================================================
+   1. LAYOUT RESET & CENTERING ENGINE (FIXES LIGHT MODE & POSITIONING)
+   ========================================================================== */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+body {
+    background-color: #0a0a0c;
+    color: #f3f4f6;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* ==========================================================================
-   1. LOADING TERMINAL
+   2. RE-STYLED MONOSPACED CONSOLE TERMINAL (FIXES FONTS)
    ========================================================================== */
 #console-loader {
     position: fixed;
@@ -35,10 +48,10 @@
     width: 100%;
     max-width: 700px;
     height: 400px;
-    background-color: rgba(10, 10, 12, 0.95);
+    background-color: #0a0a0c;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -65,7 +78,7 @@
 .dot.green { background-color: #22c55e; }
 
 .console-title {
-    font-family: monospace;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 13px;
     color: #9ca3af;
     margin-left: 6px;
@@ -73,7 +86,7 @@
 
 .console-body {
     padding: 15px;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     font-size: 14px;
     color: #38bdf8;
     line-height: 1.4;
@@ -95,18 +108,18 @@
 }
 
 .secret-line {
-    color: rgba(239, 68, 68, 0.4) !important;
+    color: rgba(239, 68, 68, 0.5) !important;
     font-style: italic;
 }
 
 .sub-secret-line {
-    color: rgba(56, 189, 248, 0.4) !important;
+    color: rgba(56, 189, 248, 0.5) !important;
     font-style: italic;
 }
 
 .enter-prompt {
     margin-top: 25px;
-    font-family: monospace;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 14px;
     color: #22c55e;
     opacity: 0;
@@ -122,7 +135,7 @@
 }
 
 /* ==========================================================================
-   2. CONTAINER FRAMEWORK
+   3. PROFILE CARD BACKGROUND MODULES (DARK SYSTEM LAYOUT)
    ========================================================================== */
 .container {
     position: relative;
@@ -133,17 +146,17 @@
 
 .profile-card {
     background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 24px;
     padding: 35px 30px;
     text-align: center;
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
 }
 
 /* ==========================================================================
-   3. USER IDENTITY & DEV BANNER
+   4. IDENTITY HOUSINGS & DEV GRADIENT ACCENT (FIXES GRADIENT EXTRACTIONS)
    ========================================================================== */
 .pfp-wrapper {
     position: relative;
@@ -184,6 +197,7 @@ h1 {
     font-weight: 700;
     letter-spacing: -0.5px;
     margin-bottom: 12px;
+    color: #ffffff;
 }
 
 .custom-status {
@@ -225,14 +239,16 @@ h1 {
     font-weight: 500;
 }
 
+/* Fixed Solid High-Contrast Gradient Accent Banner */
 .python-banner {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    background: linear-gradient(90deg, rgba(55, 118, 171, 0.25) 0%, rgba(88, 101, 242, 0.25) 100%);
-    border: 1px solid rgba(125, 211, 252, 0.4);
-    box-shadow: 0 0 20px rgba(55, 118, 171, 0.2);
+    background: linear-gradient(90deg, rgba(55, 118, 171, 0.5) 0%, rgba(88, 101, 242, 0.5) 100%);
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(125, 211, 252, 0.5);
+    box-shadow: 0 0 25px rgba(88, 101, 242, 0.35);
     padding: 12px 16px;
     border-radius: 12px;
     font-size: 14px;
@@ -250,13 +266,13 @@ h1 {
 }
 
 .banner-divider {
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.4);
     font-weight: 300;
     margin: 0 4px;
 }
 
 /* ==========================================================================
-   4. LAYOUT CARDS
+   5. PROFILE LAYOUT BLOCKS
    ========================================================================== */
 .section-card {
     background: rgba(255, 255, 255, 0.02);
@@ -403,7 +419,7 @@ h1 {
 }
 
 /* ==========================================================================
-   5. GRID MUSIC PLAYER
+   6. GRID MUSIC ROW
    ========================================================================== */
 .music-player {
     background: rgba(255, 255, 255, 0.02);
@@ -504,7 +520,7 @@ h1 {
 }
 
 /* ==========================================================================
-   6. WEBRING
+   7. LANYARD WEBRING
    ========================================================================== */
 .lanyard-badge {
     text-align: center !important;
@@ -565,7 +581,7 @@ h1 {
 }
 
 /* ==========================================================================
-   7. LINKS DIRECTORIES
+   8. LINK REDIRECT BUTTONS
    ========================================================================== */
 .links {
     display: flex;
@@ -645,7 +661,7 @@ h1 {
 }
 
 /* ==========================================================================
-   8. INTERPOLATION KEYFRAMES
+   9. INTERPOLATION KEYFRAMES
    ========================================================================== */
 .animate-pop {
     animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
