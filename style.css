@@ -140,7 +140,6 @@ body {
     margin-right: 8px;
 }
 
-/* Secret Easter Egg Terminal Output Rules */
 .secret-line {
     color: rgba(239, 68, 68, 0.4) !important;
     font-style: italic;
@@ -233,9 +232,8 @@ h1 {
     margin-bottom: 12px;
 }
 
-/* Dynamic Lanyard Status Tags */
 .custom-status {
-    display: none; /* Controlled dynamically via active JS engine class manipulation */
+    display: none;
     align-items: center;
     justify-content: center;
     gap: 8px;
@@ -273,7 +271,6 @@ h1 {
     font-weight: 500;
 }
 
-/* Python / Discord Stack Banner Row */
 .python-banner {
     display: flex;
     align-items: center;
@@ -328,7 +325,6 @@ h1 {
     line-height: 1.6;
 }
 
-/* Projects Directory Sub-components */
 .project-item {
     display: flex;
     align-items: center;
@@ -382,7 +378,6 @@ h1 {
     color: var(--text-muted);
 }
 
-/* Real-Time Local Time Display Container */
 .time-container {
     font-size: 13px;
     color: var(--text-muted);
@@ -393,9 +388,8 @@ h1 {
     gap: 6px;
 }
 
-/* Spotify Active Listening Widget Architecture */
 .spotify-widget {
-    display: none; /* Controlled dynamically via active JS engine class manipulation */
+    display: none;
     align-items: center;
     gap: 14px;
     background: rgba(30, 215, 96, 0.06);
@@ -448,7 +442,6 @@ h1 {
     margin-right: 6px;
 }
 
-/* Audio Controller Interface Rules */
 .music-player {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -529,13 +522,69 @@ h1 {
     cursor: pointer;
 }
 
-/* Anchor Point Wrapper block for Embed Layer */
-.webring-embed-container {
-    width: 100%;
+/* ==========================================================================
+   6. ORIGINAL RESTORED LANYARD WEBRING STYLING SPEC
+   ========================================================================== */
+.lanyard-badge {
+    text-align: center !important;
+}
+
+.webring-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.webring-links {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 10px;
+}
+
+.webring-nav {
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.webring-nav:hover {
+    opacity: 0.8;
+    transform: scale(1.03);
+}
+
+.webring-home {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.webring-home:hover {
+    transform: scale(1.05);
+}
+
+.webring-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 50%;
 }
 
 /* ==========================================================================
-   6. HYPERLINK DEPLOYMENT DIRECTORIES (BUTTON LINKS)
+   7. HYPERLINK BUTTON DIRECTORIES
    ========================================================================== */
 .links {
     display: flex;
@@ -583,7 +632,6 @@ h1 {
     opacity: 1;
 }
 
-/* Individual Brand Theming Declarations */
 .btn.paypal {
     background: linear-gradient(135deg, #00457c, #0079c1);
     box-shadow: 0 4px 15px rgba(0, 69, 124, 0.3);
@@ -616,7 +664,7 @@ h1 {
 }
 
 /* ==========================================================================
-   7. STAGGERED KEYFRAME ANIMATION DISPATCHERS
+   8. STAGGERED KEYFRAME ANIMATION DISPATCHERS
    ========================================================================== */
 .animate-pop {
     animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -627,7 +675,6 @@ h1 {
     animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Cascade Animation Index Delay Steps */
 .delay-1 { animation-delay: 0.1s; }
 .delay-2 { animation-delay: 0.18s; }
 .delay-3 { animation-delay: 0.26s; }
@@ -651,50 +698,4 @@ h1 {
 @keyframes terminalPulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.4; }
-}
-
-/* ==========================================================================
-   8. CRITICAL LANYARD CAFE EMBEDDED WIDGET OVERRIDES
-   ========================================================================== */
-
-/* Intercepts and isolates the external floating element injected by embed.js */
-#lanyard-cafe-webring,
-div[style*="position: fixed"][style*="bottom"] {
-    position: relative !important;
-    bottom: auto !important;
-    left: auto !important;
-    right: auto !important;
-    top: auto !important;
-    margin: 20px auto 0 auto !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    background: rgba(255, 255, 255, 0.04) !important;
-    backdrop-filter: blur(16px) !important;
-    -webkit-backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 16px !important;
-    padding: 15px !important;
-    display: flex !important;
-    justify-content: space-around !important;
-    align-items: center !important;
-    z-index: 99 !important;
-    box-shadow: none !important;
-}
-
-/* Forces embedded anchor layouts to adopt local styling fonts and colors */
-#lanyard-cafe-webring a,
-div[style*="position: fixed"][style*="bottom"] a {
-    color: #ffffff !important;
-    text-decoration: none !important;
-    font-size: 13px !important;
-    font-weight: 600 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    transition: opacity 0.2s ease !important;
-}
-
-#lanyard-cafe-webring a:hover,
-div[style*="position: fixed"][style*="bottom"] a:hover {
-    opacity: 0.7 !important;
 }
