@@ -99,19 +99,6 @@
                 </div>
             </div>
 
-            <div class="section-card lanyard-badge animate-up delay-5">
-                <div class="webring-title">
-                    <i class="fa-solid fa-mug-hot"></i> Lanyard Cafe Webring
-                </div>
-                <div class="webring-links">
-                    <a href="https://c.stupid.cat" id="webring-prev" class="webring-nav"><i class="fa-solid fa-chevron-left"></i> Prev</a>
-                    <a href="https://lanyard.cafe" target="_blank" class="webring-home">
-                        <img src="lanyard.webp" alt="Lanyard Cafe Logo" class="webring-img">
-                    </a>
-                    <a href="https://aureal.dev" id="webring-next" class="webring-nav">Next <i class="fa-solid fa-chevron-right"></i></a>
-                </div>
-            </div>
-
             <div class="links">
                 <a href="https://paypal.me/MichealJames196" target="_blank" class="btn paypal animate-up delay-6"><i class="fa-brands fa-paypal"></i> Donate via PayPal 🏎️</a>
                 <a href="https://discord.com/users/1075335630353080340" target="_blank" class="btn discord animate-up delay-6"><i class="fa-brands fa-discord"></i> Discord</a>
@@ -123,6 +110,8 @@
             </div>
         </div>
     </div>
+
+    <script src="https://lanyard.cafe/api/embed.js" data-theme="dark"></script>
 
     <script>
         const discordId = '1075335630353080340';
@@ -144,7 +133,7 @@
             { text: "🏎️ Allocating processing memory for Lego Red Bull F1 Set fund...", delay: 300 },
             { text: "📊 Reading real-time wallet tracking and integration tables...", delay: 150 },
             { text: "☕ Pinging Lanyard Cafe Webring infrastructure routes...", delay: 300 },
-            { text: "🕸️ Webring query complete: fetched nav pointers securely.", delay: 150 },
+            { text: "🕸️ Official floating webring script context: INJECTED", delay: 150 },
             { text: "🎵 Audio framework integrated: lyin2me.mp3 staged.", delay: 200 },
             { text: "🎨 Building glassmorphism styles, CSS properties, and fonts...", delay: 150 },
             { text: "🚀 System layout mapping optimized. Boot process finished.", delay: 300 }
@@ -256,52 +245,7 @@
                 .catch(err => console.error('Lanyard Error:', err));
         }
 
-        // --- AUTOMATED LANYARD WEBRING NAV ENGINES ---
-        function fetchWebringNav() {
-            // Check individualized endpoint first
-            fetch(`https://lanyard.cafe/api/nav/${discordId}`)
-                .then(res => res.json())
-                .then(navData => {
-                    if (navData && navData.prev && navData.next) {
-                        document.getElementById('webring-prev').href = navData.prev.url;
-                        document.getElementById('webring-next').href = navData.next.url;
-                    } else {
-                        fetchLiveAllFallback();
-                    }
-                })
-                .catch(() => {
-                    fetchLiveAllFallback();
-                });
-        }
-
-        function fetchLiveAllFallback() {
-            // Instantly query compiled members endpoint mapping Aureal's repository
-            fetch('https://lanyard.cafe/api/all')
-                .then(res => res.json())
-                .then(allMembers => {
-                    if (allMembers && allMembers.length > 0) {
-                        // Dynamically route around the tail boundaries
-                        const prevSite = allMembers[allMembers.length - 1].url;
-                        const nextSite = allMembers[0].url;
-
-                        document.getElementById('webring-prev').href = prevSite;
-                        document.getElementById('webring-next').href = nextSite;
-                    } else {
-                        executeHardcodedFallback();
-                    }
-                })
-                .catch(() => {
-                    executeHardcodedFallback();
-                });
-        }
-
-        function executeHardcodedFallback() {
-            document.getElementById('webring-prev').href = "https://c.stupid.cat"; 
-            document.getElementById('webring-next').href = "https://schuh.wtf";     
-        }
-
         fetchLanyardData();
-        fetchWebringNav();
         setInterval(fetchLanyardData, 10000);
 
         // --- LIVE CLOCK ---
