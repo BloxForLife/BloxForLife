@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- CONSOLE LOADING SCREEN -->
     <div id="console-loader">
         <div class="console-box">
             <div class="console-header">
@@ -18,8 +17,7 @@
                 <span class="console-title">system_boot.sh</span>
             </div>
             <div class="console-body" id="console-log">
-                <!-- Lines will be injected dynamically via JavaScript -->
-            </div>
+                </div>
         </div>
         <div id="enter-prompt" class="enter-prompt">
             <span class="blink-text">[ CLICK ANYWHERE TO ENTER SITE ]</span>
@@ -58,13 +56,11 @@
                 <span>Discord Bot Dev</span>
             </div>
 
-            <!-- About Me -->
             <div class="section-card animate-up delay-3">
                 <div class="section-header"><i class="fa-solid fa-user"></i> About Me</div>
                 <p class="section-body">Hey! I'm BloxForLife, 14 years old. I'm a Discord bot developer and Python bot developer. Currently working some gigs to save up for the Technic Red Bull F1 Lego set, any donations are appreciated!!!</p>
             </div>
 
-            <!-- Projects -->
             <div class="section-card animate-up delay-4">
                 <div class="section-header"><i class="fa-solid fa-code-branch"></i> Projects</div>
                 <div class="projects-list">
@@ -103,7 +99,6 @@
                 </div>
             </div>
 
-            <!-- LANYARD CAFE WEBRING WIDGET -->
             <div class="section-card lanyard-badge animate-up delay-5">
                 <div class="webring-title">
                     <i class="fa-solid fa-mug-hot"></i> Lanyard Cafe Webring
@@ -192,7 +187,6 @@
         const playBtn = document.getElementById('play-btn');
         let hasAutoplayed = false;
 
-        // Unlock overlay click handler
         document.getElementById("console-loader").addEventListener("click", () => {
             if (!setupFinished) return;
             triggerSiteEntrance();
@@ -266,7 +260,21 @@
                 .catch(err => console.error('Lanyard Error:', err));
         }
 
-        // --- LANYARD WEBRING NAVIGATION FETCHER ---
+        // --- EXPORTED LANYARD CAFE DATABASE ARRAY ---
+        const WEBRING_MEMBERS = [
+            { url: "https://schuh.wtf", name: "schuh", discordId: "492707412504215552" },
+            { url: "https://aureal.dev", name: "aureal", discordId: "1498977251134279900" },
+            { url: "https://akryst.moe", name: "akryst", discordId: "1368371401546928148" },
+            { url: "https://moli.codes", name: "f1sh", discordId: "470904884946796544" },
+            { url: "https://plxne.com", name: "Ranger", discordId: "480900607738380298" },
+            { url: "https://kie.ac", name: "kie.ac", discordId: "673477059904929802" },
+            { url: "https://nichind.dev", name: "nichind", discordId: "301035790891352076" },
+            { url: "https://brookerslyn.space", name: "brook", discordId: "647814047210930223" },
+            { url: "https://assumi.ng", name: "catcatcat", discordId: "1471598614676766826" },
+            { url: "https://c.stupid.cat", name: "clove", discordId: "1464890289922641993" }
+        ];
+
+        // --- LANYARD WEBRING NAVIGATION FETCHER (WITH SMART CODENAME FALLBACK) ---
         function fetchWebringNav() {
             fetch(`https://lanyard.cafe/api/nav/${discordId}`)
                 .then(res => res.json())
@@ -275,14 +283,25 @@
                         document.getElementById('webring-prev').href = data.prev.url;
                         document.getElementById('webring-next').href = data.next.url;
                     } else {
-                        document.getElementById('webring-prev').href = "https://c.stupid.cat"; 
-                        document.getElementById('webring-next').href = "https://aureal.dev";   
+                        runDatabaseArrayFallback();
                     }
                 })
                 .catch(() => {
-                    document.getElementById('webring-prev').href = "https://c.stupid.cat";
-                    document.getElementById('webring-next').href = "https://aureal.dev";
+                    runDatabaseArrayFallback();
                 });
+        }
+
+        // Uses the database code logic you found to compute your neighbors locally!
+        function runDatabaseArrayFallback() {
+            // Because you aren't officially pushed into the middle yet, your logical position 
+            // sits at the tail boundary: between the last item (clove) and the first item (schuh).
+            const prevMember = WEBRING_MEMBERS[WEBRING_MEMBERS.length - 1]; // clove
+            const nextMember = WEBRING_MEMBERS[0]; // schuh
+
+            document.getElementById('webring-prev').href = prevMember.url;
+            document.getElementById('webring-next').href = nextMember.url;
+            
+            console.log(`Webring loaded locally: Prev (${prevMember.name}), Next (${nextMember.name})`);
         }
 
         fetchLanyardData();
