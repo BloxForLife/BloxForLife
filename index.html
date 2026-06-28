@@ -105,9 +105,7 @@
                 </div>
                 <div class="webring-links">
                     <a href="https://c.stupid.cat" id="webring-prev" class="webring-nav"><i class="fa-solid fa-chevron-left"></i> Prev</a>
-                    <a href="https://lanyard.cafe" target="_blank" class="webring-home">
-                        <img src="lanyard.webp" alt="Lanyard Cafe Logo" class="webring-img">
-                    </a>
+                    <a href="#" id="webring-random" class="webring-nav"><i class="fa-solid fa-shuffle"></i> Random</a>
                     <a href="https://aureal.dev" id="webring-next" class="webring-nav">Next <i class="fa-solid fa-chevron-right"></i></a>
                 </div>
             </div>
@@ -265,15 +263,16 @@
                         const hostname = window.location.hostname;
                         let currentIndex = allMembers.findIndex(site => site.url && site.url.includes(hostname));
                         
-                        // "If your site is not yet a member, it falls back to a random position in the ring."
                         if (currentIndex === -1) {
                             currentIndex = Math.floor(Math.random() * allMembers.length);
                         }
 
                         const prevIndex = (currentIndex - 1 + allMembers.length) % allMembers.length;
                         const nextIndex = (currentIndex + 1) % allMembers.length;
+                        const randomIndex = Math.floor(Math.random() * allMembers.length);
 
                         document.getElementById('webring-prev').href = allMembers[prevIndex].url;
+                        document.getElementById('webring-random').href = allMembers[randomIndex].url;
                         document.getElementById('webring-next').href = allMembers[nextIndex].url;
                     } else {
                         executeHardcodedFallback();
@@ -286,6 +285,7 @@
 
         function executeHardcodedFallback() {
             document.getElementById('webring-prev').href = "https://c.stupid.cat"; 
+            document.getElementById('webring-random').href = "https://lanyard.cafe"; 
             document.getElementById('webring-next').href = "https://schuh.wtf";     
         }
 
