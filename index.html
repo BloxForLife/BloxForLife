@@ -9,17 +9,15 @@
 </head>
 <body>
     <div id="console-loader">
-        <div class="console-wrapper">
-            <div class="skip-hint">fuck your consle loading screen <i class="fa-solid fa-arrow-turn-down"></i></div>
-            <div class="console-box">
-                <div class="console-header">
-                    <span class="dot red" id="skip-btn" title="Skip Loading"></span>
-                    <span class="dot yellow"></span>
-                    <span class="dot green"></span>
-                    <span class="console-title">system_boot.sh</span>
-                </div>
-                <div class="console-body" id="console-log"></div>
+        <div class="console-box">
+            <div class="console-header">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+                <span class="console-title">system_boot.sh</span>
             </div>
+            <div class="console-body" id="console-log">
+                </div>
         </div>
         <div id="enter-prompt" class="enter-prompt">
             <span class="blink-text">[ CLICK ANYWHERE TO ENTER SITE ]</span>
@@ -94,10 +92,10 @@
             <div class="music-player animate-up delay-5">
                 <i class="fa-solid fa-music music-icon"></i>
                 <audio id="bg-music" src="lyin2me.mp3" loop></audio>
-                <button id="play-btn" class="ctrl-btn"><i class="fa-solid fa-play"></i> Play</button>
+                <button id="play-btn" class="ctrl-btn"><i class="fa-solid fa-pause"></i> Pause</button>
                 <div class="volume-control">
                     <span class="volume-label"><i class="fa-solid fa-volume-low"></i> Vol</span>
-                    <input range" id="volume-slider" min="0" max="1" step="0.01" value="0.3">
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.3">
                 </div>
             </div>
 
@@ -127,27 +125,27 @@
     <script>
         const discordId = '1075335630353080340';
 
-        // --- CONSOLE LOADING ENGINE (Calibrated to exactly 5 seconds) ---
+        // --- CONSOLE LOADING ENGINE ---
         const consoleLines = [
             { text: "SYSTEM: Initiate System Boot", delay: 250 },
-            { text: "Loading stuff...", delay: 250 },
-            { text: "Loading more stuff...", delay: 250 },
-            { text: "SYSTEM: Foundation Loaded", delay: 250 },
-            { text: "Fetching Blox's Status...", delay: 250 },
-            { text: "Fetching Blox's Status Emoji...", delay: 250 },
-            { text: "Finishing up Profile...", delay: 250 },
+            { text: "Loading stuff...", delay: 200 },
+            { text: "Loading more stuff...", delay: 300 },
+            { text: "SYSTEM: Foundation Loaded", delay: 150 },
+            { text: "Fetching Blox's Status...", delay: 300 },
+            { text: "Fetching Blox's Status Emoji...", delay: 150 },
+            { text: "Finishing up Profile...", delay: 300 },
             { text: "SYSTEM: Profile Loaded.", delay: 250 },
-            { text: "Meow", delay: 250, secret: true },
+            { text: "Meow", delay: 400, secret: true },
             { text: "What was that line above?", delay: 250, secondarySecret: true },
-            { text: "Fetching Connections Links...", delay: 250 },
-            { text: "Fetching Connections Titles...", delay: 250 },
-            { text: "Fetching Connections Logos...", delay: 250 },
-            { text: "SYSTEM: Connections Loaded.", delay: 250 },
-            { text: "Loading my favorite song...", delay: 250 },
-            { text: "SYSTEM: Audio Player Loaded.", delay: 250 },
-            { text: "Getting made fun of because this was vibe coded...", delay: 250 },
-            { text: "Finishing Touches...", delay: 250 },
-            { text: "SYSTEM: Site Fully Loaded. Awaiting User Response.", delay: 200 }
+            { text: "Fetching Connections Links...", delay: 200 },
+            { text: "Fetching Connections Titles...", delay: 150 },
+            { text: "Fetching Connections Logos...", delay: 300 },
+            { text: "SYSTEM: Connections Loaded.", delay: 150 },
+            { text: "Loading my favorite song...", delay: 300 },
+            { text: "SYSTEM: Audio Player Loaded.", delay: 150 },
+            { text: "Getting made fun of because this was vibe coded...", delay: 200 },
+            { text: "Finishing Touches...", delay: 150 },
+            { text: "SYSTEM: Site Fully Loaded. Awaiting User Response.", delay: 300 }
         ];
 
         const logContainer = document.getElementById("console-log");
@@ -189,12 +187,6 @@
 
         document.getElementById("console-loader").addEventListener("click", () => {
             if (!setupFinished) return;
-            triggerSiteEntrance();
-        });
-
-        document.getElementById("skip-btn").addEventListener("click", (e) => {
-            e.stopPropagation(); 
-            setupFinished = true;
             triggerSiteEntrance();
         });
 
@@ -318,7 +310,7 @@
         music.volume = 0.3;
 
         document.addEventListener('click', (e) => {
-            if (e.target.closest('#play-btn') || e.target.closest('#volume-slider') || e.target.closest('#console-loader') || e.target.closest('#skip-btn')) return;
+            if (e.target.closest('#play-btn') || e.target.closest('#volume-slider') || e.target.closest('#console-loader')) return;
             if (!hasAutoplayed && music.paused) {
                 music.play().then(() => {
                     playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
