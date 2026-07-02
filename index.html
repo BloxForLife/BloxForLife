@@ -99,6 +99,16 @@
                 </div>
             </div>
 
+            <div class="ytmusic-widget animate-up delay-5" id="ytmusic-widget">
+                <div class="ytmusic-header">
+                    <i class="fa-brands fa-youtube"></i>
+                    <span id="yt-now-playing">Connecting to Last.fm...</span>
+                </div>
+                <div id="yt-player-container" style="display: none; margin-top: 15px;">
+                    <iframe id="yt-player" width="100%" height="220" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="border-radius: 8px;"></iframe>
+                </div>
+            </div>
+
             <div class="section-card lanyard-badge animate-up delay-5">
                 <div class="webring-title">
                     <i class="fa-solid fa-mug-hot"></i> Lanyard Cafe Webring
@@ -333,6 +343,55 @@
         volumeSlider.addEventListener('input', (e) => {
             music.volume = e.target.value;
         });
+
+        // --- LIVE YOUTUBE MUSIC TRACKER (LAST.FM) ---
+        const LASTFM_USER = "YOUR_LASTFM_USERNAME"; // <-- PUT YOUR LASTFM USERNAME HERE
+        const API_KEY = "YOUR_LASTFM_API_KEY";      // <-- PUT YOUR API KEY HERE
+        let lastFmTrackStr = "";
+
+        async function checkYTMusic() {
+            if (!LASTFM_USER || LASTFM_USER === "YOUR_LASTFM_USERNAME") return; 
+
+            try {
+                const response = await fetch(`https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USER}&api_key=${API_KEY}&format=json&limit=1`);
+                const data = await response.json();
+                
+                if (!data.recenttracks || !data.recenttracks.track) return;
+                
+                const track = data.recenttracks.track[0];
+                const isPlaying = track['@attr'] && track['@attr'].nowplaying === 'true';
+                
+                const statusContainer = document.getElementById('yt-now-playing');
+                const playerContainer = document.getElementById('yt-player-container');
+                const ytPlayer = document.getElementById('yt-player');
+
+                if (!isPlaying) {
+                    statusContainer.innerHTML = `Not currently listening to YT Music`;
+                    playerContainer.style.display = "none";
+                    ytPlayer.src = ""; 
+                    lastFmTrackStr = "";
+                    return;
+                }
+
+                const trackName = track.name;
+                const artistName = track.artist['#text'];
+                const newTrackStr = `${trackName} - ${artistName}`;
+
+                if (newTrackStr !== lastFmTrackStr) {
+                    lastFmTrackStr = newTrackStr;
+                    statusContainer.innerHTML = `What I'm listening to: <strong>${trackName}</strong> by ${artistName}`;
+                    
+                    const searchUrl = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(newTrackStr)}`;
+                    ytPlayer.src = searchUrl;
+                    playerContainer.style.display = "block";
+                }
+            } catch (err) {
+                console.error("Error fetching Last.fm data:", err);
+            }
+        }
+
+        checkYTMusic();
+        setInterval(checkYTMusic, 20000);
     </script>
 </body>
 </html>
