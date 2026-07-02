@@ -366,7 +366,7 @@
                 const ytPlayer = document.getElementById('yt-player');
 
                 if (!isPlaying) {
-                    statusContainer.innerHTML = `Not currently listening to YT Music`;
+                    statusContainer.innerHTML = `Not currently listening to music (YT music on top`;
                     playerContainer.style.display = "none";
                     ytPlayer.src = ""; 
                     lastFmTrackStr = "";
@@ -379,7 +379,7 @@
 
                 if (newTrackStr !== lastFmTrackStr) {
                     lastFmTrackStr = newTrackStr;
-                    statusContainer.innerHTML = `What I'm listening to: <strong>${trackName}</strong> by ${artistName}`;
+                    statusContainer.innerHTML = `Listening to: <strong>${trackName}</strong> by ${artistName}`;
                     
                     const searchUrl = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(newTrackStr)}`;
                     ytPlayer.src = searchUrl;
