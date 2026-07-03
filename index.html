@@ -99,6 +99,7 @@
                 </div>
             </div>
 
+            <!-- LIVE YOUTUBE MUSIC WIDGET -->
             <div class="ytmusic-widget animate-up delay-5" id="ytmusic-widget">
                 <div class="ytmusic-header">
                     <i class="fa-brands fa-youtube"></i>
@@ -106,17 +107,6 @@
                 </div>
                 <div id="yt-player-container" style="display: none; margin-top: 15px;">
                     <iframe id="yt-player" width="100%" height="220" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="border-radius: 8px;"></iframe>
-                </div>
-            </div>
-
-            <div class="section-card lanyard-badge animate-up delay-5">
-                <div class="webring-title">
-                    <i class="fa-solid fa-mug-hot"></i> Lanyard Cafe Webring
-                </div>
-                <div class="webring-links">
-                    <a href="https://c.stupid.cat" id="webring-prev" class="webring-nav"><i class="fa-solid fa-chevron-left"></i> Prev</a>
-                    <a href="#" id="webring-random" class="webring-nav"><i class="fa-solid fa-shuffle"></i> Random</a>
-                    <a href="https://aureal.dev" id="webring-next" class="webring-nav">Next <i class="fa-solid fa-chevron-right"></i></a>
                 </div>
             </div>
 
@@ -264,47 +254,7 @@
                 .catch(err => console.error('Lanyard Error:', err));
         }
 
-        // --- AUTOMATED LANYARD WEBRING NAV ENGINES ---
-        function fetchWebringNav() {
-            fetch('https://lanyard.cafe/api/ring')
-                .then(res => res.json())
-                .then(data => {
-                    const members = data.members;
-                    if (members && members.length > 0) {
-                        const hostname = window.location.hostname.replace(/^www\./, '');
-                        let currentIndex = members.findIndex(site => {
-                            const siteHost = site.url.replace(/^https?:\/\//, '').replace(/\/$/, '').replace(/^www\./, '');
-                            return siteHost === hostname;
-                        });
-
-                        if (currentIndex === -1) {
-                            currentIndex = Math.floor(Math.random() * members.length);
-                        }
-
-                        const prevIndex = (currentIndex - 1 + members.length) % members.length;
-                        const nextIndex = (currentIndex + 1) % members.length;
-                        const randomIndex = Math.floor(Math.random() * members.length);
-
-                        document.getElementById('webring-prev').href = members[prevIndex].url;
-                        document.getElementById('webring-random').href = members[randomIndex].url;
-                        document.getElementById('webring-next').href = members[nextIndex].url;
-                    } else {
-                        executeHardcodedFallback();
-                    }
-                })
-                .catch(() => {
-                    executeHardcodedFallback();
-                });
-        }
-
-        function executeHardcodedFallback() {
-            document.getElementById('webring-prev').href = "https://c.stupid.cat"; 
-            document.getElementById('webring-random').href = "https://lanyard.cafe"; 
-            document.getElementById('webring-next').href = "https://schuh.wtf";     
-        }
-
         fetchLanyardData();
-        fetchWebringNav();
         setInterval(fetchLanyardData, 10000);
 
         // --- LIVE CLOCK ---
@@ -345,8 +295,8 @@
         });
 
         // --- LIVE YOUTUBE MUSIC TRACKER (LAST.FM) ---
-        const LASTFM_USER = "BloxForLife"; // <-- PUT YOUR LASTFM USERNAME HERE
-        const API_KEY = "f3de807b104e2a6f71a28b3b1db50484";      // <-- PUT YOUR API KEY HERE
+        const LASTFM_USER = "YOUR_LASTFM_USERNAME"; 
+        const API_KEY = "YOUR_LASTFM_API_KEY";      
         let lastFmTrackStr = "";
 
         async function checkYTMusic() {
@@ -366,7 +316,7 @@
                 const ytPlayer = document.getElementById('yt-player');
 
                 if (!isPlaying) {
-                    statusContainer.innerHTML = `Not currently listening to music (YT music on top)`;
+                    statusContainer.innerHTML = `Not currently listening to YT Music`;
                     playerContainer.style.display = "none";
                     ytPlayer.src = ""; 
                     lastFmTrackStr = "";
@@ -379,7 +329,7 @@
 
                 if (newTrackStr !== lastFmTrackStr) {
                     lastFmTrackStr = newTrackStr;
-                    statusContainer.innerHTML = `Listening to: <strong>${trackName}</strong> by ${artistName}`;
+                    statusContainer.innerHTML = `What I'm listening to: <strong>${trackName}</strong> by ${artistName}`;
                     
                     const searchUrl = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(newTrackStr)}`;
                     ytPlayer.src = searchUrl;
