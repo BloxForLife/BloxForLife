@@ -304,6 +304,9 @@
                     hasAutoplayed = true;
                 }).catch(() => {});
             }
+            if (ytPlayer && typeof ytPlayer.getPlayerState === 'function' && ytPlayer.getPlayerState() !== 1 && ytPlayer.playVideo) {
+                try { ytPlayer.playVideo(); } catch (err) {}
+            }
         });
 
         playBtn.addEventListener('click', () => {
@@ -333,28 +336,24 @@
             }
             if (ytPlayer && ytPlayer.loadPlaylist) {
                 ytPlayer.loadPlaylist({ listType: 'search', list: query });
+                try { ytPlayer.playVideo(); } catch (err) {}
             } else {
                 ytPlayer = new YT.Player('yt-player', {
                     height: '220',
                     width: '100%',
-                    playerVars: { listType: 'search', list: query, autoplay: 1 },
-                    events: { onStateChange: onPlayerStateChange }
+                    playerVars: { listType: 'search', list: query, autoplay: 1, playsinline: 1 }
                 });
             }
         }
 
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.PLAYING) {
-                if (lyricsInterval) clearInterval(lyricsInterval);
-                lyricsInterval = setInterval(() => {
-                    if (ytPlayer && ytPlayer.getCurrentTime) {
-                        updateLyricHighlight(ytPlayer.getCurrentTime());
-                    }
-                }, 250);
-            } else {
-                clearInterval(lyricsInterval);
+        // Persistent poll instead of relying only on the onStateChange event —
+        // mobile browsers often block autoplay silently, so this catches playback
+        // whenever it actually starts (including if the user has to tap the player).
+        setInterval(() => {
+            if (ytPlayer && typeof ytPlayer.getPlayerState === 'function' && ytPlayer.getPlayerState() === 1 && ytPlayer.getCurrentTime) {
+                updateLyricHighlight(ytPlayer.getCurrentTime());
             }
-        }
+        }, 250);
 
         function parseLRC(lrc) {
             const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
@@ -426,11 +425,23 @@
 
             currentLyrics = lyricsData.synced ? lyricsData.lines : [];
             scrollEl.innerHTML = lyricsData.lines.map(l => `<div class="lyric-line">${l.text}</div>`).join('');
-            scrollEl.style.transform = 'translateY(0px)';
+            container.scrollTop = 0;
             container.classList.toggle('unsynced', !lyricsData.synced);
             if (header) header.style.display = lyricsData.synced ? 'none' : 'block';
             container.style.display = 'block';
         }
+
+        // Manual scroll detection so auto-scroll doesn't fight your finger
+        let lyricsUserScrolling = false;
+        let lyricsUserScrollTimeout = null;
+        const lyricsContainerEl = document.getElementById('lyrics-container');
+        ['touchstart', 'wheel', 'pointerdown'].forEach(evt => {
+            lyricsContainerEl.addEventListener(evt, () => {
+                lyricsUserScrolling = true;
+                clearTimeout(lyricsUserScrollTimeout);
+                lyricsUserScrollTimeout = setTimeout(() => { lyricsUserScrolling = false; }, 3500);
+            }, { passive: true });
+        });
 
         function updateLyricHighlight(currentTime) {
             if (!currentLyrics.length) return;
@@ -442,11 +453,12 @@
             const scrollEl = document.getElementById('lyrics-scroll');
             const lines = scrollEl.querySelectorAll('.lyric-line');
             lines.forEach((line, i) => line.classList.toggle('active', i === activeIndex));
+            if (lyricsUserScrolling) return;
             const activeLine = lines[activeIndex];
             if (activeLine) {
-                const containerHeight = scrollEl.parentElement.clientHeight;
-                const offset = activeLine.offsetTop - (containerHeight / 2) + (activeLine.clientHeight / 2);
-                scrollEl.style.transform = `translateY(-${offset}px)`;
+                const container = lyricsContainerEl;
+                const target = activeLine.offsetTop - (container.clientHeight / 2) + (activeLine.clientHeight / 2);
+                container.scrollTo({ top: target, behavior: 'smooth' });
             }
         }
 
