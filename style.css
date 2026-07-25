@@ -148,6 +148,54 @@ input[type=range]::-moz-range-thumb { height: 16px; width: 16px; border-radius: 
 .ytmusic-header i { font-size: 20px; color: #ff0000; }
 .ytmusic-header strong { color: #fff; }
 
+/* Now Playing Track Display */
+.now-playing-track { margin-top: 10px; }
+.track-name { font-size: 17px; font-weight: 800; color: #fff; line-height: 1.3; }
+.track-artist { font-size: 13px; color: #ff4d4d; font-weight: 600; margin-top: 2px; }
+
+#yt-player-container { margin-top: 15px; border-radius: 8px; overflow: hidden; }
+
+/* Synced Lyrics Panel */
+.lyrics-container {
+    margin-top: 15px;
+    height: 180px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.25);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+}
+.lyrics-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 90px 16px;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.lyric-line {
+    font-size: 14px;
+    color: #71717a;
+    text-align: center;
+    transition: color 0.3s ease, font-size 0.3s ease;
+}
+.lyric-line.active {
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+}
+.lyrics-sync-note {
+    position: absolute;
+    top: 6px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 10px;
+    color: #71717a;
+    letter-spacing: 0.5px;
+    z-index: 1;
+}
+
 /* Grid Buttons */
 .links { display: flex; flex-direction: column; gap: 15px; }
 .btn { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 18px; color: #fff; text-decoration: none; border-radius: 14px; font-size: 16px; font-weight: 600; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.03); }
@@ -212,6 +260,12 @@ input[type=range]::-moz-range-thumb { height: 16px; width: 16px; border-radius: 
 
     .ytmusic-widget { padding: 12px 16px; margin-bottom: 25px; }
     .ytmusic-header { font-size: 12px; }
+    .track-name { font-size: 15px; }
+    .track-artist { font-size: 12px; }
+    .lyrics-container { height: 140px; }
+    .lyrics-scroll { padding: 65px 10px; }
+    .lyric-line { font-size: 13px; }
+    .lyric-line.active { font-size: 14px; }
 
     .btn { padding: 14px; font-size: 14px; gap: 10px; }
     .btn i { font-size: 18px; }
