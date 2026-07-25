@@ -330,22 +330,54 @@
 
         // --- LIVE YOUTUBE MUSIC TRACKER (LAST.FM) ---
         const LASTFM_USER = "BloxForLife"; 
-        const API_KEY = "f3de807b104e2a6f71a28b3b1db50484";      
+        const API_KEY = "f3de807b104e2a6f71a28b3b1db50484";
+        const YOUTUBE_API_KEY = "AIzaSyAPilSIQvtFSLr-GMdIqyqhorsE6XXj55o"; // <-- put your key from Google Cloud Console here
         let lastFmTrackStr = "";
 
-        function loadYouTubePlayer(query) {
+        async function searchYouTubeVideoId(query) {
+            if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "PASTE_YOUR_YOUTUBE_API_KEY_HERE") {
+                console.warn('YouTube: no API key set yet.');
+                return null;
+            }
+            try {
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&q=${encodeURIComponent(query)}&key=${YOUTUBE_API_KEY}`);
+                const data = await res.json();
+                if (data.error) {
+                    console.error('YouTube API error:', data.error.message);
+                    return null;
+                }
+                if (data.items && data.items.length > 0) {
+                    return data.items[0].id.videoId;
+                }
+                console.warn('YouTube: no video results for', query);
+                return null;
+            } catch (err) {
+                console.error('YouTube search error:', err);
+                return null;
+            }
+        }
+
+        async function loadYouTubePlayer(query) {
             if (!ytApiReady) {
                 setTimeout(() => loadYouTubePlayer(query), 300);
                 return;
             }
-            if (ytPlayer && ytPlayer.loadPlaylist) {
-                ytPlayer.loadPlaylist({ listType: 'search', list: query });
+            const videoId = await searchYouTubeVideoId(query);
+            if (!videoId) {
+                document.getElementById('yt-player-container').style.display = 'none';
+                return;
+            }
+            document.getElementById('yt-player-container').style.display = 'block';
+
+            if (ytPlayer && ytPlayer.loadVideoById) {
+                ytPlayer.loadVideoById(videoId);
                 if (userHasInteracted) { try { ytPlayer.playVideo(); } catch (err) {} }
             } else {
                 ytPlayer = new YT.Player('yt-player', {
                     height: '220',
                     width: '100%',
-                    playerVars: { listType: 'search', list: query, autoplay: 1, playsinline: 1 },
+                    videoId: videoId,
+                    playerVars: { autoplay: 1, playsinline: 1 },
                     events: {
                         onReady: (event) => {
                             if (userHasInteracted) { try { event.target.playVideo(); } catch (err) {} }
