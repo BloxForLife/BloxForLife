@@ -211,9 +211,11 @@
         const music = document.getElementById('bg-music');
         const playBtn = document.getElementById('play-btn');
         let hasAutoplayed = false;
+        let userHasInteracted = false;
 
         document.getElementById("console-loader").addEventListener("click", () => {
             if (!setupFinished) return;
+            userHasInteracted = true;
             triggerSiteEntrance();
         });
 
@@ -298,6 +300,7 @@
 
         document.addEventListener('click', (e) => {
             if (e.target.closest('#play-btn') || e.target.closest('#volume-slider') || e.target.closest('#console-loader')) return;
+            userHasInteracted = true;
             if (!hasAutoplayed && music.paused) {
                 music.play().then(() => {
                     playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
@@ -311,6 +314,7 @@
 
         playBtn.addEventListener('click', () => {
             hasAutoplayed = true;
+            userHasInteracted = true;
             if (music.paused) {
                 music.play();
                 playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
@@ -336,12 +340,17 @@
             }
             if (ytPlayer && ytPlayer.loadPlaylist) {
                 ytPlayer.loadPlaylist({ listType: 'search', list: query });
-                try { ytPlayer.playVideo(); } catch (err) {}
+                if (userHasInteracted) { try { ytPlayer.playVideo(); } catch (err) {} }
             } else {
                 ytPlayer = new YT.Player('yt-player', {
                     height: '220',
                     width: '100%',
-                    playerVars: { listType: 'search', list: query, autoplay: 1, playsinline: 1 }
+                    playerVars: { listType: 'search', list: query, autoplay: 1, playsinline: 1 },
+                    events: {
+                        onReady: (event) => {
+                            if (userHasInteracted) { try { event.target.playVideo(); } catch (err) {} }
+                        }
+                    }
                 });
             }
         }
@@ -350,8 +359,13 @@
         // mobile browsers often block autoplay silently, so this catches playback
         // whenever it actually starts (including if the user has to tap the player).
         setInterval(() => {
-            if (ytPlayer && typeof ytPlayer.getPlayerState === 'function' && ytPlayer.getPlayerState() === 1 && ytPlayer.getCurrentTime) {
+            if (!ytPlayer || typeof ytPlayer.getPlayerState !== 'function') return;
+            const state = ytPlayer.getPlayerState();
+            if (state === 1 && ytPlayer.getCurrentTime) {
                 updateLyricHighlight(ytPlayer.getCurrentTime());
+            } else if (userHasInteracted && (state === -1 || state === 2 || state === 5) && ytPlayer.playVideo) {
+                // Not yet playing but should be able to — retry
+                try { ytPlayer.playVideo(); } catch (err) {}
             }
         }, 250);
 
