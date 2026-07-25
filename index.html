@@ -307,9 +307,6 @@
                     hasAutoplayed = true;
                 }).catch(() => {});
             }
-            if (ytPlayer && typeof ytPlayer.getPlayerState === 'function' && ytPlayer.getPlayerState() !== 1 && ytPlayer.playVideo) {
-                try { ytPlayer.playVideo(); } catch (err) {}
-            }
         });
 
         playBtn.addEventListener('click', () => {
@@ -331,7 +328,7 @@
         // --- LIVE YOUTUBE MUSIC TRACKER (LAST.FM) ---
         const LASTFM_USER = "BloxForLife"; 
         const API_KEY = "f3de807b104e2a6f71a28b3b1db50484";
-        const YOUTUBE_API_KEY = "AIzaSyAPilSIQvtFSLr-GMdIqyqhorsE6XXj55o"; // <-- put your key from Google Cloud Console here
+        const YOUTUBE_API_KEY = "AIzaSyAPilSIQvtFSLr-GMdIqyqhorsE6XXj55o";
         let lastFmTrackStr = "";
 
         async function searchYouTubeVideoId(query) {
@@ -369,20 +366,14 @@
             }
             document.getElementById('yt-player-container').style.display = 'block';
 
-            if (ytPlayer && ytPlayer.loadVideoById) {
-                ytPlayer.loadVideoById(videoId);
-                if (userHasInteracted) { try { ytPlayer.playVideo(); } catch (err) {} }
+            if (ytPlayer && ytPlayer.cueVideoById) {
+                ytPlayer.cueVideoById(videoId);
             } else {
                 ytPlayer = new YT.Player('yt-player', {
                     height: '220',
                     width: '100%',
                     videoId: videoId,
-                    playerVars: { autoplay: 1, playsinline: 1 },
-                    events: {
-                        onReady: (event) => {
-                            if (userHasInteracted) { try { event.target.playVideo(); } catch (err) {} }
-                        }
-                    }
+                    playerVars: { autoplay: 0, playsinline: 1 }
                 });
             }
         }
@@ -395,9 +386,6 @@
             const state = ytPlayer.getPlayerState();
             if (state === 1 && ytPlayer.getCurrentTime) {
                 updateLyricHighlight(ytPlayer.getCurrentTime());
-            } else if (userHasInteracted && (state === -1 || state === 2 || state === 5) && ytPlayer.playVideo) {
-                // Not yet playing but should be able to — retry
-                try { ytPlayer.playVideo(); } catch (err) {}
             }
         }, 250);
 
