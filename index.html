@@ -103,10 +103,21 @@
             <div class="ytmusic-widget animate-up delay-5" id="ytmusic-widget">
                 <div class="ytmusic-header">
                     <i class="fa-brands fa-youtube"></i>
-                    <span id="yt-now-playing">Connecting to Last.fm...</span>
+                    <span id="yt-status-text">Connecting to Last.fm...</span>
                 </div>
-                <div id="yt-player-container" style="display: none; margin-top: 15px;">
-                    <iframe id="yt-player" width="100%" height="220" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="border-radius: 8px;"></iframe>
+
+                <div class="now-playing-track" id="now-playing-track" style="display: none;">
+                    <div class="track-name" id="track-name-display"></div>
+                    <div class="track-artist" id="track-artist-display"></div>
+                </div>
+
+                <div id="yt-player-container" style="display: none;">
+                    <div id="yt-player"></div>
+                </div>
+
+                <div class="lyrics-container" id="lyrics-container" style="display: none;">
+                    <div class="lyrics-sync-note" id="lyrics-sync-note" style="display: none;">(lyrics not synced)</div>
+                    <div class="lyrics-scroll" id="lyrics-scroll"></div>
                 </div>
             </div>
 
@@ -123,6 +134,22 @@
     </div>
 
     <script>
+        // Load real YouTube IFrame API (needed to track playback position for lyric sync)
+        (function() {
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            document.head.appendChild(tag);
+        })();
+
+        let ytApiReady = false;
+        let ytPlayer = null;
+        let currentLyrics = [];
+        let lyricsInterval = null;
+
+        window.onYouTubeIframeAPIReady = function() {
+            ytApiReady = true;
+        };
+
         const discordId = '1075335630353080340';
 
         // --- CONSOLE LOADING ENGINE ---
@@ -299,6 +326,130 @@
         const API_KEY = "f3de807b104e2a6f71a28b3b1db50484";      
         let lastFmTrackStr = "";
 
+        function loadYouTubePlayer(query) {
+            if (!ytApiReady) {
+                setTimeout(() => loadYouTubePlayer(query), 300);
+                return;
+            }
+            if (ytPlayer && ytPlayer.loadPlaylist) {
+                ytPlayer.loadPlaylist({ listType: 'search', list: query });
+            } else {
+                ytPlayer = new YT.Player('yt-player', {
+                    height: '220',
+                    width: '100%',
+                    playerVars: { listType: 'search', list: query, autoplay: 1 },
+                    events: { onStateChange: onPlayerStateChange }
+                });
+            }
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.PLAYING) {
+                if (lyricsInterval) clearInterval(lyricsInterval);
+                lyricsInterval = setInterval(() => {
+                    if (ytPlayer && ytPlayer.getCurrentTime) {
+                        updateLyricHighlight(ytPlayer.getCurrentTime());
+                    }
+                }, 250);
+            } else {
+                clearInterval(lyricsInterval);
+            }
+        }
+
+        function parseLRC(lrc) {
+            const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
+            const parsed = [];
+            lrc.split('\n').forEach(line => {
+                const match = line.match(timeRegex);
+                if (match) {
+                    const min = parseInt(match[1]);
+                    const sec = parseInt(match[2]);
+                    const ms = parseInt(match[3].padEnd(3, '0'));
+                    const text = line.replace(timeRegex, '').trim();
+                    if (text) parsed.push({ time: min * 60 + sec + ms / 1000, text });
+                }
+            });
+            return parsed;
+        }
+
+        function cleanTrackName(name) {
+            return name
+                .replace(/\(feat\.?.*?\)/gi, '')
+                .replace(/\(ft\.?.*?\)/gi, '')
+                .replace(/\((live|remastered|remaster|acoustic|radio edit|explicit|clean|deluxe|mono|stereo)[^)]*\)/gi, '')
+                .replace(/\s*-\s*(live|remastered|remaster|acoustic|radio edit|explicit|clean|deluxe|mono|stereo).*$/i, '')
+                .trim();
+        }
+
+        async function fetchSyncedLyrics(trackName, artistName) {
+            const cleanTrack = cleanTrackName(trackName);
+            try {
+                let res = await fetch(`https://lrclib.net/api/search?track_name=${encodeURIComponent(cleanTrack)}&artist_name=${encodeURIComponent(artistName)}`);
+                let data = await res.json();
+
+                if (!Array.isArray(data) || !data.length) {
+                    console.warn('Lyrics: no results for', cleanTrack, artistName);
+                    return null;
+                }
+
+                let match = data.find(d => d.syncedLyrics);
+                if (match) {
+                    console.log('Lyrics: found synced lyrics for', cleanTrack);
+                    return { synced: true, lines: parseLRC(match.syncedLyrics) };
+                }
+
+                match = data.find(d => d.plainLyrics);
+                if (match) {
+                    console.log('Lyrics: only plain (unsynced) lyrics available for', cleanTrack);
+                    return { synced: false, lines: match.plainLyrics.split('\n').filter(l => l.trim()).map(text => ({ text })) };
+                }
+
+                console.warn('Lyrics: match found but no lyrics text for', cleanTrack);
+                return null;
+            } catch (err) {
+                console.error('Lyrics fetch error:', err);
+                return null;
+            }
+        }
+
+        function renderLyrics(lyricsData) {
+            const scrollEl = document.getElementById('lyrics-scroll');
+            const container = document.getElementById('lyrics-container');
+            const header = document.getElementById('lyrics-sync-note');
+
+            if (!lyricsData || !lyricsData.lines.length) {
+                container.style.display = 'none';
+                scrollEl.innerHTML = '';
+                currentLyrics = [];
+                return;
+            }
+
+            currentLyrics = lyricsData.synced ? lyricsData.lines : [];
+            scrollEl.innerHTML = lyricsData.lines.map(l => `<div class="lyric-line">${l.text}</div>`).join('');
+            scrollEl.style.transform = 'translateY(0px)';
+            container.classList.toggle('unsynced', !lyricsData.synced);
+            if (header) header.style.display = lyricsData.synced ? 'none' : 'block';
+            container.style.display = 'block';
+        }
+
+        function updateLyricHighlight(currentTime) {
+            if (!currentLyrics.length) return;
+            let activeIndex = 0;
+            for (let i = 0; i < currentLyrics.length; i++) {
+                if (currentLyrics[i].time <= currentTime) activeIndex = i;
+                else break;
+            }
+            const scrollEl = document.getElementById('lyrics-scroll');
+            const lines = scrollEl.querySelectorAll('.lyric-line');
+            lines.forEach((line, i) => line.classList.toggle('active', i === activeIndex));
+            const activeLine = lines[activeIndex];
+            if (activeLine) {
+                const containerHeight = scrollEl.parentElement.clientHeight;
+                const offset = activeLine.offsetTop - (containerHeight / 2) + (activeLine.clientHeight / 2);
+                scrollEl.style.transform = `translateY(-${offset}px)`;
+            }
+        }
+
         async function checkYTMusic() {
             if (!LASTFM_USER || LASTFM_USER === "YOUR_LASTFM_USERNAME") return; 
 
@@ -311,29 +462,39 @@
                 const track = data.recenttracks.track[0];
                 const isPlaying = track['@attr'] && track['@attr'].nowplaying === 'true';
                 
-                const statusContainer = document.getElementById('yt-now-playing');
+                const statusText = document.getElementById('yt-status-text');
+                const trackDisplay = document.getElementById('now-playing-track');
                 const playerContainer = document.getElementById('yt-player-container');
-                const ytPlayer = document.getElementById('yt-player');
+                const lyricsContainer = document.getElementById('lyrics-container');
 
                 if (!isPlaying) {
-                    statusContainer.innerHTML = `Not currently listening to YT Music`;
+                    statusText.innerHTML = `Not currently listening to YT Music`;
+                    trackDisplay.style.display = "none";
                     playerContainer.style.display = "none";
-                    ytPlayer.src = ""; 
+                    lyricsContainer.style.display = "none";
                     lastFmTrackStr = "";
                     return;
                 }
 
+                // Exact, unmodified values straight from the API
                 const trackName = track.name;
                 const artistName = track.artist['#text'];
                 const newTrackStr = `${trackName} - ${artistName}`;
 
                 if (newTrackStr !== lastFmTrackStr) {
                     lastFmTrackStr = newTrackStr;
-                    statusContainer.innerHTML = `What I'm listening to: <strong>${trackName}</strong> by ${artistName}`;
-                    
-                    const searchUrl = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(newTrackStr)}`;
-                    ytPlayer.src = searchUrl;
+
+                    statusText.innerHTML = `Now playing`;
+                    document.getElementById('track-name-display').textContent = trackName;
+                    document.getElementById('track-artist-display').textContent = artistName;
+                    trackDisplay.style.display = "block";
+
                     playerContainer.style.display = "block";
+                    loadYouTubePlayer(newTrackStr);
+
+                    lyricsContainer.style.display = "none";
+                    const lyricsData = await fetchSyncedLyrics(trackName, artistName);
+                    renderLyrics(lyricsData);
                 }
             } catch (err) {
                 console.error("Error fetching Last.fm data:", err);
