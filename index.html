@@ -10,18 +10,10 @@
 </head>
 <body>
     <div id="console-loader">
-        <div class="console-box">
-            <div class="console-header">
-                <span class="dot red"></span>
-                <span class="dot yellow"></span>
-                <span class="dot green"></span>
-                <span class="console-title">system_boot.sh</span>
-            </div>
-            <div class="console-body" id="console-log">
-                </div>
-        </div>
-        <div id="enter-prompt" class="enter-prompt">
-            <span class="blink-text">[ CLICK ANYWHERE TO ENTER SITE ]</span>
+        <div class="enter-box">
+            <i class="fa-solid fa-music enter-icon"></i>
+            <span class="enter-title">Click to enter</span>
+            <span class="enter-subtitle">Music will play</span>
         </div>
     </div>
 
@@ -153,69 +145,12 @@
 
         const discordId = '1075335630353080340';
 
-        // --- CONSOLE LOADING ENGINE ---
-        const consoleLines = [
-            { text: "SYSTEM: Initiate System Boot", delay: 250 },
-            { text: "Loading stuff...", delay: 200 },
-            { text: "Loading more stuff...", delay: 300 },
-            { text: "SYSTEM: Foundation Loaded", delay: 150 },
-            { text: "Fetching Blox's Status...", delay: 300 },
-            { text: "Fetching Blox's Status Emoji...", delay: 150 },
-            { text: "Finishing up Profile...", delay: 300 },
-            { text: "SYSTEM: Profile Loaded.", delay: 250 },
-            { text: "Meow", delay: 400, secret: true },
-            { text: "What was that line above?", delay: 250, secondarySecret: true },
-            { text: "Fetching Connections Links...", delay: 200 },
-            { text: "Fetching Connections Titles...", delay: 150 },
-            { text: "Fetching Connections Logos...", delay: 300 },
-            { text: "SYSTEM: Connections Loaded.", delay: 150 },
-            { text: "Loading my favorite song...", delay: 300 },
-            { text: "SYSTEM: Audio Player Loaded.", delay: 150 },
-            { text: "Getting made fun of because this was vibe coded...", delay: 200 },
-            { text: "Finishing Touches...", delay: 150 },
-            { text: "SYSTEM: Site Fully Loaded. Awaiting User Response.", delay: 300 }
-        ];
-
-        const logContainer = document.getElementById("console-log");
-        let currentLine = 0;
-        let setupFinished = false;
-
-        function printLogLine() {
-            if (currentLine < consoleLines.length) {
-                const item = consoleLines[currentLine];
-                const p = document.createElement("p");
-                
-                if (item.secret) {
-                    p.className = "console-line secret-line";
-                    p.innerHTML = `<span class="prompt">?</span> ${item.text}`;
-                } else if (item.secondarySecret) {
-                    p.className = "console-line sub-secret-line";
-                    p.innerHTML = `<span class="prompt">!</span> ${item.text}`;
-                } else {
-                    p.className = "console-line";
-                    p.innerHTML = `<span class="prompt">></span> ${item.text}`;
-                }
-                
-                logContainer.appendChild(p);
-                logContainer.scrollTop = logContainer.scrollHeight;
-                currentLine++;
-                setTimeout(printLogLine, item.delay);
-            } else {
-                setTimeout(() => {
-                    document.getElementById("enter-prompt").classList.add("visible");
-                    setupFinished = true;
-                }, 300);
-            }
-        }
-        window.addEventListener("DOMContentLoaded", printLogLine);
-
         const music = document.getElementById('bg-music');
         const playBtn = document.getElementById('play-btn');
         let hasAutoplayed = false;
         let userHasInteracted = false;
 
         document.getElementById("console-loader").addEventListener("click", () => {
-            if (!setupFinished) return;
             userHasInteracted = true;
             triggerSiteEntrance();
         });
