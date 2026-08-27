@@ -248,7 +248,7 @@ input[type=range]::-moz-range-thumb { height: 13px; width: 13px; border-radius: 
     .avatar { width: 68px; height: 68px; }
     .profile-section { padding: 20px 0; }
     .section-copy { font-size: 14px; }
-    .music-player { padding: 12px; }
+    .music-player { padding: 12px; justify-content: center; }
     .volume-control { width: 100%; margin-left: 0; justify-content: center; }
     input[type=range] { width: 140px; }
     .lyrics-container { height: 140px; }
