@@ -214,6 +214,29 @@ input[type=range]::-moz-range-thumb { height: 13px; width: 13px; border-radius: 
 .btn i { font-size: 15px; color: inherit; }
 .btn:hover { color: var(--accent); border-color: var(--accent); transform: translateX(3px); }
 
+/* --- Guestbook --- */
+.guestbook-form { display: flex; flex-direction: column; gap: 10px; }
+.guestbook-input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+.guestbook-input:focus { border-color: var(--accent); }
+.guestbook-input::placeholder { color: var(--text-muted); }
+.guestbook-textarea { resize: vertical; min-height: 70px; }
+.guestbook-submit { align-self: flex-start; }
+.guestbook-status { font-size: 12px; color: var(--text-muted); min-height: 16px; }
+
+/* --- Footer --- */
+.profile-footer { display: flex; justify-content: center; padding-top: 26px; }
+.visitor-badge { opacity: 0.75; height: 20px; }
+
 /* --- Mobile --- */
 @media (max-width: 600px) {
     body { padding: 40px 16px; }
