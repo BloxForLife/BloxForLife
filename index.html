@@ -37,22 +37,22 @@
                     </span>
                 </div>
 
-                <div class="meta-line">14 · Cairo · <span id="local-time">--:--:--</span></div>
+                <div class="meta-line">14 · Cairo · <span id="local-time">--:--:--</span> · <span id="weather-info"><i class="fa-solid fa-cloud"></i> --°C</span></div>
 
-                <div class="donate-pill">Hi, give me money.</div>
+                <div class="donate-pill">🏎️ Saving up for a Technic Red Bull F1 Lego set — donations appreciated</div>
             </header>
 
             <div class="divider"></div>
 
             <section class="profile-section">
                 <div class="eyebrow">About</div>
-                <p class="section-copy">Hey! I'm BloxForLife, 14 years old. I like planes.</p>
+                <p class="section-copy">Hey! I'm BloxForLife, 14 years old. I'm a Discord bot developer and Python bot developer. Currently working some gigs to save up for the Technic Red Bull F1 Lego set, any donations are appreciated!!!</p>
             </section>
 
             <div class="divider"></div>
 
             <section class="profile-section">
-                <div class="eyebrow">Experienced with</div>
+                <div class="eyebrow">Stack</div>
                 <div class="stack-line">
                     <span><i class="fa-brands fa-python"></i> Python</span>
                     <span class="dot-sep">·</span>
@@ -135,6 +135,22 @@
                     <a href="https://docs.google.com/document/d/11pyDSeXnB-HiSzZjVJNPtorc352CkmRGuYWCB3ZZ16c/edit?usp=sharing" target="_blank" class="btn"><i class="fa-solid fa-book-open"></i> Roleplay Experience</a>
                 </div>
             </section>
+
+            <div class="divider"></div>
+
+            <section class="profile-section">
+                <div class="eyebrow">Leave a note</div>
+                <form id="guestbook-form" class="guestbook-form">
+                    <input type="text" id="guestbook-name" class="guestbook-input" placeholder="Your name" maxlength="40" required>
+                    <textarea id="guestbook-message" class="guestbook-input guestbook-textarea" placeholder="Say something..." maxlength="300" required></textarea>
+                    <button type="submit" class="ctrl-btn guestbook-submit">Send</button>
+                    <div class="guestbook-status" id="guestbook-status"></div>
+                </form>
+            </section>
+
+            <footer class="profile-footer">
+                <img src="https://visitor-badge.laobi.icu/badge?page_id=bloxforlife.profile&color=C79A56&left_text=visitors" alt="visitor count" class="visitor-badge">
+            </footer>
 
         </div>
     </div>
@@ -495,6 +511,89 @@
                 console.error("Error fetching Last.fm data:", err);
             }
         }
+
+        // --- LIVE WEATHER (Open-Meteo, no API key needed) ---
+        const CAIRO_LAT = 30.0444;
+        const CAIRO_LON = 31.2357;
+
+        function weatherIcon(code) {
+            if (code === 0) return 'fa-sun';
+            if ([1, 2].includes(code)) return 'fa-cloud-sun';
+            if (code === 3) return 'fa-cloud';
+            if ([45, 48].includes(code)) return 'fa-smog';
+            if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return 'fa-cloud-rain';
+            if ([71, 73, 75, 85, 86].includes(code)) return 'fa-snowflake';
+            if ([95, 96, 99].includes(code)) return 'fa-bolt';
+            return 'fa-cloud';
+        }
+
+        async function fetchWeather() {
+            try {
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${CAIRO_LAT}&longitude=${CAIRO_LON}&current_weather=true`);
+                const data = await res.json();
+                const temp = Math.round(data.current_weather.temperature);
+                const icon = weatherIcon(data.current_weather.weathercode);
+                document.getElementById('weather-info').innerHTML = `<i class="fa-solid ${icon}"></i> ${temp}°C`;
+            } catch (err) {
+                console.error('Weather fetch error:', err);
+            }
+        }
+
+        fetchWeather();
+        setInterval(fetchWeather, 15 * 60 * 1000); // refresh every 15 min
+
+        // --- GUESTBOOK (posts to a Discord webhook) ---
+        const GUESTBOOK_WEBHOOK_URL = "https://discord.com/api/webhooks/1542667675057131541/GxJpxGJQAFeJC6ucOKROCKNkTAF-KVMycRL2bdBJAYV2WLXPJRUWaYP_eydUUuJDmFz0";
+
+        document.getElementById('guestbook-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nameInput = document.getElementById('guestbook-name');
+            const msgInput = document.getElementById('guestbook-message');
+            const statusEl = document.getElementById('guestbook-status');
+            const submitBtn = e.target.querySelector('.guestbook-submit');
+
+            if (!GUESTBOOK_WEBHOOK_URL || GUESTBOOK_WEBHOOK_URL === "PASTE_YOUR_DISCORD_WEBHOOK_URL_HERE") {
+                statusEl.textContent = "Guestbook isn't set up yet.";
+                return;
+            }
+
+            const name = nameInput.value.trim();
+            const message = msgInput.value.trim();
+            if (!name || !message) return;
+
+            submitBtn.disabled = true;
+            statusEl.textContent = "Sending...";
+
+            try {
+                const res = await fetch(GUESTBOOK_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: "New note on bloxforlife.dev",
+                            fields: [
+                                { name: "From", value: name },
+                                { name: "Message", value: message }
+                            ],
+                            color: 13091926
+                        }]
+                    })
+                });
+
+                if (res.ok) {
+                    statusEl.textContent = "Sent — thanks!";
+                    nameInput.value = "";
+                    msgInput.value = "";
+                } else {
+                    statusEl.textContent = "Something went wrong, try again.";
+                }
+            } catch (err) {
+                statusEl.textContent = "Something went wrong, try again.";
+                console.error('Guestbook error:', err);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
 
         checkYTMusic();
         setInterval(checkYTMusic, 20000);
