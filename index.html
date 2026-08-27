@@ -6,6 +6,9 @@
     <title>BloxForLife</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script defer src="https://cloud.umami.is/script.js" data-website-id="fe493e6e-5a2f-4289-89e6-1ae062708f9a"></script>
 </head>
 <body>
@@ -20,108 +23,222 @@
     <div class="bg-grid"></div>
 
     <div class="container">
-        <div class="profile-card">
-            
-            <div class="pfp-wrapper animate-pop">
-                <div class="pfp-container">
-                    <img src="blox.jpg" alt="Profile" class="avatar" id="discord-pfp">
+        <div class="editor-window animate-window">
+
+            <div class="editor-titlebar">
+                <div class="editor-dots">
+                    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
                 </div>
-                <div class="status-dot" id="discord-status"></div>
-            </div>
-            
-            <h1 class="animate-up delay-1">BloxForLife</h1>
-            
-            <div class="custom-status animate-up delay-2" id="custom-status-badge" style="display: none;">
-                <span id="custom-status-emoji"></span>
-                <span id="custom-status-text">Thinking...</span>
-            </div>
-            
-            <div class="bio animate-up delay-3">
-                <p>Discord Bot Developer</p>
-                <p class="donate-text">Donate me some money to get me the Technic Red Bull F1 Lego set!!!</p>
+                <div class="editor-filename"><i class="fa-brands fa-python"></i> profile.py</div>
+                <div class="editor-live"><span class="status-dot" id="discord-status"></span><span id="local-time">--:--:--</span></div>
             </div>
 
-            <div class="python-banner animate-up delay-3">
-                <i class="fa-brands fa-python"></i>
-                <span>Python Developer</span>
-                <span class="banner-divider">|</span>
-                <i class="fa-brands fa-discord"></i>
-                <span>Discord Bot Dev</span>
-            </div>
+            <div class="editor-body">
 
-            <div class="section-card animate-up delay-3">
-                <div class="section-header"><i class="fa-solid fa-user"></i> About Me</div>
-                <p class="section-body">Hey! I'm BloxForLife, 14 years old. I'm a Discord bot developer and Python bot developer. Currently working some gigs to save up for the Technic Red Bull F1 Lego set, any donations are appreciated!!!</p>
-            </div>
+                <div class="code-row">
+                    <span class="line-no">1</span>
+                    <div class="line-content comment-line"># bloxforlife.dev — profile.py</div>
+                </div>
+                <div class="code-row">
+                    <span class="line-no">2</span>
+                    <div class="line-content">&nbsp;</div>
+                </div>
 
-            <div class="section-card animate-up delay-4">
-                <div class="section-header"><i class="fa-solid fa-code-branch"></i> Projects</div>
-                <div class="projects-list">
-                    <a href="fbi.html" class="project-item" style="text-decoration: none; color: inherit;">
-                        <div class="project-icon fbi-icon">
-                            <img src="FBI.png" alt="FBI Logo" style="width: 32px; height: 32px; object-fit: contain;">
+                <div class="code-row">
+                    <span class="line-no">3</span>
+                    <div class="line-content"><span class="kw">class</span> <span class="cls">BloxForLife</span>(<span class="cls">DiscordBot</span>):</div>
+                </div>
+
+                <div class="code-row identity-row">
+                    <span class="line-no">4</span>
+                    <div class="line-content identity-content">
+                        <div class="pfp-wrapper">
+                            <div class="pfp-container">
+                                <img src="blox.jpg" alt="Profile" class="avatar" id="discord-pfp">
+                            </div>
                         </div>
-                        <div class="project-info">
-                            <div class="project-name">NYCRPP | Federal Bureau of Investigation Utilities</div>
-                            <div class="project-desc">NYC Roleplay Police and FBI utilities</div>
+                        <div class="identity-fields">
+                            <div class="field-line"><span class="prop">name</span> = <span class="str">"BloxForLife"</span></div>
+                            <div class="field-line"><span class="prop">role</span> = <span class="str">"Discord Bot Developer"</span></div>
+                            <div class="field-line"><span class="prop">age</span> = <span class="num">14</span></div>
+                            <div class="field-line status-field">
+                                <span class="prop">status</span> =
+                                <span class="custom-status" id="custom-status-badge" style="display: none;">
+                                    <span id="custom-status-emoji"></span>
+                                    <span id="custom-status-text">Thinking...</span>
+                                </span>
+                                <span class="comment-inline"># live via Lanyard</span>
+                            </div>
                         </div>
-                    </a>
-                </div>
-            </div>
-
-            <div class="time-container animate-up delay-4">
-                <i class="fa-regular fa-clock"></i> <span id="local-time">Loading time...</span> (EEST)
-            </div>
-
-            <div class="spotify-widget animate-up delay-4" id="spotify-widget" style="display: none;">
-                <img id="spot-art" src="" alt="Album Art" class="spot-art">
-                <div class="spot-info">
-                    <div class="spot-title" id="spot-title">Song Name</div>
-                    <div class="spot-artist" id="spot-artist">Artist Name</div>
-                </div>
-                <i class="fa-brands fa-spotify spot-logo"></i>
-            </div>
-
-            <div class="music-player animate-up delay-5">
-                <i class="fa-solid fa-music music-icon"></i>
-                <audio id="bg-music" src="lyin2me.mp3" loop></audio>
-                <button id="play-btn" class="ctrl-btn"><i class="fa-solid fa-pause"></i> Pause</button>
-                <div class="volume-control">
-                    <span class="volume-label"><i class="fa-solid fa-volume-low"></i> Vol</span>
-                    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.3">
-                </div>
-            </div>
-
-            <!-- LIVE YOUTUBE MUSIC WIDGET -->
-            <div class="ytmusic-widget animate-up delay-5" id="ytmusic-widget">
-                <div class="ytmusic-header">
-                    <i class="fa-brands fa-youtube"></i>
-                    <span id="yt-status-text">Connecting to Last.fm...</span>
+                    </div>
                 </div>
 
-                <div class="now-playing-track" id="now-playing-track" style="display: none;">
-                    <div class="track-name" id="track-name-display"></div>
-                    <div class="track-artist" id="track-artist-display"></div>
+                <div class="code-row">
+                    <span class="line-no">5</span>
+                    <div class="line-content">&nbsp;</div>
                 </div>
 
-                <div id="yt-player-container" style="display: none;">
-                    <div id="yt-player"></div>
+                <div class="code-row">
+                    <span class="line-no">6</span>
+                    <div class="line-content docstring-open">&nbsp;&nbsp;&nbsp;&nbsp;"""</div>
+                </div>
+                <div class="code-row indent-row">
+                    <span class="line-no"></span>
+                    <div class="line-content">
+                        <p class="section-body">Hey! I'm BloxForLife, 14 years old. I'm a Discord bot developer and Python bot developer. Currently working some gigs to save up for the Technic Red Bull F1 Lego set, any donations are appreciated!!!</p>
+                    </div>
+                </div>
+                <div class="code-row">
+                    <span class="line-no">7</span>
+                    <div class="line-content docstring-open">&nbsp;&nbsp;&nbsp;&nbsp;"""</div>
                 </div>
 
-                <div class="lyrics-container" id="lyrics-container" style="display: none;">
-                    <div class="lyrics-sync-note" id="lyrics-sync-note" style="display: none;">(lyrics not synced)</div>
-                    <div class="lyrics-scroll" id="lyrics-scroll"></div>
+                <div class="code-row">
+                    <span class="line-no">8</span>
+                    <div class="line-content">&nbsp;</div>
                 </div>
-            </div>
 
-            <div class="links">
-                <a href="https://paypal.me/MichealJames196" target="_blank" class="btn paypal animate-up delay-6"><i class="fa-brands fa-paypal"></i> Donate via PayPal 🏎️</a>
-                <a href="https://discord.com/users/1075335630353080340" target="_blank" class="btn discord animate-up delay-6"><i class="fa-brands fa-discord"></i> Discord</a>
-                <a href="https://www.roblox.com/users/4548670369/profile" target="_blank" class="btn roblox animate-up delay-7">
-                    <img src="https://cdn.simpleicons.org/roblox/ffffff" alt="Roblox" style="width: 20px; height: 20px;"> Roblox
-                </a>
-                <a href="https://github.com/BloxForLife" target="_blank" class="btn github animate-up delay-8"><i class="fa-brands fa-github"></i> GitHub</a>
-                <a href="https://docs.google.com/document/d/11pyDSeXnB-HiSzZjVJNPtorc352CkmRGuYWCB3ZZ16c/edit?usp=sharing" target="_blank" class="btn roleplay animate-up delay-9"><i class="fa-solid fa-book-open"></i> My Roleplay Experience</a>
+                <div class="code-row">
+                    <span class="line-no">9</span>
+                    <div class="line-content"><span class="prop">stack</span> = [</div>
+                </div>
+                <div class="code-row indent-row">
+                    <span class="line-no"></span>
+                    <div class="line-content">
+                        <div class="stack-list">
+                            <span class="stack-chip"><i class="fa-brands fa-python"></i> Python</span>
+                            <span class="stack-chip"><i class="fa-brands fa-discord"></i> discord.py</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="code-row">
+                    <span class="line-no">10</span>
+                    <div class="line-content">]</div>
+                </div>
+
+                <div class="code-row">
+                    <span class="line-no">11</span>
+                    <div class="line-content">&nbsp;</div>
+                </div>
+
+                <div class="code-row">
+                    <span class="line-no">12</span>
+                    <div class="line-content"><span class="prop">projects</span> = [</div>
+                </div>
+                <div class="code-row indent-row">
+                    <span class="line-no"></span>
+                    <div class="line-content">
+                        <div class="projects-list">
+                            <a href="fbi.html" class="project-item">
+                                <div class="project-icon fbi-icon">
+                                    <img src="FBI.png" alt="FBI Logo" style="width: 32px; height: 32px; object-fit: contain;">
+                                </div>
+                                <div class="project-info">
+                                    <div class="project-name">NYCRPP | Federal Bureau of Investigation Utilities</div>
+                                    <div class="project-desc">NYC Roleplay Police and FBI utilities</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="code-row">
+                    <span class="line-no">13</span>
+                    <div class="line-content">]</div>
+                </div>
+
+                <div class="code-row">
+                    <span class="line-no">14</span>
+                    <div class="line-content">&nbsp;</div>
+                </div>
+
+                <div class="code-row">
+                    <span class="line-no">15</span>
+                    <div class="line-content"><span class="prop">now_playing</span> = get_last_fm() <span class="comment-inline">&amp; player.controls()</span></div>
+                </div>
+                <div class="code-row indent-row">
+                    <span class="line-no"></span>
+                    <div class="line-content">
+
+                        <div class="spotify-widget" id="spotify-widget" style="display: none;">
+                            <img id="spot-art" src="" alt="Album Art" class="spot-art">
+                            <div class="spot-info">
+                                <div class="spot-title" id="spot-title">Song Name</div>
+                                <div class="spot-artist" id="spot-artist">Artist Name</div>
+                            </div>
+                            <i class="fa-brands fa-spotify spot-logo"></i>
+                        </div>
+
+                        <div class="music-player">
+                            <i class="fa-solid fa-music music-icon"></i>
+                            <audio id="bg-music" src="lyin2me.mp3" loop></audio>
+                            <button id="play-btn" class="ctrl-btn"><i class="fa-solid fa-pause"></i> Pause</button>
+                            <div class="volume-control">
+                                <span class="volume-label"><i class="fa-solid fa-volume-low"></i> Vol</span>
+                                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.3">
+                            </div>
+                        </div>
+
+                        <div class="ytmusic-widget" id="ytmusic-widget">
+                            <div class="ytmusic-header">
+                                <i class="fa-brands fa-youtube"></i>
+                                <span id="yt-status-text">Connecting to Last.fm...</span>
+                            </div>
+
+                            <div class="now-playing-track" id="now-playing-track" style="display: none;">
+                                <div class="track-name" id="track-name-display"></div>
+                                <div class="track-artist" id="track-artist-display"></div>
+                            </div>
+
+                            <div id="yt-player-container" style="display: none;">
+                                <div id="yt-player"></div>
+                            </div>
+
+                            <div class="lyrics-container" id="lyrics-container" style="display: none;">
+                                <div class="lyrics-sync-note" id="lyrics-sync-note" style="display: none;">(lyrics not synced)</div>
+                                <div class="lyrics-scroll" id="lyrics-scroll"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="code-row">
+                    <span class="line-no">16</span>
+                    <div class="line-content">&nbsp;</div>
+                </div>
+
+                <div class="code-row">
+                    <span class="line-no">17</span>
+                    <div class="line-content"><span class="prop">links</span> = {</div>
+                </div>
+                <div class="code-row indent-row">
+                    <span class="line-no"></span>
+                    <div class="line-content">
+                        <div class="links">
+                            <a href="https://paypal.me/MichealJames196" target="_blank" class="btn paypal"><span class="dict-key">paypal:</span> <i class="fa-brands fa-paypal"></i> Donate 🏎️</a>
+                            <a href="https://discord.com/users/1075335630353080340" target="_blank" class="btn discord"><span class="dict-key">discord:</span> <i class="fa-brands fa-discord"></i> Discord</a>
+                            <a href="https://www.roblox.com/users/4548670369/profile" target="_blank" class="btn roblox">
+                                <span class="dict-key">roblox:</span> <img src="https://cdn.simpleicons.org/roblox/ffffff" alt="Roblox" style="width: 18px; height: 18px;"> Roblox
+                            </a>
+                            <a href="https://github.com/BloxForLife" target="_blank" class="btn github"><span class="dict-key">github:</span> <i class="fa-brands fa-github"></i> GitHub</a>
+                            <a href="https://docs.google.com/document/d/11pyDSeXnB-HiSzZjVJNPtorc352CkmRGuYWCB3ZZ16c/edit?usp=sharing" target="_blank" class="btn roleplay"><span class="dict-key">roleplay:</span> <i class="fa-solid fa-book-open"></i> Experience</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="code-row">
+                    <span class="line-no">18</span>
+                    <div class="line-content">}</div>
+                </div>
+
+                <div class="code-row">
+                    <span class="line-no">19</span>
+                    <div class="line-content">&nbsp;</div>
+                </div>
+                <div class="code-row">
+                    <span class="line-no">20</span>
+                    <div class="line-content comment-line"># EOF</div>
+                </div>
+
             </div>
         </div>
     </div>
