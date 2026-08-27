@@ -83,9 +83,11 @@ h1 {
     font-size: 12px;
     color: var(--text-muted);
 }
-.status-emoji { width: 14px; height: 14px; }
+.status-emoji { width: 14px; height: 14px; display: block; }
+#custom-status-emoji { display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
 
-.meta-line { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; letter-spacing: 0.2px; }
+.meta-line { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; letter-spacing: 0.2px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px; }
+#weather-info { display: inline-flex; align-items: center; gap: 4px; line-height: 1; }
 
 .donate-pill {
     display: inline-block;
@@ -250,4 +252,14 @@ input[type=range]::-moz-range-thumb { height: 13px; width: 13px; border-radius: 
     .lyrics-container { height: 140px; }
     .lyrics-scroll { padding: 60px 10px; }
     .btn { padding: 11px 12px; font-size: 12px; }
+
+    .meta-line { font-size: 11px; gap: 3px; }
+    .custom-status-pill { font-size: 11px; padding: 3px 10px; }
+    .donate-pill { font-size: 11px; padding: 5px 12px; }
+
+    .guestbook-input { font-size: 13px; padding: 9px 11px; }
+    .guestbook-textarea { min-height: 60px; }
+    .guestbook-submit { align-self: stretch; text-align: center; justify-content: center; }
+
+    .profile-footer { padding-top: 20px; }
 }
