@@ -1,0 +1,74 @@
+function parseDevice(userAgent) {
+    if (!userAgent) return { browser: 'Unknown', os: 'Unknown' };
+
+    let browser = 'Unknown';
+    if (/Edg\//.test(userAgent)) browser = 'Edge';
+    else if (/OPR\//.test(userAgent)) browser = 'Opera';
+    else if (/Chrome\//.test(userAgent)) browser = 'Chrome';
+    else if (/Firefox\//.test(userAgent)) browser = 'Firefox';
+    else if (/Safari\//.test(userAgent)) browser = 'Safari';
+
+    let os = 'Unknown';
+    if (/Windows/.test(userAgent)) os = 'Windows';
+    else if (/Mac OS X/.test(userAgent)) os = 'macOS';
+    else if (/Android/.test(userAgent)) os = 'Android';
+    else if (/iPhone|iPad|iOS/.test(userAgent)) os = 'iOS';
+    else if (/Linux/.test(userAgent)) os = 'Linux';
+
+    return { browser, os };
+}
+
+export default async function handler(req, res) {
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    const { name, message } = req.body || {};
+
+    if (!name || !message || typeof name !== 'string' || typeof message !== 'string') {
+        return res.status(400).json({ error: 'Missing name or message' });
+    }
+    if (name.length > 40 || message.length > 300) {
+        return res.status(400).json({ error: 'Too long' });
+    }
+
+    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    if (!webhookUrl) {
+        return res.status(500).json({ error: 'Webhook not configured' });
+    }
+
+    // Derived server-side from the request itself — not client-supplied, so it can't be faked
+    const country = req.headers['x-vercel-ip-country'] || 'Unknown';
+    const cityRaw = req.headers['x-vercel-ip-city'];
+    const city = cityRaw ? decodeURIComponent(cityRaw) : 'Unknown';
+    const location = (country !== 'Unknown' || city !== 'Unknown') ? `${city}, ${country}` : 'Unknown';
+
+    const { browser, os } = parseDevice(req.headers['user-agent']);
+
+    try {
+        const discordRes = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                embeds: [{
+                    title: 'New note on bloxforlife.com',
+                    fields: [
+                        { name: 'From', value: name },
+                        { name: 'Message', value: message },
+                        { name: 'Location', value: location, inline: true },
+                        { name: 'Device', value: `${browser} · ${os}`, inline: true }
+                    ],
+                    color: 13091926
+                }]
+            })
+        });
+
+        if (!discordRes.ok) {
+            return res.status(502).json({ error: 'Discord rejected the message' });
+        }
+
+        return res.status(200).json({ ok: true });
+    } catch (err) {
+        return res.status(500).json({ error: 'Failed to send' });
+    }
+}
