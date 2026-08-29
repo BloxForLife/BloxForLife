@@ -592,7 +592,8 @@
                     nameInput.value = "";
                     msgInput.value = "";
                 } else {
-                    statusEl.textContent = "Something went wrong, try again.";
+                    const data = await res.json().catch(() => ({}));
+                    statusEl.textContent = data.error || "Something went wrong, try again.";
                 }
             } catch (err) {
                 statusEl.textContent = "Something went wrong, try again.";
