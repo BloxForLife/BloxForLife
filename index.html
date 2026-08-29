@@ -542,20 +542,13 @@
         fetchWeather();
         setInterval(fetchWeather, 15 * 60 * 1000); // refresh every 15 min
 
-        // --- GUESTBOOK (posts to a Discord webhook) ---
-        const GUESTBOOK_WEBHOOK_URL = "https://discord.com/api/webhooks/1542667675057131541/GxJpxGJQAFeJC6ucOKROCKNkTAF-KVMycRL2bdBJAYV2WLXPJRUWaYP_eydUUuJDmFz0";
-
+        // --- GUESTBOOK (posts through a server-side proxy — webhook URL never touches the client) ---
         document.getElementById('guestbook-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nameInput = document.getElementById('guestbook-name');
             const msgInput = document.getElementById('guestbook-message');
             const statusEl = document.getElementById('guestbook-status');
             const submitBtn = e.target.querySelector('.guestbook-submit');
-
-            if (!GUESTBOOK_WEBHOOK_URL || GUESTBOOK_WEBHOOK_URL === "PASTE_YOUR_DISCORD_WEBHOOK_URL_HERE") {
-                statusEl.textContent = "Guestbook isn't set up yet.";
-                return;
-            }
 
             const name = nameInput.value.trim();
             const message = msgInput.value.trim();
@@ -565,19 +558,10 @@
             statusEl.textContent = "Sending...";
 
             try {
-                const res = await fetch(GUESTBOOK_WEBHOOK_URL, {
+                const res = await fetch('/api/guestbook', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        embeds: [{
-                            title: "New note on bloxforlife.com",
-                            fields: [
-                                { name: "From", value: name },
-                                { name: "Message", value: message }
-                            ],
-                            color: 13091926
-                        }]
-                    })
+                    body: JSON.stringify({ name, message })
                 });
 
                 if (res.ok) {
