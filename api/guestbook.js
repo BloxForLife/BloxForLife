@@ -23,7 +23,7 @@ export default async function handler(req, res) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 embeds: [{
-                    title: 'New note on bloxforlife.com',
+                    title: 'New note on bloxforlife.com/bloxfor.life!',
                     fields: [
                         { name: 'From', value: name },
                         { name: 'Message', value: message }
