@@ -133,6 +133,7 @@
                     </a>
                     <a href="https://github.com/BloxForLife" target="_blank" class="btn"><i class="fa-brands fa-github"></i> GitHub</a>
                     <a href="https://docs.google.com/document/d/11pyDSeXnB-HiSzZjVJNPtorc352CkmRGuYWCB3ZZ16c/edit?usp=sharing" target="_blank" class="btn"><i class="fa-solid fa-book-open"></i> Roleplay Experience</a>
+                    <a href="mailto:blox@bloxfor.life" class="btn"><i class="fa-solid fa-envelope"></i> Email</a>
                 </div>
             </section>
 
@@ -543,12 +544,32 @@
         setInterval(fetchWeather, 15 * 60 * 1000); // refresh every 15 min
 
         // --- GUESTBOOK (posts through a server-side proxy — webhook URL never touches the client) ---
+        const GUESTBOOK_COOLDOWN_MS = 12 * 60 * 60 * 1000; // 12 hours
+
+        function guestbookCooldownRemaining() {
+            const last = parseInt(localStorage.getItem('guestbook_last_submit') || '0', 10);
+            const elapsed = Date.now() - last;
+            return Math.max(0, GUESTBOOK_COOLDOWN_MS - elapsed);
+        }
+
+        function formatCooldown(ms) {
+            const hours = Math.floor(ms / (60 * 60 * 1000));
+            const minutes = Math.floor((ms % (60 * 60 * 1000)) / (60 * 1000));
+            return `${hours}h ${minutes}m`;
+        }
+
         document.getElementById('guestbook-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nameInput = document.getElementById('guestbook-name');
             const msgInput = document.getElementById('guestbook-message');
             const statusEl = document.getElementById('guestbook-status');
             const submitBtn = e.target.querySelector('.guestbook-submit');
+
+            const remaining = guestbookCooldownRemaining();
+            if (remaining > 0) {
+                statusEl.textContent = `You can leave another note in ${formatCooldown(remaining)}`;
+                return;
+            }
 
             const name = nameInput.value.trim();
             const message = msgInput.value.trim();
@@ -566,6 +587,7 @@
 
                 if (res.ok) {
                     statusEl.textContent = "Sent — thanks!";
+                    localStorage.setItem('guestbook_last_submit', Date.now().toString());
                     nameInput.value = "";
                     msgInput.value = "";
                 } else {
