@@ -261,7 +261,7 @@ input[type=range]::-moz-range-thumb { height: 13px; width: 13px; border-radius: 
 
 /* --- Footer --- */
 .profile-footer { display: flex; justify-content: center; padding-top: 26px; }
-.visitor-badge { opacity: 0.75; height: 20px; }
+.visitor-count { font-size: 11px; color: var(--text-muted); opacity: 0.7; letter-spacing: 0.3px; }
 
 /* --- Mobile --- */
 @media (max-width: 600px) {
