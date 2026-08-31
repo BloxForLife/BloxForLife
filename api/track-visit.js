@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-const DEDUPE_SECONDS = 60 * 60; // only log the same IP once per hour
+const DEDUPE_SECONDS = 60 * 60; // only count/log the same IP once per hour
 const IP_HASH_SALT = process.env.IP_HASH_SALT || 'bloxforlife-default-salt';
 
 function hashIp(ip) {
@@ -33,12 +33,10 @@ function getClientIp(req) {
     return req.headers['x-real-ip'] || 'unknown';
 }
 
-// Returns true if this is the first time we've seen this IP hash in the current window
-async function isNewVisit(ipHash) {
+async function redisCommand(command) {
     const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
     const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-
-    if (!url || !token) return true;
+    if (!url || !token) return null;
 
     const res = await fetch(url, {
         method: 'POST',
@@ -46,10 +44,17 @@ async function isNewVisit(ipHash) {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(['SET', `visit_seen:${ipHash}`, '1', 'EX', String(DEDUPE_SECONDS), 'NX'])
+        body: JSON.stringify(command)
     });
     const data = await res.json();
-    return data.result === 'OK';
+    return data.result;
+}
+
+// Returns true if this is the first time we've seen this IP hash in the current window
+async function isNewVisit(ipHash) {
+    const result = await redisCommand(['SET', `visit_seen:${ipHash}`, '1', 'EX', String(DEDUPE_SECONDS), 'NX']);
+    if (result === null) return true; // no Redis configured — treat as always-fresh, just don't count it
+    return result === 'OK';
 }
 
 export default async function handler(req, res) {
@@ -57,43 +62,45 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const webhookUrl = process.env.VISIT_LOG_WEBHOOK_URL;
-    if (!webhookUrl) {
-        return res.status(200).json({ ok: true });
-    }
-
     const ipHash = hashIp(getClientIp(req));
     const fresh = await isNewVisit(ipHash);
+
     if (!fresh) {
         return res.status(200).json({ ok: true, logged: false });
     }
 
-    const country = req.headers['x-vercel-ip-country'] || 'Unknown';
-    const cityRaw = req.headers['x-vercel-ip-city'];
-    const city = cityRaw ? decodeURIComponent(cityRaw) : 'Unknown';
-    const location = (country !== 'Unknown' || city !== 'Unknown') ? `${city}, ${country}` : 'Unknown';
-    const { browser, os } = parseDevice(req.headers['user-agent']);
-    const path = (req.body && req.body.path) || 'Unknown';
+    // Bump the real running total — persists forever, no expiry, independent of Discord logging
+    await redisCommand(['INCR', 'total_unique_visits']);
 
-    try {
-        await fetch(webhookUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                embeds: [{
-                    title: 'New visit',
-                    fields: [
-                        { name: 'Page', value: path, inline: true },
-                        { name: 'Location', value: location, inline: true },
-                        { name: 'Device', value: `${browser} · ${os}`, inline: true },
-                        { name: 'IP hash', value: ipHash, inline: true }
-                    ],
-                    color: 5793266
-                }]
-            })
-        });
-    } catch (err) {
-        // Never let logging failures affect the visitor's experience
+    const webhookUrl = process.env.VISIT_LOG_WEBHOOK_URL;
+    if (webhookUrl) {
+        const country = req.headers['x-vercel-ip-country'] || 'Unknown';
+        const cityRaw = req.headers['x-vercel-ip-city'];
+        const city = cityRaw ? decodeURIComponent(cityRaw) : 'Unknown';
+        const location = (country !== 'Unknown' || city !== 'Unknown') ? `${city}, ${country}` : 'Unknown';
+        const { browser, os } = parseDevice(req.headers['user-agent']);
+        const path = (req.body && req.body.path) || 'Unknown';
+
+        try {
+            await fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    embeds: [{
+                        title: 'New visit',
+                        fields: [
+                            { name: 'Page', value: path, inline: true },
+                            { name: 'Location', value: location, inline: true },
+                            { name: 'Device', value: `${browser} · ${os}`, inline: true },
+                            { name: 'IP hash', value: ipHash, inline: true }
+                        ],
+                        color: 5793266
+                    }]
+                })
+            });
+        } catch (err) {
+            // Never let logging failures affect the visitor's experience
+        }
     }
 
     return res.status(200).json({ ok: true, logged: true });
