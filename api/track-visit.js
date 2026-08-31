@@ -1,4 +1,11 @@
+import crypto from 'crypto';
+
 const DEDUPE_SECONDS = 60 * 60; // only log the same IP once per hour
+const IP_HASH_SALT = process.env.IP_HASH_SALT || 'bloxforlife-default-salt';
+
+function hashIp(ip) {
+    return crypto.createHash('sha256').update(IP_HASH_SALT + ip).digest('hex').slice(0, 16);
+}
 
 function parseDevice(userAgent) {
     if (!userAgent) return { browser: 'Unknown', os: 'Unknown' };
@@ -26,12 +33,12 @@ function getClientIp(req) {
     return req.headers['x-real-ip'] || 'unknown';
 }
 
-// Returns true if this is the first time we've seen this IP in the current window
-async function isNewVisit(ip) {
+// Returns true if this is the first time we've seen this IP hash in the current window
+async function isNewVisit(ipHash) {
     const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
     const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 
-    if (!url || !token) return true; // no dedupe store configured — just log every time
+    if (!url || !token) return true;
 
     const res = await fetch(url, {
         method: 'POST',
@@ -39,7 +46,7 @@ async function isNewVisit(ip) {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(['SET', `visit_seen:${ip}`, '1', 'EX', String(DEDUPE_SECONDS), 'NX'])
+        body: JSON.stringify(['SET', `visit_seen:${ipHash}`, '1', 'EX', String(DEDUPE_SECONDS), 'NX'])
     });
     const data = await res.json();
     return data.result === 'OK';
@@ -52,11 +59,11 @@ export default async function handler(req, res) {
 
     const webhookUrl = process.env.VISIT_LOG_WEBHOOK_URL;
     if (!webhookUrl) {
-        return res.status(200).json({ ok: true }); // fail silently, never break the site over this
+        return res.status(200).json({ ok: true });
     }
 
-    const ip = getClientIp(req);
-    const fresh = await isNewVisit(ip);
+    const ipHash = hashIp(getClientIp(req));
+    const fresh = await isNewVisit(ipHash);
     if (!fresh) {
         return res.status(200).json({ ok: true, logged: false });
     }
@@ -79,7 +86,7 @@ export default async function handler(req, res) {
                         { name: 'Page', value: path, inline: true },
                         { name: 'Location', value: location, inline: true },
                         { name: 'Device', value: `${browser} · ${os}`, inline: true },
-                        { name: 'IP', value: ip, inline: true }
+                        { name: 'IP hash', value: ipHash, inline: true }
                     ],
                     color: 5793266
                 }]
