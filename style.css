@@ -236,6 +236,27 @@ input[type=range]::-moz-range-thumb { height: 13px; width: 13px; border-radius: 
 .guestbook-textarea { resize: vertical; min-height: 70px; }
 .guestbook-submit { align-self: flex-start; }
 .guestbook-disclosure { font-size: 11px; color: var(--text-muted); opacity: 0.7; line-height: 1.4; }
+.disclosure-link { color: var(--accent); text-decoration: underline; opacity: 1; }
+.disclosure-link:hover { opacity: 0.8; }
+
+.back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--text-muted);
+    text-decoration: none;
+    margin-bottom: 20px;
+    transition: color 0.2s ease;
+}
+.back-link:hover { color: var(--accent); }
+
+.inline-code {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: monospace;
+    font-size: 13px;
+    color: var(--accent);
+}
 .guestbook-status { font-size: 12px; color: var(--text-muted); min-height: 16px; }
 
 /* --- Footer --- */
