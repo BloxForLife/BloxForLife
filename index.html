@@ -151,7 +151,7 @@
             </section>
 
             <footer class="profile-footer">
-                <img src="https://visitor-badge.laobi.icu/badge?page_id=bloxforlife.profile&color=C79A56&left_text=visitors" alt="visitor count" class="visitor-badge">
+                <span class="visitor-count" id="visitor-count">— visitors</span>
             </footer>
 
         </div>
@@ -609,6 +609,19 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ path: window.location.pathname })
         }).catch(() => {});
+
+        // --- REAL VISITOR COUNT (deduped, from our own Redis-backed counter) ---
+        fetch('/api/visitor-count')
+            .then(res => res.json())
+            .then(data => {
+                const el = document.getElementById('visitor-count');
+                if (data.count !== null) {
+                    el.textContent = `${data.count.toLocaleString()} visitors`;
+                } else {
+                    el.textContent = '';
+                }
+            })
+            .catch(() => {});
 
         checkYTMusic();
         setInterval(checkYTMusic, 20000);
