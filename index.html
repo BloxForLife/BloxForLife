@@ -603,6 +603,13 @@
             }
         });
 
+        // --- VISIT LOGGING (fire-and-forget, never blocks or breaks the page) ---
+        fetch('/api/track-visit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: window.location.pathname })
+        }).catch(() => {});
+
         checkYTMusic();
         setInterval(checkYTMusic, 20000);
     </script>
