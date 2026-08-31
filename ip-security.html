@@ -17,7 +17,7 @@
             <header class="profile-header">
                 <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to profile</a>
                 <h1>How your IP is secured</h1>
-                <p class="tagline">A plain-language explanation, no jargon</p>
+                <p class="tagline">A simple explination</p>
             </header>
 
             <div class="divider"></div>
@@ -31,28 +31,29 @@
 
             <section class="profile-section">
                 <div class="eyebrow">Why not just store the real IP?</div>
-                <p class="section-copy">Because it doesn't need to. A hash lets the site check "has this person already left a note recently?" or "is this a specific person I've blocked?" — without ever needing to know or store the actual address.</p>
+                <p class="section-copy">Let's be honest, are you comfortable with anyone having your full IP?</p>
             </section>
 
             <div class="divider"></div>
 
             <section class="profile-section">
-                <div class="eyebrow">What's a hash, actually?</div>
-                <p class="section-copy">A hash is a one-way scrambling process. Your IP goes in, a fixed-length jumble of letters and numbers comes out — like <code class="inline-code">a1b2c3d4e5f6a7b8</code>. There's no formula to reverse it back into the original IP. The same input always produces the same output, so it's still useful for comparing "is this the same visitor as before?" — just without ever storing what that visitor's real address was.</p>
+                <div class="eyebrow">What's a hash?</div>
+                <p class="section-copy">A hash is a one-way scrambling process. Your IP goes in, a fixed-length jumble of letters and numbers and symbols which the site owner (me) created by repeatedly mashing my keyboard, and then it bakes out a hashed ip.</p>
             </section>
 
             <div class="divider"></div>
 
             <section class="profile-section">
                 <div class="eyebrow">The salt</div>
-                <p class="section-copy">There's a catch with hashing on its own: IPv4 has only about 4.3 billion possible addresses, so someone could theoretically pre-calculate the hash of every single one and build a lookup table to reverse it. To stop that, a private secret string (a "salt") gets mixed in before hashing. Without knowing that secret, a pre-built lookup table is useless — so the hash stays effectively unreversible.</p>
+                <p class="section-copy">Imagine your IP as a steak. You just finished cooking it. Taste it without the salt, your gonna spit it out (i dont want my ip given to anyone). Now, add "the salt", Tastes pretty good now, right? (no IP given to anyone, the hashed ip is unreversible) Everyones happy! I can stop fraud without you worrying about your IP being leaked
+                </p>
             </section>
 
             <div class="divider"></div>
 
             <section class="profile-section">
                 <div class="eyebrow">Bottom line</div>
-                <p class="section-copy">Nobody — including the site owner — can look at a stored hash and figure out your real IP address from it. It only works to confirm "yep, that's the same visitor as before," which is exactly what it's needed for.</p>
+                <p class="section-copy">Nobody see's your IP. You can rest easy now.</p>
             </section>
 
         </div>
