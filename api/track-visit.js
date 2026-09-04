@@ -33,10 +33,15 @@ function getClientIp(req) {
     return req.headers['x-real-ip'] || 'unknown';
 }
 
+function redisConfigured() {
+    const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+    return !!(url && token);
+}
+
 async function redisCommand(command) {
     const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
     const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-    if (!url || !token) return null;
 
     const res = await fetch(url, {
         method: 'POST',
@@ -50,10 +55,11 @@ async function redisCommand(command) {
     return data.result;
 }
 
-// Returns true if this is the first time we've seen this IP hash in the current window
+// Returns true only if the key didn't already exist — a null result here means
+// the key WAS already set (i.e. not a fresh visit), not "Redis is unconfigured"
 async function isNewVisit(ipHash) {
+    if (!redisConfigured()) return true;
     const result = await redisCommand(['SET', `visit_seen:${ipHash}`, '1', 'EX', String(DEDUPE_SECONDS), 'NX']);
-    if (result === null) return true; // no Redis configured — treat as always-fresh, just don't count it
     return result === 'OK';
 }
 
@@ -70,7 +76,9 @@ export default async function handler(req, res) {
     }
 
     // Bump the real running total — persists forever, no expiry, independent of Discord logging
-    await redisCommand(['INCR', 'total_unique_visits']);
+    if (redisConfigured()) {
+        await redisCommand(['INCR', 'total_unique_visits']);
+    }
 
     const webhookUrl = process.env.VISIT_LOG_WEBHOOK_URL;
     if (webhookUrl) {
