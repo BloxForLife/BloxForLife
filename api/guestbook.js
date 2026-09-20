@@ -10,6 +10,7 @@ const BLOCKED_IP_HASHES = [
 
 const RATE_LIMIT_SECONDS = 12 * 60 * 60; // 12 hours
 const IP_HASH_SALT = process.env.IP_HASH_SALT || 'bloxforlife-default-salt';
+const WALL_MAX_ENTRIES = 50; // how many recent notes the public wall keeps
 
 function hashIp(ip) {
     return crypto.createHash('sha256').update(IP_HASH_SALT + ip).digest('hex').slice(0, 16);
@@ -21,14 +22,15 @@ function getClientIp(req) {
     return req.headers['x-real-ip'] || 'unknown';
 }
 
-// Atomic "set only if not already set" against Upstash Redis via its REST API.
-async function checkAndSetRateLimit(ipHash) {
+function redisConfigured() {
     const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
     const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+    return !!(url && token);
+}
 
-    if (!url || !token) {
-        return { allowed: true, configured: false };
-    }
+async function redisCommand(command) {
+    const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 
     const res = await fetch(url, {
         method: 'POST',
@@ -36,10 +38,27 @@ async function checkAndSetRateLimit(ipHash) {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(['SET', `guestbook_rl:${ipHash}`, '1', 'EX', String(RATE_LIMIT_SECONDS), 'NX'])
+        body: JSON.stringify(command)
     });
     const data = await res.json();
-    return { allowed: data.result === 'OK', configured: true };
+    return data.result;
+}
+
+// Atomic "set only if not already set" against Upstash Redis via its REST API.
+async function checkAndSetRateLimit(ipHash) {
+    if (!redisConfigured()) {
+        return { allowed: true, configured: false };
+    }
+    const result = await redisCommand(['SET', `guestbook_rl:${ipHash}`, '1', 'EX', String(RATE_LIMIT_SECONDS), 'NX']);
+    return { allowed: result === 'OK', configured: true };
+}
+
+// Pushes the note onto the public wall list (newest first), trimmed to WALL_MAX_ENTRIES.
+async function addToWall(name, message) {
+    if (!redisConfigured()) return;
+    const entry = JSON.stringify({ name, message, ts: Date.now() });
+    await redisCommand(['LPUSH', 'guestbook_wall', entry]);
+    await redisCommand(['LTRIM', 'guestbook_wall', '0', String(WALL_MAX_ENTRIES - 1)]);
 }
 
 export default async function handler(req, res) {
@@ -96,6 +115,8 @@ export default async function handler(req, res) {
         if (!discordRes.ok) {
             return res.status(502).json({ error: 'Discord rejected the message' });
         }
+
+        await addToWall(name, message);
 
         return res.status(200).json({ ok: true });
     } catch (err) {

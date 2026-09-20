@@ -145,9 +145,11 @@
                     <input type="text" id="guestbook-name" class="guestbook-input" placeholder="Your name" maxlength="40" required>
                     <textarea id="guestbook-message" class="guestbook-input guestbook-textarea" placeholder="Say something..." maxlength="300" required></textarea>
                     <button type="submit" class="ctrl-btn guestbook-submit">Send</button>
-                    <div class="guestbook-disclosure">Leaving a note logs your name, message, and a hashed version of your IP — used only for spam prevention. <a href="ip-security.html" class="disclosure-link">How's my IP secured?</a></div>
+                    <div class="guestbook-disclosure">Leaving a note logs your name, message, and a hashed version of your IP — used only for spam prevention. Your name and message are shown publicly below. <a href="ip-security.html" class="disclosure-link">How's my IP secured?</a></div>
                     <div class="guestbook-status" id="guestbook-status"></div>
                 </form>
+
+                <div class="guestbook-wall" id="guestbook-wall"></div>
             </section>
 
             <footer class="profile-footer">
@@ -547,6 +549,62 @@
         // --- GUESTBOOK (posts through a server-side proxy — webhook URL never touches the client) ---
         const GUESTBOOK_COOLDOWN_MS = 12 * 60 * 60 * 1000; // 12 hours
 
+        function timeAgo(ts) {
+            if (!ts) return '';
+            const seconds = Math.floor((Date.now() - ts) / 1000);
+            if (seconds < 60) return 'just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        function renderWallEntry(entry) {
+            const row = document.createElement('div');
+            row.className = 'wall-entry';
+
+            const head = document.createElement('div');
+            head.className = 'wall-entry-head';
+
+            const name = document.createElement('span');
+            name.className = 'wall-entry-name';
+            name.textContent = entry.name;
+
+            const time = document.createElement('span');
+            time.className = 'wall-entry-time';
+            time.textContent = timeAgo(entry.ts);
+
+            head.appendChild(name);
+            head.appendChild(time);
+
+            const msg = document.createElement('div');
+            msg.className = 'wall-entry-msg';
+            msg.textContent = entry.message;
+
+            row.appendChild(head);
+            row.appendChild(msg);
+            return row;
+        }
+
+        function loadGuestbookWall() {
+            fetch('/api/guestbook-wall')
+                .then(res => res.json())
+                .then(data => {
+                    const wall = document.getElementById('guestbook-wall');
+                    wall.innerHTML = '';
+                    if (!data.entries || !data.entries.length) {
+                        wall.innerHTML = '<div class="wall-empty">No notes yet — be the first!</div>';
+                        return;
+                    }
+                    data.entries.forEach(entry => wall.appendChild(renderWallEntry(entry)));
+                })
+                .catch(() => {});
+        }
+
+        loadGuestbookWall();
+
         function guestbookCooldownRemaining() {
             const last = parseInt(localStorage.getItem('guestbook_last_submit') || '0', 10);
             const elapsed = Date.now() - last;
@@ -589,6 +647,12 @@
                 if (res.ok) {
                     statusEl.textContent = "Sent — thanks!";
                     localStorage.setItem('guestbook_last_submit', Date.now().toString());
+
+                    const wall = document.getElementById('guestbook-wall');
+                    const emptyNote = wall.querySelector('.wall-empty');
+                    if (emptyNote) emptyNote.remove();
+                    wall.insertBefore(renderWallEntry({ name, message, ts: Date.now() }), wall.firstChild);
+
                     nameInput.value = "";
                     msgInput.value = "";
                 } else {

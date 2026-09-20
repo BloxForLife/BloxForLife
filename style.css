@@ -239,6 +239,19 @@ input[type=range]::-moz-range-thumb { height: 13px; width: 13px; border-radius: 
 .disclosure-link { color: var(--accent); text-decoration: underline; opacity: 1; }
 .disclosure-link:hover { opacity: 0.8; }
 
+.guestbook-wall { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; max-height: 340px; overflow-y: auto; }
+.wall-entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+.wall-entry-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.wall-entry-name { font-size: 12px; font-weight: 600; color: var(--accent); }
+.wall-entry-time { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+.wall-entry-msg { font-size: 13px; color: var(--text); margin-top: 4px; line-height: 1.5; word-wrap: break-word; white-space: pre-wrap; }
+.wall-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 10px 0; }
+
 .back-link {
     display: inline-flex; align-items: center; gap: 6px;
     font-size: 12px; color: var(--text-muted);
