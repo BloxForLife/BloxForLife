@@ -87,7 +87,7 @@ export default async function handler(req, res) {
 
     const { allowed } = await checkAndSetRateLimit(ipHash);
     if (!allowed) {
-        return res.status(429).json({ error: 'You can leave another note in a bit' });
+        return res.status(429).json({ error: 'You can sign the guestbook again in a bit' });
     }
 
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
@@ -101,7 +101,7 @@ export default async function handler(req, res) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 embeds: [{
-                    title: 'New note on bloxforlife.com',
+                    title: 'New guestbook entry on bloxforlife.com',
                     fields: [
                         { name: 'From', value: name },
                         { name: 'Message', value: message },

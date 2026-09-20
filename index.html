@@ -140,12 +140,12 @@
             <div class="divider"></div>
 
             <section class="profile-section">
-                <div class="eyebrow">Leave a note</div>
+                <div class="eyebrow">Guestbook</div>
                 <form id="guestbook-form" class="guestbook-form">
                     <input type="text" id="guestbook-name" class="guestbook-input" placeholder="Your name" maxlength="40" required>
                     <textarea id="guestbook-message" class="guestbook-input guestbook-textarea" placeholder="Say something..." maxlength="300" required></textarea>
                     <button type="submit" class="ctrl-btn guestbook-submit">Send</button>
-                    <div class="guestbook-disclosure">Leaving a note logs your name, message, and a hashed version of your IP — used only for spam prevention. Your name and message are shown publicly below. <a href="ip-security.html" class="disclosure-link">How's my IP secured?</a></div>
+                    <div class="guestbook-disclosure">Signing the guestbook logs your name, message, and a hashed version of your IP — used only for spam prevention. Your name and message are shown publicly below. <a href="ip-security.html" class="disclosure-link">How's my IP secured?</a></div>
                     <div class="guestbook-status" id="guestbook-status"></div>
                 </form>
 
@@ -595,7 +595,7 @@
                     const wall = document.getElementById('guestbook-wall');
                     wall.innerHTML = '';
                     if (!data.entries || !data.entries.length) {
-                        wall.innerHTML = '<div class="wall-empty">No notes yet — be the first!</div>';
+                        wall.innerHTML = '<div class="wall-empty">Guestbook is empty — be the first!</div>';
                         return;
                     }
                     data.entries.forEach(entry => wall.appendChild(renderWallEntry(entry)));
@@ -626,7 +626,7 @@
 
             const remaining = guestbookCooldownRemaining();
             if (remaining > 0) {
-                statusEl.textContent = `You can leave another note in ${formatCooldown(remaining)}`;
+                statusEl.textContent = `You can sign the guestbook again in ${formatCooldown(remaining)}`;
                 return;
             }
 
