@@ -16,6 +16,10 @@ function hashIp(ip) {
     return crypto.createHash('sha256').update(IP_HASH_SALT + ip).digest('hex').slice(0, 16);
 }
 
+function hashToken(token) {
+    return crypto.createHash('sha256').update(IP_HASH_SALT + token).digest('hex');
+}
+
 function getClientIp(req) {
     const forwarded = req.headers['x-forwarded-for'];
     if (forwarded) return forwarded.split(',')[0].trim();
@@ -53,12 +57,37 @@ async function checkAndSetRateLimit(ipHash) {
     return { allowed: result === 'OK', configured: true };
 }
 
-// Pushes the note onto the public wall list (newest first), trimmed to WALL_MAX_ENTRIES.
-async function addToWall(name, message) {
-    if (!redisConfigured()) return;
-    const entry = JSON.stringify({ name, message, ts: Date.now() });
-    await redisCommand(['LPUSH', 'guestbook_wall', entry]);
-    await redisCommand(['LTRIM', 'guestbook_wall', '0', String(WALL_MAX_ENTRIES - 1)]);
+// Drops the oldest entries once the wall grows past WALL_MAX_ENTRIES.
+async function trimWall() {
+    const count = await redisCommand(['ZCARD', 'guestbook_wall_index']);
+    if (!count || count <= WALL_MAX_ENTRIES) return;
+
+    const excess = count - WALL_MAX_ENTRIES;
+    const popped = await redisCommand(['ZPOPMIN', 'guestbook_wall_index', String(excess)]);
+    if (!Array.isArray(popped) || !popped.length) return;
+
+    const ids = [];
+    for (let i = 0; i < popped.length; i += 2) ids.push(popped[i]);
+    if (ids.length) await redisCommand(['HDEL', 'guestbook_entries', ...ids]);
+}
+
+// Stores the note keyed by a fresh id (guestbook_entries hash) plus its position
+// on the wall (guestbook_wall_index sorted set, scored by time). Returns an
+// edit token whose hash is stored alongside the note — only the submitter (and
+// admin) can later prove ownership to edit/delete it.
+async function createEntry(name, message) {
+    if (!redisConfigured()) return null;
+
+    const id = crypto.randomUUID();
+    const editToken = crypto.randomBytes(24).toString('hex');
+    const ts = Date.now();
+
+    const entry = JSON.stringify({ name, message, ts, editTokenHash: hashToken(editToken) });
+    await redisCommand(['HSET', 'guestbook_entries', id, entry]);
+    await redisCommand(['ZADD', 'guestbook_wall_index', String(ts), id]);
+    await trimWall();
+
+    return { id, editToken };
 }
 
 export default async function handler(req, res) {
@@ -116,9 +145,9 @@ export default async function handler(req, res) {
             return res.status(502).json({ error: 'Discord rejected the message' });
         }
 
-        await addToWall(name, message);
+        const created = await createEntry(name, message);
 
-        return res.status(200).json({ ok: true });
+        return res.status(200).json({ ok: true, id: created?.id ?? null, editToken: created?.editToken ?? null });
     } catch (err) {
         return res.status(500).json({ error: 'Failed to send' });
     }

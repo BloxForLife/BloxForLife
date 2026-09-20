@@ -150,6 +150,7 @@
                 </form>
 
                 <div class="guestbook-wall" id="guestbook-wall"></div>
+                <button type="button" id="guestbook-admin-toggle" class="wall-admin-toggle">Admin</button>
             </section>
 
             <footer class="profile-footer">
@@ -561,6 +562,100 @@
             return `${days}d ago`;
         }
 
+        // --- Ownership: each note's editToken (returned once, at creation) is kept
+        // locally so this browser can prove it owns that note later. ---
+        function getMyEntries() {
+            try { return JSON.parse(localStorage.getItem('guestbook_mine') || '{}'); } catch { return {}; }
+        }
+        function saveMyEntry(id, editToken) {
+            const mine = getMyEntries();
+            mine[id] = editToken;
+            try { localStorage.setItem('guestbook_mine', JSON.stringify(mine)); } catch {}
+        }
+        function forgetMyEntry(id) {
+            const mine = getMyEntries();
+            delete mine[id];
+            try { localStorage.setItem('guestbook_mine', JSON.stringify(mine)); } catch {}
+        }
+
+        // --- Admin: a single shared key (set server-side as GUESTBOOK_ADMIN_KEY)
+        // lets the site owner edit/delete anyone's note. ---
+        function getAdminKey() {
+            try { return localStorage.getItem('guestbook_admin_key') || ''; } catch { return ''; }
+        }
+        function setAdminKey(key) {
+            try { localStorage.setItem('guestbook_admin_key', key); } catch {}
+        }
+        function clearAdminKey() {
+            try { localStorage.removeItem('guestbook_admin_key'); } catch {}
+        }
+
+        document.getElementById('guestbook-admin-toggle').addEventListener('click', () => {
+            if (getAdminKey()) {
+                clearAdminKey();
+                loadGuestbookWall();
+                return;
+            }
+            const key = prompt('Admin key:');
+            if (key) {
+                setAdminKey(key);
+                loadGuestbookWall();
+            }
+        });
+
+        async function deleteWallEntry(id, editToken, isAdminAction, row) {
+            if (!confirm('Delete this note?')) return;
+            try {
+                const res = await fetch(`/api/guestbook-entry?id=${encodeURIComponent(id)}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(isAdminAction ? { adminKey: getAdminKey() } : { editToken })
+                });
+                if (res.ok) {
+                    row.remove();
+                    if (isAdminAction === false) forgetMyEntry(id);
+                } else if (res.status === 403 && isAdminAction) {
+                    alert('Admin key rejected.');
+                    clearAdminKey();
+                    loadGuestbookWall();
+                } else {
+                    alert('Could not delete that note.');
+                }
+            } catch {
+                alert('Could not delete that note.');
+            }
+        }
+
+        async function editWallEntry(id, editToken, isAdminAction, entry, msgEl, timeEl) {
+            const next = prompt('Edit your message:', entry.message);
+            if (next === null) return;
+            const trimmed = next.trim();
+            if (!trimmed || trimmed === entry.message) return;
+
+            try {
+                const res = await fetch(`/api/guestbook-entry?id=${encodeURIComponent(id)}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(Object.assign({ message: trimmed }, isAdminAction ? { adminKey: getAdminKey() } : { editToken }))
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    entry.message = data.entry.message;
+                    entry.editedTs = data.entry.editedTs;
+                    msgEl.textContent = entry.message;
+                    timeEl.textContent = `${timeAgo(entry.ts)} (edited)`;
+                } else if (res.status === 403 && isAdminAction) {
+                    alert('Admin key rejected.');
+                    clearAdminKey();
+                    loadGuestbookWall();
+                } else {
+                    alert('Could not edit that note.');
+                }
+            } catch {
+                alert('Could not edit that note.');
+            }
+        }
+
         function renderWallEntry(entry) {
             const row = document.createElement('div');
             row.className = 'wall-entry';
@@ -574,7 +669,7 @@
 
             const time = document.createElement('span');
             time.className = 'wall-entry-time';
-            time.textContent = timeAgo(entry.ts);
+            time.textContent = entry.editedTs ? `${timeAgo(entry.ts)} (edited)` : timeAgo(entry.ts);
 
             head.appendChild(name);
             head.appendChild(time);
@@ -585,6 +680,31 @@
 
             row.appendChild(head);
             row.appendChild(msg);
+
+            const myEditToken = entry.id ? getMyEntries()[entry.id] : null;
+            const isAdminAction = !myEditToken && !!getAdminKey();
+
+            if (entry.id && (myEditToken || isAdminAction)) {
+                const actions = document.createElement('div');
+                actions.className = 'wall-entry-actions';
+
+                const editBtn = document.createElement('button');
+                editBtn.type = 'button';
+                editBtn.className = 'wall-action-btn';
+                editBtn.textContent = 'Edit';
+                editBtn.addEventListener('click', () => editWallEntry(entry.id, myEditToken, isAdminAction, entry, msg, time));
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.type = 'button';
+                deleteBtn.className = 'wall-action-btn';
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.addEventListener('click', () => deleteWallEntry(entry.id, myEditToken, isAdminAction, row));
+
+                actions.appendChild(editBtn);
+                actions.appendChild(deleteBtn);
+                row.appendChild(actions);
+            }
+
             return row;
         }
 
@@ -645,13 +765,16 @@
                 });
 
                 if (res.ok) {
+                    const data = await res.json().catch(() => ({}));
                     statusEl.textContent = "Sent — thanks!";
                     localStorage.setItem('guestbook_last_submit', Date.now().toString());
+
+                    if (data.id && data.editToken) saveMyEntry(data.id, data.editToken);
 
                     const wall = document.getElementById('guestbook-wall');
                     const emptyNote = wall.querySelector('.wall-empty');
                     if (emptyNote) emptyNote.remove();
-                    wall.insertBefore(renderWallEntry({ name, message, ts: Date.now() }), wall.firstChild);
+                    wall.insertBefore(renderWallEntry({ id: data.id, name, message, ts: Date.now() }), wall.firstChild);
 
                     nameInput.value = "";
                     msgInput.value = "";
