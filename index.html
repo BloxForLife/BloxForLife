@@ -757,7 +757,7 @@
         }
 
         loadDiscordMe().then(loadGuestbookWall);
-        setInterval(loadGuestbookWall, 10000); // keep the wall live for everyone viewing the page
+        setInterval(loadGuestbookWall, 1000); // keep the wall live for everyone viewing the page
 
         if (new URLSearchParams(window.location.search).has('discord_error')) {
             document.getElementById('guestbook-status').textContent = 'Discord login failed, try again.';
