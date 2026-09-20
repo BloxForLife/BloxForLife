@@ -710,28 +710,31 @@
             row.appendChild(msg);
 
             const myEditToken = entry.id ? getMyEntries()[entry.id] : null;
-            const canModify = !!myEditToken
-                || (discordMe.loggedIn && discordMe.isOwner)
-                || (discordMe.loggedIn && entry.discordId && discordMe.id === entry.discordId);
+            const isOwnNote = !!myEditToken || (discordMe.loggedIn && entry.discordId && discordMe.id === entry.discordId);
+            const canDelete = isOwnNote || (discordMe.loggedIn && discordMe.isOwner);
 
-            if (entry.id && canModify) {
+            if (entry.id && canDelete) {
                 const actions = document.createElement('div');
                 actions.className = 'wall-entry-actions';
 
-                const editBtn = document.createElement('button');
-                editBtn.type = 'button';
-                editBtn.className = 'wall-action-btn';
-                editBtn.textContent = 'Edit';
-                editBtn.addEventListener('click', () => editWallEntry(entry.id, myEditToken, entry, msg, time));
+                // Only the note's own author can edit it — admin can moderate (delete)
+                // others' notes but shouldn't be able to put words in their mouth.
+                if (isOwnNote) {
+                    const editBtn = document.createElement('button');
+                    editBtn.type = 'button';
+                    editBtn.className = 'wall-action-btn';
+                    editBtn.textContent = 'Edit';
+                    editBtn.addEventListener('click', () => editWallEntry(entry.id, myEditToken, entry, msg, time));
+                    actions.appendChild(editBtn);
+                }
 
                 const deleteBtn = document.createElement('button');
                 deleteBtn.type = 'button';
                 deleteBtn.className = 'wall-action-btn';
                 deleteBtn.textContent = 'Delete';
                 deleteBtn.addEventListener('click', () => deleteWallEntry(entry.id, myEditToken, row));
-
-                actions.appendChild(editBtn);
                 actions.appendChild(deleteBtn);
+
                 row.appendChild(actions);
             }
 
@@ -754,6 +757,7 @@
         }
 
         loadDiscordMe().then(loadGuestbookWall);
+        setInterval(loadGuestbookWall, 10000); // keep the wall live for everyone viewing the page
 
         if (new URLSearchParams(window.location.search).has('discord_error')) {
             document.getElementById('guestbook-status').textContent = 'Discord login failed, try again.';

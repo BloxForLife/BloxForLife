@@ -74,19 +74,22 @@ export default async function handler(req, res) {
 
     const session = readSession(req);
     const admin = !!(session && session.id === OWNER_DISCORD_ID);
-    const viaDiscord = !!(session && entry.discordId && session.id === entry.discordId);
-
-    if (!admin && !viaDiscord && !ownsViaToken(entry, editToken)) {
-        return res.status(403).json({ error: 'Not allowed to modify this note' });
-    }
+    const isOwnNote = !!(session && entry.discordId && session.id === entry.discordId) || ownsViaToken(entry, editToken);
 
     if (req.method === 'DELETE') {
+        // Admin can delete anyone's note; a note's own author can delete theirs.
+        if (!admin && !isOwnNote) {
+            return res.status(403).json({ error: 'Not allowed to delete this note' });
+        }
         await redisCommand(['HDEL', 'guestbook_entries', id]);
         await redisCommand(['ZREM', 'guestbook_wall_index', id]);
         return res.status(200).json({ ok: true });
     }
 
-    // PATCH: edit the message
+    // PATCH: edit the message — own-note only, admin does not get to edit others' wording.
+    if (!isOwnNote) {
+        return res.status(403).json({ error: 'Not allowed to edit this note' });
+    }
     if (typeof message !== 'string' || !message.trim()) {
         return res.status(400).json({ error: 'Missing message' });
     }
