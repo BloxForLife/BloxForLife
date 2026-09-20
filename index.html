@@ -802,10 +802,12 @@
             const statusEl = document.getElementById('guestbook-status');
             const submitBtn = e.target.querySelector('.guestbook-submit');
 
-            const remaining = guestbookCooldownRemaining();
-            if (remaining > 0) {
-                statusEl.textContent = `You can sign the guestbook again in ${formatCooldown(remaining)}`;
-                return;
+            if (!(discordMe.loggedIn && discordMe.isOwner)) {
+                const remaining = guestbookCooldownRemaining();
+                if (remaining > 0) {
+                    statusEl.textContent = `You can sign the guestbook again in ${formatCooldown(remaining)}`;
+                    return;
+                }
             }
 
             const name = nameInput.value.trim();

@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { readSession } from './_session.js';
+import { readSession, OWNER_DISCORD_ID } from './_session.js';
 
 const GUESTBOOK_ENABLED = true;
 
@@ -125,17 +125,20 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: 'Blocked' });
     }
 
-    const { allowed } = await checkAndSetRateLimit(ipHash);
-    if (!allowed) {
-        return res.status(429).json({ error: 'You can sign the guestbook again in a bit' });
+    const discordUser = readSession(req);
+    const isOwner = discordUser?.id === OWNER_DISCORD_ID;
+
+    if (!isOwner) {
+        const { allowed } = await checkAndSetRateLimit(ipHash);
+        if (!allowed) {
+            return res.status(429).json({ error: 'You can sign the guestbook again in a bit' });
+        }
     }
 
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl) {
         return res.status(500).json({ error: 'Webhook not configured' });
     }
-
-    const discordUser = readSession(req);
 
     try {
         const discordRes = await fetch(webhookUrl, {
