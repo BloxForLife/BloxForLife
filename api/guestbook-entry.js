@@ -83,6 +83,7 @@ export default async function handler(req, res) {
         }
         await redisCommand(['HDEL', 'guestbook_entries', id]);
         await redisCommand(['ZREM', 'guestbook_wall_index', id]);
+        await redisCommand(['INCR', 'guestbook_version']);
         return res.status(200).json({ ok: true });
     }
 
@@ -99,6 +100,7 @@ export default async function handler(req, res) {
 
     const updated = { ...entry, message: message.trim(), editedTs: Date.now() };
     await redisCommand(['HSET', 'guestbook_entries', id, JSON.stringify(updated)]);
+    await redisCommand(['INCR', 'guestbook_version']);
 
     return res.status(200).json({
         ok: true,

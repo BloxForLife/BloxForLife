@@ -96,6 +96,7 @@ async function createEntry(name, message, discordUser) {
     await redisCommand(['HSET', 'guestbook_entries', id, entry]);
     await redisCommand(['ZADD', 'guestbook_wall_index', String(ts), id]);
     await trimWall();
+    await redisCommand(['INCR', 'guestbook_version']);
 
     return { id, editToken };
 }

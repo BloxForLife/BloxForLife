@@ -757,7 +757,26 @@
         }
 
         loadDiscordMe().then(loadGuestbookWall);
-        setInterval(loadGuestbookWall, 1000); // keep the wall live for everyone viewing the page
+        // Poll a cheap version counter instead of the full wall — only re-fetch
+        // the (heavier) wall when someone's actually posted/edited/deleted a note.
+        let guestbookVersion = null;
+        function pollGuestbookVersion() {
+            fetch('/api/guestbook-version')
+                .then(res => res.json())
+                .then(data => {
+                    if (guestbookVersion === null) {
+                        guestbookVersion = data.version;
+                        return;
+                    }
+                    if (data.version !== guestbookVersion) {
+                        guestbookVersion = data.version;
+                        loadGuestbookWall();
+                    }
+                })
+                .catch(() => {});
+        }
+        pollGuestbookVersion();
+        setInterval(pollGuestbookVersion, 2000);
 
         if (new URLSearchParams(window.location.search).has('discord_error')) {
             document.getElementById('guestbook-status').textContent = 'Discord login failed, try again.';
