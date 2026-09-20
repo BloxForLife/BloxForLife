@@ -82,7 +82,9 @@ export default async function handler(req, res) {
                         name: parsed.name,
                         message: parsed.message,
                         ts: parsed.ts || null,
-                        editedTs: parsed.editedTs || null
+                        editedTs: parsed.editedTs || null,
+                        discordId: parsed.discordId || null,
+                        avatar: parsed.discordAvatar || null
                     };
                 } catch {
                     return null;

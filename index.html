@@ -145,12 +145,12 @@
                     <input type="text" id="guestbook-name" class="guestbook-input" placeholder="Your name" maxlength="40" required>
                     <textarea id="guestbook-message" class="guestbook-input guestbook-textarea" placeholder="Say something..." maxlength="300" required></textarea>
                     <button type="submit" class="ctrl-btn guestbook-submit">Send</button>
-                    <div class="guestbook-disclosure">Signing the guestbook logs your name, message, and a hashed version of your IP — used only for spam prevention. Your name and message are shown publicly below. <a href="ip-security.html" class="disclosure-link">How's my IP secured?</a></div>
+                    <div class="guestbook-disclosure">Signing the guestbook logs your name, message, and a hashed version of your IP — used only for spam prevention. Your name and message are shown publicly below. Logging in with Discord (optional) attaches your avatar and lets you edit/delete your note from any device. <a href="ip-security.html" class="disclosure-link">How's my IP secured?</a></div>
                     <div class="guestbook-status" id="guestbook-status"></div>
                 </form>
 
                 <div class="guestbook-wall" id="guestbook-wall"></div>
-                <button type="button" id="guestbook-admin-toggle" class="wall-admin-toggle">Admin</button>
+                <div class="guestbook-discord-area" id="guestbook-discord-area"></div>
             </section>
 
             <footer class="profile-footer">
@@ -578,46 +578,69 @@
             try { localStorage.setItem('guestbook_mine', JSON.stringify(mine)); } catch {}
         }
 
-        // --- Admin: a single shared key (set server-side as GUESTBOOK_ADMIN_KEY)
-        // lets the site owner edit/delete anyone's note. ---
-        function getAdminKey() {
-            try { return localStorage.getItem('guestbook_admin_key') || ''; } catch { return ''; }
-        }
-        function setAdminKey(key) {
-            try { localStorage.setItem('guestbook_admin_key', key); } catch {}
-        }
-        function clearAdminKey() {
-            try { localStorage.removeItem('guestbook_admin_key'); } catch {}
+        // --- Discord login (optional): logging in proves who you are, so you can
+        // edit/delete your own notes from any browser, and — if it's you, the site
+        // owner — edit/delete anyone's. The server checks a signed session cookie
+        // on every request; this client state is just for deciding what to show. ---
+        let discordMe = { loggedIn: false };
+
+        function refreshDiscordLoginUI() {
+            const area = document.getElementById('guestbook-discord-area');
+            area.innerHTML = '';
+
+            if (discordMe.loggedIn) {
+                if (discordMe.avatar) {
+                    const avatar = document.createElement('img');
+                    avatar.src = discordMe.avatar;
+                    avatar.alt = '';
+                    avatar.className = 'discord-mini-avatar';
+                    area.appendChild(avatar);
+                }
+                const label = document.createElement('span');
+                label.className = 'discord-login-status';
+                label.textContent = discordMe.isOwner ? `${discordMe.name} (you)` : discordMe.name;
+                area.appendChild(label);
+
+                const logout = document.createElement('a');
+                logout.href = '/api/discord-logout';
+                logout.className = 'discord-logout-link';
+                logout.textContent = 'Log out';
+                area.appendChild(logout);
+            } else {
+                const login = document.createElement('a');
+                login.href = '/api/discord-login';
+                login.className = 'discord-login-link';
+                login.innerHTML = '<i class="fa-brands fa-discord"></i> Log in with Discord';
+                area.appendChild(login);
+            }
         }
 
-        document.getElementById('guestbook-admin-toggle').addEventListener('click', () => {
-            if (getAdminKey()) {
-                clearAdminKey();
-                loadGuestbookWall();
-                return;
-            }
-            const key = prompt('Admin key:');
-            if (key) {
-                setAdminKey(key);
-                loadGuestbookWall();
-            }
-        });
+        function loadDiscordMe() {
+            return fetch('/api/discord-me')
+                .then(res => res.json())
+                .then(data => {
+                    discordMe = data;
+                    refreshDiscordLoginUI();
+                    if (discordMe.loggedIn) {
+                        const nameInput = document.getElementById('guestbook-name');
+                        if (nameInput && !nameInput.value) nameInput.value = discordMe.name;
+                    }
+                })
+                .catch(() => {});
+        }
 
-        async function deleteWallEntry(id, editToken, isAdminAction, row) {
+        async function deleteWallEntry(id, editToken, row) {
             if (!confirm('Delete this note?')) return;
             try {
                 const res = await fetch(`/api/guestbook-entry?id=${encodeURIComponent(id)}`, {
                     method: 'DELETE',
+                    credentials: 'same-origin',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(isAdminAction ? { adminKey: getAdminKey() } : { editToken })
+                    body: JSON.stringify(editToken ? { editToken } : {})
                 });
                 if (res.ok) {
                     row.remove();
-                    if (isAdminAction === false) forgetMyEntry(id);
-                } else if (res.status === 403 && isAdminAction) {
-                    alert('Admin key rejected.');
-                    clearAdminKey();
-                    loadGuestbookWall();
+                    forgetMyEntry(id);
                 } else {
                     alert('Could not delete that note.');
                 }
@@ -626,7 +649,7 @@
             }
         }
 
-        async function editWallEntry(id, editToken, isAdminAction, entry, msgEl, timeEl) {
+        async function editWallEntry(id, editToken, entry, msgEl, timeEl) {
             const next = prompt('Edit your message:', entry.message);
             if (next === null) return;
             const trimmed = next.trim();
@@ -635,8 +658,9 @@
             try {
                 const res = await fetch(`/api/guestbook-entry?id=${encodeURIComponent(id)}`, {
                     method: 'PATCH',
+                    credentials: 'same-origin',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(Object.assign({ message: trimmed }, isAdminAction ? { adminKey: getAdminKey() } : { editToken }))
+                    body: JSON.stringify(Object.assign({ message: trimmed }, editToken ? { editToken } : {}))
                 });
                 if (res.ok) {
                     const data = await res.json();
@@ -644,10 +668,6 @@
                     entry.editedTs = data.entry.editedTs;
                     msgEl.textContent = entry.message;
                     timeEl.textContent = `${timeAgo(entry.ts)} (edited)`;
-                } else if (res.status === 403 && isAdminAction) {
-                    alert('Admin key rejected.');
-                    clearAdminKey();
-                    loadGuestbookWall();
                 } else {
                     alert('Could not edit that note.');
                 }
@@ -662,6 +682,14 @@
 
             const head = document.createElement('div');
             head.className = 'wall-entry-head';
+
+            if (entry.avatar) {
+                const avatar = document.createElement('img');
+                avatar.src = entry.avatar;
+                avatar.alt = '';
+                avatar.className = 'wall-entry-avatar';
+                head.appendChild(avatar);
+            }
 
             const name = document.createElement('span');
             name.className = 'wall-entry-name';
@@ -682,9 +710,11 @@
             row.appendChild(msg);
 
             const myEditToken = entry.id ? getMyEntries()[entry.id] : null;
-            const isAdminAction = !myEditToken && !!getAdminKey();
+            const canModify = !!myEditToken
+                || (discordMe.loggedIn && discordMe.isOwner)
+                || (discordMe.loggedIn && entry.discordId && discordMe.id === entry.discordId);
 
-            if (entry.id && (myEditToken || isAdminAction)) {
+            if (entry.id && canModify) {
                 const actions = document.createElement('div');
                 actions.className = 'wall-entry-actions';
 
@@ -692,13 +722,13 @@
                 editBtn.type = 'button';
                 editBtn.className = 'wall-action-btn';
                 editBtn.textContent = 'Edit';
-                editBtn.addEventListener('click', () => editWallEntry(entry.id, myEditToken, isAdminAction, entry, msg, time));
+                editBtn.addEventListener('click', () => editWallEntry(entry.id, myEditToken, entry, msg, time));
 
                 const deleteBtn = document.createElement('button');
                 deleteBtn.type = 'button';
                 deleteBtn.className = 'wall-action-btn';
                 deleteBtn.textContent = 'Delete';
-                deleteBtn.addEventListener('click', () => deleteWallEntry(entry.id, myEditToken, isAdminAction, row));
+                deleteBtn.addEventListener('click', () => deleteWallEntry(entry.id, myEditToken, row));
 
                 actions.appendChild(editBtn);
                 actions.appendChild(deleteBtn);
@@ -723,7 +753,12 @@
                 .catch(() => {});
         }
 
-        loadGuestbookWall();
+        loadDiscordMe().then(loadGuestbookWall);
+
+        if (new URLSearchParams(window.location.search).has('discord_error')) {
+            document.getElementById('guestbook-status').textContent = 'Discord login failed, try again.';
+            window.history.replaceState({}, '', window.location.pathname);
+        }
 
         function guestbookCooldownRemaining() {
             const last = parseInt(localStorage.getItem('guestbook_last_submit') || '0', 10);
@@ -760,6 +795,7 @@
             try {
                 const res = await fetch('/api/guestbook', {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, message })
                 });
@@ -774,7 +810,14 @@
                     const wall = document.getElementById('guestbook-wall');
                     const emptyNote = wall.querySelector('.wall-empty');
                     if (emptyNote) emptyNote.remove();
-                    wall.insertBefore(renderWallEntry({ id: data.id, name, message, ts: Date.now() }), wall.firstChild);
+                    wall.insertBefore(renderWallEntry({
+                        id: data.id,
+                        name,
+                        message,
+                        ts: Date.now(),
+                        discordId: discordMe.loggedIn ? discordMe.id : null,
+                        avatar: discordMe.loggedIn ? discordMe.avatar : null
+                    }), wall.firstChild);
 
                     nameInput.value = "";
                     msgInput.value = "";

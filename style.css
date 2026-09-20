@@ -246,9 +246,10 @@ input[type=range]::-moz-range-thumb { height: 13px; width: 13px; border-radius: 
     border-radius: 8px;
     padding: 10px 12px;
 }
-.wall-entry-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.wall-entry-head { display: flex; align-items: center; gap: 8px; }
+.wall-entry-avatar { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; object-fit: cover; }
 .wall-entry-name { font-size: 12px; font-weight: 600; color: var(--accent); }
-.wall-entry-time { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+.wall-entry-time { font-size: 11px; color: var(--text-muted); flex-shrink: 0; margin-left: auto; }
 .wall-entry-msg { font-size: 13px; color: var(--text); margin-top: 4px; line-height: 1.5; word-wrap: break-word; white-space: pre-wrap; }
 .wall-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 10px 0; }
 
@@ -262,16 +263,24 @@ input[type=range]::-moz-range-thumb { height: 13px; width: 13px; border-radius: 
 }
 .wall-action-btn:hover { color: var(--accent); }
 
-.wall-admin-toggle {
-    background: none; border: none; padding: 0;
-    font-family: 'Inter', sans-serif;
-    font-size: 10px; color: var(--text-muted);
-    opacity: 0.5;
-    cursor: pointer;
+.guestbook-discord-area {
+    display: flex; align-items: center; gap: 8px;
     margin-top: 10px;
-    transition: opacity 0.2s ease;
+    font-size: 11px; color: var(--text-muted);
 }
-.wall-admin-toggle:hover { opacity: 1; }
+.discord-mini-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
+.discord-login-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.2s ease, color 0.2s ease;
+}
+.discord-login-link:hover { opacity: 1; color: #5865F2; }
+.discord-login-link i { font-size: 13px; }
+.discord-login-status { font-weight: 600; color: var(--text); }
+.discord-logout-link { color: var(--text-muted); text-decoration: underline; }
+.discord-logout-link:hover { color: var(--accent); }
 
 .back-link {
     display: inline-flex; align-items: center; gap: 6px;

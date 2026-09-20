@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { readSession } from './_session.js';
 
 const GUESTBOOK_ENABLED = true;
 
@@ -73,16 +74,25 @@ async function trimWall() {
 
 // Stores the note keyed by a fresh id (guestbook_entries hash) plus its position
 // on the wall (guestbook_wall_index sorted set, scored by time). Returns an
-// edit token whose hash is stored alongside the note — only the submitter (and
-// admin) can later prove ownership to edit/delete it.
-async function createEntry(name, message) {
+// edit token whose hash is stored alongside the note — a fallback way for an
+// anonymous submitter to prove ownership later. A logged-in submitter's
+// Discord id is stored too, which works as ownership proof across browsers.
+async function createEntry(name, message, discordUser) {
     if (!redisConfigured()) return null;
 
     const id = crypto.randomUUID();
     const editToken = crypto.randomBytes(24).toString('hex');
     const ts = Date.now();
 
-    const entry = JSON.stringify({ name, message, ts, editTokenHash: hashToken(editToken) });
+    const entry = JSON.stringify({
+        name,
+        message,
+        ts,
+        editTokenHash: hashToken(editToken),
+        discordId: discordUser?.id || null,
+        discordName: discordUser?.name || null,
+        discordAvatar: discordUser?.avatar || null
+    });
     await redisCommand(['HSET', 'guestbook_entries', id, entry]);
     await redisCommand(['ZADD', 'guestbook_wall_index', String(ts), id]);
     await trimWall();
@@ -124,6 +134,8 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Webhook not configured' });
     }
 
+    const discordUser = readSession(req);
+
     try {
         const discordRes = await fetch(webhookUrl, {
             method: 'POST',
@@ -134,7 +146,8 @@ export default async function handler(req, res) {
                     fields: [
                         { name: 'From', value: name },
                         { name: 'Message', value: message },
-                        { name: 'IP hash', value: ipHash, inline: true }
+                        { name: 'IP hash', value: ipHash, inline: true },
+                        { name: 'Discord', value: discordUser ? `${discordUser.name} (${discordUser.id})` : 'Not logged in', inline: true }
                     ],
                     color: 13091926
                 }]
@@ -145,7 +158,7 @@ export default async function handler(req, res) {
             return res.status(502).json({ error: 'Discord rejected the message' });
         }
 
-        const created = await createEntry(name, message);
+        const created = await createEntry(name, message, discordUser);
 
         return res.status(200).json({ ok: true, id: created?.id ?? null, editToken: created?.editToken ?? null });
     } catch (err) {

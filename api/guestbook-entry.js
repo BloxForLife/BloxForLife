@@ -1,7 +1,7 @@
 import crypto from 'crypto';
+import { readSession, OWNER_DISCORD_ID } from './_session.js';
 
 const IP_HASH_SALT = process.env.IP_HASH_SALT || 'bloxforlife-default-salt';
-const ADMIN_KEY = process.env.GUESTBOOK_ADMIN_KEY || '';
 
 function hashToken(token) {
     return crypto.createHash('sha256').update(IP_HASH_SALT + token).digest('hex');
@@ -40,11 +40,7 @@ async function redisCommand(command) {
     return data.result;
 }
 
-function isAdmin(providedAdminKey) {
-    return !!(ADMIN_KEY && providedAdminKey && safeEqual(providedAdminKey, ADMIN_KEY));
-}
-
-function isOwner(entry, providedEditToken) {
+function ownsViaToken(entry, providedEditToken) {
     return !!(entry.editTokenHash && providedEditToken && safeEqual(hashToken(providedEditToken), entry.editTokenHash));
 }
 
@@ -62,7 +58,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Missing note id' });
     }
 
-    const { adminKey, editToken, message } = req.body || {};
+    const { editToken, message } = req.body || {};
 
     const raw = await redisCommand(['HGET', 'guestbook_entries', id]);
     if (!raw) {
@@ -76,8 +72,11 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: 'Note not found' });
     }
 
-    const admin = isAdmin(adminKey);
-    if (!admin && !isOwner(entry, editToken)) {
+    const session = readSession(req);
+    const admin = !!(session && session.id === OWNER_DISCORD_ID);
+    const viaDiscord = !!(session && entry.discordId && session.id === entry.discordId);
+
+    if (!admin && !viaDiscord && !ownsViaToken(entry, editToken)) {
         return res.status(403).json({ error: 'Not allowed to modify this note' });
     }
 
