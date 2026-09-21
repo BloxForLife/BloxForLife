@@ -578,8 +578,17 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.error) throw new Error(data.error);
+                    if (data._debug) console.log('Roblox stats debug:', data._debug);
 
-                    document.getElementById('roblox-avatar').src = data.avatar || '';
+                    const avatarEl = document.getElementById('roblox-avatar');
+                    if (data.avatar) {
+                        avatarEl.src = data.avatar;
+                        avatarEl.style.display = '';
+                        avatarEl.onerror = () => { avatarEl.style.display = 'none'; };
+                    } else {
+                        avatarEl.style.display = 'none';
+                    }
+
                     document.getElementById('roblox-name').textContent = data.displayName;
 
                     const dot = document.getElementById('roblox-presence-dot');
