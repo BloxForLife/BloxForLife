@@ -124,6 +124,31 @@
             <div class="divider"></div>
 
             <section class="profile-section">
+                <div class="eyebrow">Roblox</div>
+                <a href="https://www.roblox.com/users/4548670369/profile" target="_blank" class="roblox-widget" id="roblox-widget" style="display: none;">
+                    <img id="roblox-avatar" src="" alt="Roblox avatar" class="roblox-avatar">
+                    <div class="roblox-info">
+                        <div class="roblox-name-row">
+                            <span id="roblox-name" class="roblox-name"></span>
+                            <span id="roblox-presence-dot" class="roblox-presence-dot"></span>
+                        </div>
+                        <div id="roblox-presence-text" class="roblox-presence-text"></div>
+                        <div class="roblox-stats-row">
+                            <span id="roblox-friends"></span>
+                            <span class="dot-sep">·</span>
+                            <span id="roblox-followers"></span>
+                            <span class="dot-sep">·</span>
+                            <span id="roblox-joined"></span>
+                        </div>
+                        <div id="roblox-badges" class="roblox-badges"></div>
+                    </div>
+                </a>
+                <div id="roblox-widget-empty" class="roblox-widget-empty">Loading Roblox stats...</div>
+            </section>
+
+            <div class="divider"></div>
+
+            <section class="profile-section">
                 <div class="eyebrow">Connect</div>
                 <div class="links">
                     <a href="https://paypal.me/MichealJames196" target="_blank" class="btn"><i class="fa-brands fa-paypal"></i> Donate via PayPal</a>
@@ -546,6 +571,47 @@
 
         fetchWeather();
         setInterval(fetchWeather, 15 * 60 * 1000); // refresh every 15 min
+
+        // --- ROBLOX STATS (proxied through the server — Roblox's APIs don't like being called from a browser) ---
+        function fetchRobloxStats() {
+            fetch('/api/roblox-stats')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+
+                    document.getElementById('roblox-avatar').src = data.avatar || '';
+                    document.getElementById('roblox-name').textContent = data.displayName;
+
+                    const dot = document.getElementById('roblox-presence-dot');
+                    dot.style.backgroundColor = data.online ? '#00A2FF' : '#80848e';
+
+                    document.getElementById('roblox-presence-text').textContent = data.presence;
+
+                    document.getElementById('roblox-friends').textContent = data.friends !== null ? `${data.friends} friends` : '';
+                    document.getElementById('roblox-followers').textContent = data.followers !== null ? `${data.followers} followers` : '';
+                    document.getElementById('roblox-joined').textContent = data.joinedYear ? `since ${data.joinedYear}` : '';
+
+                    const badgesEl = document.getElementById('roblox-badges');
+                    badgesEl.innerHTML = '';
+                    (data.badges || []).forEach(badge => {
+                        const img = document.createElement('img');
+                        img.src = badge.imageUrl;
+                        img.alt = badge.name;
+                        img.title = badge.description || badge.name;
+                        img.className = 'roblox-badge';
+                        badgesEl.appendChild(img);
+                    });
+
+                    document.getElementById('roblox-widget').style.display = 'flex';
+                    document.getElementById('roblox-widget-empty').style.display = 'none';
+                })
+                .catch(() => {
+                    document.getElementById('roblox-widget-empty').textContent = "Couldn't load Roblox stats right now.";
+                });
+        }
+
+        fetchRobloxStats();
+        setInterval(fetchRobloxStats, 60000);
 
         // --- GUESTBOOK (posts through a server-side proxy — webhook URL never touches the client) ---
         const GUESTBOOK_COOLDOWN_MS = 12 * 60 * 60 * 1000; // 12 hours
