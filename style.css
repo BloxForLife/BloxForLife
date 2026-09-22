@@ -332,8 +332,9 @@ input[type=range]::-moz-range-thumb { height: 13px; width: 13px; border-radius: 
 .error-home:hover strong { color: var(--accent); }
 
 /* --- Footer --- */
-.profile-footer { display: flex; justify-content: center; padding-top: 26px; }
+.profile-footer { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 26px; }
 .visitor-count { font-size: 11px; color: var(--text-muted); opacity: 0.7; letter-spacing: 0.3px; }
+.last-update { font-size: 11px; color: var(--text-muted); opacity: 0.6; letter-spacing: 0.2px; text-align: center; }
 
 /* --- Mobile --- */
 @media (max-width: 600px) {

@@ -154,6 +154,7 @@
             </section>
 
             <footer class="profile-footer">
+                <span class="last-update" id="last-update" style="display: none;"></span>
                 <span class="visitor-count" id="visitor-count">— visitors</span>
             </footer>
 
@@ -247,6 +248,18 @@
                             spotWidget.style.display = 'flex';
                         } else {
                             spotWidget.style.display = 'none';
+                        }
+
+                        // "last_update" / "last_update_at" are set by a GitHub Actions workflow
+                        // on every push to main (see .github/workflows/lanyard-kv.yml).
+                        const kv = lData.kv || {};
+                        const lastUpdateEl = document.getElementById('last-update');
+                        if (kv.last_update) {
+                            const when = kv.last_update_at ? timeAgo(new Date(kv.last_update_at).getTime()) : '';
+                            lastUpdateEl.textContent = `Last update: ${kv.last_update}${when ? ` · ${when}` : ''}`;
+                            lastUpdateEl.style.display = '';
+                        } else {
+                            lastUpdateEl.style.display = 'none';
                         }
                     }
                 })

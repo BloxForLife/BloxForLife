@@ -1,0 +1,33 @@
+name: Update Lanyard KV on push
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  update-kv:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Push commit info to Lanyard KV
+        env:
+          LANYARD_API_KEY: ${{ secrets.LANYARD_API_KEY }}
+          DISCORD_ID: "1075335630353080340"
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          if [ -z "$LANYARD_API_KEY" ]; then
+            echo "LANYARD_API_KEY secret not set, skipping."
+            exit 0
+          fi
+
+          MSG=$(printf '%s' "$COMMIT_MSG" | head -n1 | cut -c1-120)
+          NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          curl -sS -X PUT \
+            -H "Authorization: $LANYARD_API_KEY" \
+            --data-binary "$MSG" \
+            "https://api.lanyard.rest/v1/users/$DISCORD_ID/kv/last_update"
+
+          curl -sS -X PUT \
+            -H "Authorization: $LANYARD_API_KEY" \
+            --data-binary "$NOW" \
+            "https://api.lanyard.rest/v1/users/$DISCORD_ID/kv/last_update_at"
