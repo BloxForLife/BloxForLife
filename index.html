@@ -190,6 +190,25 @@
             triggerSiteEntrance();
         });
 
+        // --- CURSOR SPARKLE TRAIL ---
+        (function() {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            const chars = ['✦', '✧', '⋆'];
+            let lastSpawn = 0;
+            document.addEventListener('pointermove', (e) => {
+                const now = Date.now();
+                if (now - lastSpawn < 70) return;
+                lastSpawn = now;
+                const sparkle = document.createElement('span');
+                sparkle.className = 'cursor-sparkle';
+                sparkle.textContent = chars[Math.floor(Math.random() * chars.length)];
+                sparkle.style.left = `${e.clientX}px`;
+                sparkle.style.top = `${e.clientY}px`;
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 700);
+            }, { passive: true });
+        })();
+
         function triggerSiteEntrance() {
             if (!hasAutoplayed && music.paused) {
                 music.play().then(() => {

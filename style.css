@@ -10,6 +10,25 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* --- Cursor sparkle trail --- */
+.cursor-sparkle {
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    color: var(--accent);
+    font-size: 13px;
+    z-index: 9998;
+    will-change: transform, opacity;
+    animation: sparkle-fade 0.7s ease-out forwards;
+}
+@keyframes sparkle-fade {
+    0% { opacity: 0.9; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+    100% { opacity: 0; transform: translate(-50%, -140%) scale(0.4) rotate(50deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .cursor-sparkle { display: none; }
+}
+
 body {
     background: var(--ink);
     color: var(--text);
