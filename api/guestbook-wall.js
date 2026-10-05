@@ -1,28 +1,8 @@
 import crypto from 'crypto';
+import { redisConfigured, redisCommand, redisPipeline } from './_redis.js';
+import { reactionsKey, reactorKey, summarizeReactions } from './_reactions.js';
 
 const WALL_LIMIT = 20; // how many recent notes to show on the page
-
-function redisConfigured() {
-    const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-    return !!(url && token);
-}
-
-async function redisCommand(command) {
-    const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-
-    const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(command)
-    });
-    const data = await res.json();
-    return data.result;
-}
 
 // One-time upgrade for notes posted before per-note ids/edit-tokens existed
 // (the old schema was a plain list at "guestbook_wall"). Gives each a fresh
@@ -68,11 +48,15 @@ export default async function handler(req, res) {
             return res.status(200).json({ entries: [] });
         }
 
-        const raw = await redisCommand(['HMGET', 'guestbook_entries', ...ids]);
+        const [raw, ...reactionHashes] = await redisPipeline([
+            ['HMGET', 'guestbook_entries', ...ids],
+            ...ids.map((id) => ['HGETALL', reactionsKey(id)])
+        ]);
+        const viewer = reactorKey(req);
 
         const entries = ids
             .map((id, i) => {
-                const item = raw[i];
+                const item = raw?.[i];
                 if (!item) return null;
                 try {
                     const parsed = JSON.parse(item);
@@ -84,7 +68,8 @@ export default async function handler(req, res) {
                         ts: parsed.ts || null,
                         editedTs: parsed.editedTs || null,
                         discordId: parsed.discordId || null,
-                        avatar: parsed.discordAvatar || null
+                        avatar: parsed.discordAvatar || null,
+                        reactions: summarizeReactions(reactionHashes[i], viewer)
                     };
                 } catch {
                     return null;

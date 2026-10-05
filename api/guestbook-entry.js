@@ -83,6 +83,7 @@ export default async function handler(req, res) {
         }
         await redisCommand(['HDEL', 'guestbook_entries', id]);
         await redisCommand(['ZREM', 'guestbook_wall_index', id]);
+        await redisCommand(['DEL', `guestbook_reactors:${id}`]);
         await redisCommand(['INCR', 'guestbook_version']);
         return res.status(200).json({ ok: true });
     }

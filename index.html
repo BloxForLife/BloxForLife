@@ -124,6 +124,18 @@
             <div class="divider"></div>
 
             <section class="profile-section">
+                <div class="eyebrow">Song requests</div>
+                <form id="song-form" class="song-form">
+                    <input type="text" id="song-input" class="guestbook-input" placeholder="Song — artist" maxlength="100" required>
+                    <button type="submit" class="ctrl-btn">Request</button>
+                </form>
+                <div class="guestbook-status" id="song-status"></div>
+                <div class="song-queue" id="song-queue"></div>
+            </section>
+
+            <div class="divider"></div>
+
+            <section class="profile-section">
                 <div class="eyebrow">Connect</div>
                 <div class="links">
                     <a href="https://paypal.me/MichealJames196" target="_blank" class="btn"><i class="fa-brands fa-paypal"></i> Donate via PayPal</a>
@@ -155,7 +167,7 @@
 
             <footer class="profile-footer">
                 <span class="last-update" id="last-update" style="display: none;"></span>
-                <span class="visitor-count" id="visitor-count">— visitors</span>
+                <span class="visitor-count"><span id="online-count"></span><span id="visitor-count">— visitors</span></span>
             </footer>
 
         </div>
@@ -689,6 +701,50 @@
             }
         }
 
+        const REACTION_EMOJIS = ['❤️', '🔥', '💀'];
+
+        function renderReactions(entry) {
+            const bar = document.createElement('div');
+            bar.className = 'wall-reactions';
+            const state = entry.reactions || { counts: {}, mine: [] };
+
+            REACTION_EMOJIS.forEach(emoji => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'reaction-btn';
+                const paint = (s) => {
+                    const n = s.counts[emoji] || 0;
+                    btn.textContent = n ? `${emoji} ${n}` : emoji;
+                    btn.classList.toggle('active', s.mine.includes(emoji));
+                };
+                paint(state);
+                btn.addEventListener('click', async () => {
+                    btn.disabled = true;
+                    try {
+                        const res = await fetch('/api/guestbook-react', {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id: entry.id, emoji })
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            entry.reactions = data.reactions;
+                            bar.querySelectorAll('.reaction-btn').forEach((b, i) => {
+                                const e = REACTION_EMOJIS[i];
+                                const n = data.reactions.counts[e] || 0;
+                                b.textContent = n ? `${e} ${n}` : e;
+                                b.classList.toggle('active', data.reactions.mine.includes(e));
+                            });
+                        }
+                    } catch {}
+                    btn.disabled = false;
+                });
+                bar.appendChild(btn);
+            });
+            return bar;
+        }
+
         function renderWallEntry(entry) {
             const row = document.createElement('div');
             row.className = 'wall-entry';
@@ -721,6 +777,10 @@
 
             row.appendChild(head);
             row.appendChild(msg);
+
+            if (entry.id) {
+                row.appendChild(renderReactions(entry));
+            }
 
             const myEditToken = entry.id ? getMyEntries()[entry.id] : null;
             const isOwnNote = !!myEditToken || (discordMe.loggedIn && entry.discordId && discordMe.id === entry.discordId);
@@ -769,27 +829,166 @@
                 .catch(() => {});
         }
 
-        loadDiscordMe().then(loadGuestbookWall);
-        // Poll a cheap version counter instead of the full wall — only re-fetch
-        // the (heavier) wall when someone's actually posted/edited/deleted a note.
+        // --- SONG REQUESTS ---
+        function renderSongRequest(item) {
+            const row = document.createElement('div');
+            row.className = 'song-row';
+
+            const icon = document.createElement('span');
+            icon.className = 'song-icon';
+            icon.textContent = '🎵';
+            row.appendChild(icon);
+
+            const info = document.createElement('div');
+            info.className = 'song-info';
+            const title = document.createElement('div');
+            title.className = 'song-title';
+            title.textContent = item.song;
+            const meta = document.createElement('div');
+            meta.className = 'song-meta';
+            if (item.avatar) {
+                const av = document.createElement('img');
+                av.src = item.avatar;
+                av.alt = '';
+                av.className = 'song-avatar';
+                meta.appendChild(av);
+            }
+            const by = document.createElement('span');
+            by.textContent = `${item.by} · ${timeAgo(item.ts)}`;
+            meta.appendChild(by);
+            info.appendChild(title);
+            info.appendChild(meta);
+            row.appendChild(info);
+
+            if (discordMe.loggedIn && discordMe.isOwner) {
+                const del = document.createElement('button');
+                del.type = 'button';
+                del.className = 'wall-action-btn song-delete';
+                del.textContent = 'Done';
+                del.title = 'Remove from queue';
+                del.addEventListener('click', async () => {
+                    try {
+                        const res = await fetch(`/api/song-requests?id=${encodeURIComponent(item.id)}`, { method: 'DELETE', credentials: 'same-origin' });
+                        if (res.ok) row.remove();
+                    } catch {}
+                });
+                row.appendChild(del);
+            }
+            return row;
+        }
+
+        function loadSongRequests() {
+            fetch('/api/song-requests', { credentials: 'same-origin' })
+                .then(res => res.json())
+                .then(data => {
+                    const queue = document.getElementById('song-queue');
+                    queue.innerHTML = '';
+                    if (!data.requests || !data.requests.length) {
+                        queue.innerHTML = '<div class="wall-empty">No requests yet — what should I listen to?</div>';
+                        return;
+                    }
+                    data.requests.forEach(item => queue.appendChild(renderSongRequest(item)));
+                })
+                .catch(() => {});
+        }
+
+        document.getElementById('song-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('song-input');
+            const statusEl = document.getElementById('song-status');
+            const btn = e.target.querySelector('button');
+            const song = input.value.trim();
+            if (!song) return;
+
+            btn.disabled = true;
+            statusEl.textContent = 'Sending...';
+            try {
+                const res = await fetch('/api/song-requests', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ song })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok) {
+                    statusEl.textContent = 'Added to the queue!';
+                    input.value = '';
+                    const queue = document.getElementById('song-queue');
+                    const empty = queue.querySelector('.wall-empty');
+                    if (empty) empty.remove();
+                    queue.insertBefore(renderSongRequest(data.request), queue.firstChild);
+                } else {
+                    statusEl.textContent = data.error || 'Something went wrong, try again.';
+                }
+            } catch {
+                statusEl.textContent = 'Something went wrong, try again.';
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        loadDiscordMe().then(() => { loadGuestbookWall(); loadSongRequests(); });
+
+        // Poll a cheap version counter instead of the full lists — only re-fetch
+        // the (heavier) wall/queue when something actually changed.
         let guestbookVersion = null;
+        let songsVersion = null;
         function pollGuestbookVersion() {
             fetch('/api/guestbook-version')
                 .then(res => res.json())
                 .then(data => {
                     if (guestbookVersion === null) {
                         guestbookVersion = data.version;
+                        songsVersion = data.songs;
                         return;
                     }
                     if (data.version !== guestbookVersion) {
                         guestbookVersion = data.version;
                         loadGuestbookWall();
                     }
+                    if (data.songs !== songsVersion) {
+                        songsVersion = data.songs;
+                        loadSongRequests();
+                    }
                 })
                 .catch(() => {});
         }
         pollGuestbookVersion();
         setInterval(pollGuestbookVersion, 2000);
+
+        // --- "N HERE NOW" (heartbeat while the tab is visible) ---
+        (function() {
+            let presenceId;
+            try {
+                presenceId = localStorage.getItem('presence_id');
+                if (!presenceId) {
+                    presenceId = Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(16).padStart(2, '0')).join('');
+                    localStorage.setItem('presence_id', presenceId);
+                }
+            } catch {
+                presenceId = Math.random().toString(16).slice(2);
+            }
+
+            function heartbeat() {
+                if (document.hidden) return;
+                fetch('/api/presence', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: presenceId })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        const el = document.getElementById('online-count');
+                        if (typeof data.online !== 'number') { el.textContent = ''; return; }
+                        el.textContent = data.online <= 1 ? 'just you here · ' : `${data.online} here now · `;
+                    })
+                    .catch(() => {});
+            }
+
+            heartbeat();
+            setInterval(heartbeat, 30000);
+            document.addEventListener('visibilitychange', () => { if (!document.hidden) heartbeat(); });
+        })();
 
         if (new URLSearchParams(window.location.search).has('discord_error')) {
             document.getElementById('guestbook-status').textContent = 'Discord login failed, try again.';

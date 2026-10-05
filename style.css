@@ -253,6 +253,23 @@ input[type=range]::-moz-range-thumb { height: 13px; width: 13px; border-radius: 
 .wall-entry-msg { font-size: 13px; color: var(--text); margin-top: 4px; line-height: 1.5; word-wrap: break-word; white-space: pre-wrap; }
 .wall-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 10px 0; }
 
+.wall-reactions { display: flex; gap: 6px; margin-top: 8px; }
+.reaction-btn {
+    background: var(--ink);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 9px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; line-height: 1.4;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+.reaction-btn:hover { border-color: var(--accent); color: var(--text); }
+.reaction-btn:active { transform: scale(0.94); }
+.reaction-btn.active { background: var(--accent-soft); border-color: rgba(199, 154, 86, 0.45); color: var(--accent); }
+.reaction-btn:disabled { opacity: 0.6; cursor: default; }
+
 .wall-entry-actions { display: flex; gap: 12px; margin-top: 6px; }
 .wall-action-btn {
     background: none; border: none; padding: 0;
@@ -281,6 +298,25 @@ input[type=range]::-moz-range-thumb { height: 13px; width: 13px; border-radius: 
 .discord-login-status { font-weight: 600; color: var(--text); }
 .discord-logout-link { color: var(--text-muted); text-decoration: underline; }
 .discord-logout-link:hover { color: var(--accent); }
+
+/* --- Song requests --- */
+.song-form { display: flex; gap: 8px; }
+.song-form .guestbook-input { flex-grow: 1; min-width: 0; }
+.song-form .ctrl-btn { flex-shrink: 0; }
+.song-queue { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.song-row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+.song-icon { font-size: 14px; flex-shrink: 0; }
+.song-info { flex-grow: 1; min-width: 0; }
+.song-title { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.song-meta { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.song-avatar { width: 14px; height: 14px; border-radius: 50%; object-fit: cover; }
+.song-delete { flex-shrink: 0; }
 
 .back-link {
     display: inline-flex; align-items: center; gap: 6px;

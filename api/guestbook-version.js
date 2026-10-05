@@ -1,29 +1,24 @@
+import { redisConfigured, redisCommand } from './_redis.js';
+
 // Cheap single-command endpoint the client polls frequently to know whether
-// to bother re-fetching the (heavier) wall — bumped by create/edit/delete.
+// to bother re-fetching the heavier lists. `version` is bumped by guestbook
+// create/edit/delete/react; `songs` by song-request create/delete.
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-
-    if (!url || !token) {
-        return res.status(200).json({ version: 0 });
+    if (!redisConfigured()) {
+        return res.status(200).json({ version: 0, songs: 0 });
     }
 
     try {
-        const redisRes = await fetch(url, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(['GET', 'guestbook_version'])
+        const [guestbook, songs] = await redisCommand(['MGET', 'guestbook_version', 'song_requests_version']);
+        return res.status(200).json({
+            version: guestbook ? parseInt(guestbook, 10) : 0,
+            songs: songs ? parseInt(songs, 10) : 0
         });
-        const data = await redisRes.json();
-        return res.status(200).json({ version: data.result ? parseInt(data.result, 10) : 0 });
     } catch (err) {
-        return res.status(200).json({ version: 0 });
+        return res.status(200).json({ version: 0, songs: 0 });
     }
 }
