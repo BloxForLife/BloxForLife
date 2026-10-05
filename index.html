@@ -627,13 +627,13 @@
                 area.appendChild(label);
 
                 const logout = document.createElement('a');
-                logout.href = '/api/discord-logout';
+                logout.href = '/api/discord/logout';
                 logout.className = 'discord-logout-link';
                 logout.textContent = 'Log out';
                 area.appendChild(logout);
             } else {
                 const login = document.createElement('a');
-                login.href = '/api/discord-login';
+                login.href = '/api/discord/login';
                 login.className = 'discord-login-link';
                 login.innerHTML = '<i class="fa-brands fa-discord"></i> Log in with Discord';
                 area.appendChild(login);
@@ -641,7 +641,7 @@
         }
 
         function loadDiscordMe() {
-            return fetch('/api/discord-me')
+            return fetch('/api/discord/me')
                 .then(res => res.json())
                 .then(data => {
                     discordMe = data;
@@ -657,7 +657,7 @@
         async function deleteWallEntry(id, editToken, row) {
             if (!confirm('Delete this note?')) return;
             try {
-                const res = await fetch(`/api/guestbook-entry?id=${encodeURIComponent(id)}`, {
+                const res = await fetch(`/api/guestbook/${encodeURIComponent(id)}`, {
                     method: 'DELETE',
                     credentials: 'same-origin',
                     headers: { 'Content-Type': 'application/json' },
@@ -681,7 +681,7 @@
             if (!trimmed || trimmed === entry.message) return;
 
             try {
-                const res = await fetch(`/api/guestbook-entry?id=${encodeURIComponent(id)}`, {
+                const res = await fetch(`/api/guestbook/${encodeURIComponent(id)}`, {
                     method: 'PATCH',
                     credentials: 'same-origin',
                     headers: { 'Content-Type': 'application/json' },
@@ -721,11 +721,11 @@
                 btn.addEventListener('click', async () => {
                     btn.disabled = true;
                     try {
-                        const res = await fetch('/api/guestbook-react', {
+                        const res = await fetch(`/api/guestbook/${encodeURIComponent(entry.id)}`, {
                             method: 'POST',
                             credentials: 'same-origin',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ id: entry.id, emoji })
+                            body: JSON.stringify({ emoji })
                         });
                         if (res.ok) {
                             const data = await res.json();
@@ -815,7 +815,7 @@
         }
 
         function loadGuestbookWall() {
-            fetch('/api/guestbook-wall')
+            fetch('/api/guestbook', { credentials: 'same-origin' })
                 .then(res => res.json())
                 .then(data => {
                     const wall = document.getElementById('guestbook-wall');
@@ -934,7 +934,7 @@
         let guestbookVersion = null;
         let songsVersion = null;
         function pollGuestbookVersion() {
-            fetch('/api/guestbook-version')
+            fetch('/api/live')
                 .then(res => res.json())
                 .then(data => {
                     if (guestbookVersion === null) {
@@ -971,7 +971,7 @@
 
             function heartbeat() {
                 if (document.hidden) return;
-                fetch('/api/presence', {
+                fetch('/api/live', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: presenceId })
@@ -1071,14 +1071,14 @@
         });
 
         // --- VISIT LOGGING (fire-and-forget, never blocks or breaks the page) ---
-        fetch('/api/track-visit', {
+        fetch('/api/visits', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ path: window.location.pathname })
         }).catch(() => {});
 
         // --- REAL VISITOR COUNT (deduped, from our own Redis-backed counter) ---
-        fetch('/api/visitor-count')
+        fetch('/api/visits')
             .then(res => res.json())
             .then(data => {
                 const el = document.getElementById('visitor-count');

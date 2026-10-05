@@ -1,5 +1,11 @@
+// Everything that acts on one note, /api/guestbook/<id>:
+//   PATCH  { message, editToken? }  -> edit (own note only)
+//   DELETE { editToken? }           -> delete (own note, or owner moderating)
+//   POST   { emoji }                -> toggle a reaction
 import crypto from 'crypto';
-import { readSession, OWNER_DISCORD_ID } from './_session.js';
+import { readSession, safeEqual, OWNER_DISCORD_ID } from '../_session.js';
+import { redisConfigured, redisCommand } from '../_redis.js';
+import { REACTION_EMOJIS, reactionsKey, reactorKey, summarizeReactions } from '../_reactions.js';
 
 const IP_HASH_SALT = process.env.IP_HASH_SALT || 'bloxforlife-default-salt';
 
@@ -7,64 +13,54 @@ function hashToken(token) {
     return crypto.createHash('sha256').update(IP_HASH_SALT + token).digest('hex');
 }
 
-// Constant-time-ish compare so a wrong key/token can't be brute-forced via response timing.
-function safeEqual(a, b) {
-    const bufA = Buffer.from(String(a || ''), 'utf8');
-    const bufB = Buffer.from(String(b || ''), 'utf8');
-    if (bufA.length !== bufB.length) {
-        crypto.timingSafeEqual(bufA, bufA);
-        return false;
-    }
-    return crypto.timingSafeEqual(bufA, bufB);
-}
-
-function redisConfigured() {
-    const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-    return !!(url && token);
-}
-
-async function redisCommand(command) {
-    const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-
-    const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(command)
-    });
-    const data = await res.json();
-    return data.result;
-}
-
 function ownsViaToken(entry, providedEditToken) {
     return !!(entry.editTokenHash && providedEditToken && safeEqual(hashToken(providedEditToken), entry.editTokenHash));
 }
 
-export default async function handler(req, res) {
-    if (req.method !== 'DELETE' && req.method !== 'PATCH') {
-        return res.status(405).json({ error: 'Method not allowed' });
+async function react(req, res, id) {
+    const { emoji } = req.body || {};
+    if (!REACTION_EMOJIS.includes(emoji)) {
+        return res.status(400).json({ error: 'Bad request' });
     }
 
+    const key = reactionsKey(id);
+    const me = reactorKey(req);
+
+    let mine = [];
+    try { mine = JSON.parse(await redisCommand(['HGET', key, me]) || '[]'); } catch {}
+    if (!Array.isArray(mine)) mine = [];
+
+    // Toggle: tapping an emoji you've already used removes it.
+    mine = mine.includes(emoji) ? mine.filter((e) => e !== emoji) : [...mine, emoji];
+
+    if (mine.length) {
+        await redisCommand(['HSET', key, me, JSON.stringify(mine)]);
+    } else {
+        await redisCommand(['HDEL', key, me]);
+    }
+    await redisCommand(['INCR', 'guestbook_version']);
+
+    const all = await redisCommand(['HGETALL', key]);
+    return res.status(200).json({ ok: true, reactions: summarizeReactions(all, me) });
+}
+
+export default async function handler(req, res) {
+    if (!['DELETE', 'PATCH', 'POST'].includes(req.method)) {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
     if (!redisConfigured()) {
         return res.status(503).json({ error: 'Guestbook storage not configured' });
     }
 
-    const id = (req.query && req.query.id) || (req.body && req.body.id);
+    const id = req.query?.id;
     if (!id || typeof id !== 'string') {
         return res.status(400).json({ error: 'Missing note id' });
     }
-
-    const { editToken, message } = req.body || {};
 
     const raw = await redisCommand(['HGET', 'guestbook_entries', id]);
     if (!raw) {
         return res.status(404).json({ error: 'Note not found' });
     }
-
     let entry;
     try {
         entry = JSON.parse(raw);
@@ -72,6 +68,9 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: 'Note not found' });
     }
 
+    if (req.method === 'POST') return react(req, res, id);
+
+    const { editToken, message } = req.body || {};
     const session = readSession(req);
     const admin = !!(session && session.id === OWNER_DISCORD_ID);
     const isOwnNote = !!(session && entry.discordId && session.id === entry.discordId) || ownsViaToken(entry, editToken);
@@ -83,7 +82,7 @@ export default async function handler(req, res) {
         }
         await redisCommand(['HDEL', 'guestbook_entries', id]);
         await redisCommand(['ZREM', 'guestbook_wall_index', id]);
-        await redisCommand(['DEL', `guestbook_reactors:${id}`]);
+        await redisCommand(['DEL', reactionsKey(id)]);
         await redisCommand(['INCR', 'guestbook_version']);
         return res.status(200).json({ ok: true });
     }

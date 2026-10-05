@@ -1,5 +1,11 @@
+// GET  /api/guestbook  -> the public wall (recent notes + reactions)
+// POST /api/guestbook  -> sign the guestbook
+// (per-note edit/delete/react live in guestbook/[id].js)
 import crypto from 'crypto';
 import { readSession, OWNER_DISCORD_ID } from './_session.js';
+import { redisConfigured, redisCommand, redisPipeline } from './_redis.js';
+import { getClientIp, hashIp } from './_ip.js';
+import { reactionsKey, reactorKey, summarizeReactions } from './_reactions.js';
 
 const GUESTBOOK_ENABLED = true;
 
@@ -11,51 +17,95 @@ const BLOCKED_IP_HASHES = [
 
 const RATE_LIMIT_SECONDS = 12 * 60 * 60; // 12 hours
 const IP_HASH_SALT = process.env.IP_HASH_SALT || 'bloxforlife-default-salt';
-const WALL_MAX_ENTRIES = 50; // how many recent notes the public wall keeps
-
-function hashIp(ip) {
-    return crypto.createHash('sha256').update(IP_HASH_SALT + ip).digest('hex').slice(0, 16);
-}
+const WALL_MAX_ENTRIES = 50; // how many recent notes are kept
+const WALL_LIMIT = 20;       // how many the page shows
 
 function hashToken(token) {
     return crypto.createHash('sha256').update(IP_HASH_SALT + token).digest('hex');
 }
 
-function getClientIp(req) {
-    const forwarded = req.headers['x-forwarded-for'];
-    if (forwarded) return forwarded.split(',')[0].trim();
-    return req.headers['x-real-ip'] || 'unknown';
+// ---------- GET: the wall ----------
+
+// One-time upgrade for notes posted before per-note ids/edit-tokens existed
+// (the old schema was a plain list at "guestbook_wall"). Gives each a fresh
+// id with no edit token, so only admin can manage them, then clears the old key.
+async function migrateLegacyEntries() {
+    const legacy = await redisCommand(['LRANGE', 'guestbook_wall', '0', '-1']);
+    if (!Array.isArray(legacy) || !legacy.length) return;
+
+    for (const item of legacy) {
+        try {
+            const parsed = JSON.parse(item);
+            if (typeof parsed.name !== 'string' || typeof parsed.message !== 'string') continue;
+            const id = crypto.randomUUID();
+            const ts = parsed.ts || Date.now();
+            const entry = JSON.stringify({ name: parsed.name, message: parsed.message, ts, editTokenHash: null });
+            await redisCommand(['HSET', 'guestbook_entries', id, entry]);
+            await redisCommand(['ZADD', 'guestbook_wall_index', String(ts), id]);
+        } catch {
+            // skip malformed legacy entries
+        }
+    }
+
+    await redisCommand(['DEL', 'guestbook_wall']);
 }
 
-function redisConfigured() {
-    const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-    return !!(url && token);
+async function wall(req, res) {
+    if (!redisConfigured()) {
+        return res.status(200).json({ entries: [] });
+    }
+
+    try {
+        const indexCount = await redisCommand(['ZCARD', 'guestbook_wall_index']);
+        if (!indexCount) await migrateLegacyEntries();
+
+        const ids = await redisCommand(['ZREVRANGE', 'guestbook_wall_index', '0', String(WALL_LIMIT - 1)]);
+        if (!Array.isArray(ids) || !ids.length) {
+            return res.status(200).json({ entries: [] });
+        }
+
+        const [raw, ...reactionHashes] = await redisPipeline([
+            ['HMGET', 'guestbook_entries', ...ids],
+            ...ids.map((id) => ['HGETALL', reactionsKey(id)])
+        ]);
+        const viewer = reactorKey(req);
+
+        const entries = ids
+            .map((id, i) => {
+                const item = raw?.[i];
+                if (!item) return null;
+                try {
+                    const parsed = JSON.parse(item);
+                    if (typeof parsed.name !== 'string' || typeof parsed.message !== 'string') return null;
+                    return {
+                        id,
+                        name: parsed.name,
+                        message: parsed.message,
+                        ts: parsed.ts || null,
+                        editedTs: parsed.editedTs || null,
+                        discordId: parsed.discordId || null,
+                        avatar: parsed.discordAvatar || null,
+                        reactions: summarizeReactions(reactionHashes[i], viewer)
+                    };
+                } catch {
+                    return null;
+                }
+            })
+            .filter(Boolean);
+
+        return res.status(200).json({ entries });
+    } catch {
+        return res.status(200).json({ entries: [] });
+    }
 }
 
-async function redisCommand(command) {
-    const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-
-    const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(command)
-    });
-    const data = await res.json();
-    return data.result;
-}
+// ---------- POST: sign it ----------
 
 // Atomic "set only if not already set" against Upstash Redis via its REST API.
 async function checkAndSetRateLimit(ipHash) {
-    if (!redisConfigured()) {
-        return { allowed: true, configured: false };
-    }
+    if (!redisConfigured()) return { allowed: true };
     const result = await redisCommand(['SET', `guestbook_rl:${ipHash}`, '1', 'EX', String(RATE_LIMIT_SECONDS), 'NX']);
-    return { allowed: result === 'OK', configured: true };
+    return { allowed: result === 'OK' };
 }
 
 // Drops the oldest entries once the wall grows past WALL_MAX_ENTRIES.
@@ -63,8 +113,7 @@ async function trimWall() {
     const count = await redisCommand(['ZCARD', 'guestbook_wall_index']);
     if (!count || count <= WALL_MAX_ENTRIES) return;
 
-    const excess = count - WALL_MAX_ENTRIES;
-    const popped = await redisCommand(['ZPOPMIN', 'guestbook_wall_index', String(excess)]);
+    const popped = await redisCommand(['ZPOPMIN', 'guestbook_wall_index', String(count - WALL_MAX_ENTRIES)]);
     if (!Array.isArray(popped) || !popped.length) return;
 
     const ids = [];
@@ -101,17 +150,12 @@ async function createEntry(name, message, discordUser) {
     return { id, editToken };
 }
 
-export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
-
+async function sign(req, res) {
     if (!GUESTBOOK_ENABLED) {
         return res.status(503).json({ error: 'Guestbook is temporarily closed' });
     }
 
     const { name, message } = req.body || {};
-
     if (!name || !message || typeof name !== 'string' || typeof message !== 'string') {
         return res.status(400).json({ error: 'Missing name or message' });
     }
@@ -120,7 +164,6 @@ export default async function handler(req, res) {
     }
 
     const ipHash = hashIp(getClientIp(req));
-
     if (BLOCKED_IP_HASHES.includes(ipHash)) {
         return res.status(403).json({ error: 'Blocked' });
     }
@@ -163,9 +206,14 @@ export default async function handler(req, res) {
         }
 
         const created = await createEntry(name, message, discordUser);
-
         return res.status(200).json({ ok: true, id: created?.id ?? null, editToken: created?.editToken ?? null });
-    } catch (err) {
+    } catch {
         return res.status(500).json({ error: 'Failed to send' });
     }
+}
+
+export default async function handler(req, res) {
+    if (req.method === 'GET') return wall(req, res);
+    if (req.method === 'POST') return sign(req, res);
+    return res.status(405).json({ error: 'Method not allowed' });
 }

@@ -1,11 +1,9 @@
-import crypto from 'crypto';
+// POST /api/visits {path} -> log a visit (deduped per IP per hour), bump the total
+// GET  /api/visits        -> the running unique-visitor total
+import { redisConfigured, redisCommand } from './_redis.js';
+import { getClientIp, hashIp } from './_ip.js';
 
 const DEDUPE_SECONDS = 60 * 60; // only count/log the same IP once per hour
-const IP_HASH_SALT = process.env.IP_HASH_SALT || 'bloxforlife-default-salt';
-
-function hashIp(ip) {
-    return crypto.createHash('sha256').update(IP_HASH_SALT + ip).digest('hex').slice(0, 16);
-}
 
 function parseDevice(userAgent) {
     if (!userAgent) return { browser: 'Unknown', os: 'Unknown' };
@@ -27,56 +25,28 @@ function parseDevice(userAgent) {
     return { browser, os };
 }
 
-function getClientIp(req) {
-    const forwarded = req.headers['x-forwarded-for'];
-    if (forwarded) return forwarded.split(',')[0].trim();
-    return req.headers['x-real-ip'] || 'unknown';
-}
-
-function redisConfigured() {
-    const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-    return !!(url && token);
-}
-
-async function redisCommand(command) {
-    const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-
-    const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(command)
-    });
-    const data = await res.json();
-    return data.result;
-}
-
-// Returns true only if the key didn't already exist — a null result here means
-// the key WAS already set (i.e. not a fresh visit), not "Redis is unconfigured"
-async function isNewVisit(ipHash) {
-    if (!redisConfigured()) return true;
-    const result = await redisCommand(['SET', `visit_seen:${ipHash}`, '1', 'EX', String(DEDUPE_SECONDS), 'NX']);
-    return result === 'OK';
-}
-
-export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+async function count(req, res) {
+    if (!redisConfigured()) {
+        return res.status(200).json({ count: null });
     }
+    try {
+        const total = await redisCommand(['GET', 'total_unique_visits']);
+        return res.status(200).json({ count: total ? parseInt(total, 10) : 0 });
+    } catch {
+        return res.status(200).json({ count: null });
+    }
+}
 
+async function track(req, res) {
     const ipHash = hashIp(getClientIp(req));
-    const fresh = await isNewVisit(ipHash);
 
-    if (!fresh) {
-        return res.status(200).json({ ok: true, logged: false });
-    }
-
-    // Bump the real running total — persists forever, no expiry, independent of Discord logging
+    // SET NX returns OK only if this IP hasn't been seen within the window.
     if (redisConfigured()) {
+        const fresh = await redisCommand(['SET', `visit_seen:${ipHash}`, '1', 'EX', String(DEDUPE_SECONDS), 'NX']);
+        if (fresh !== 'OK') {
+            return res.status(200).json({ ok: true, logged: false });
+        }
+        // Bump the real running total — persists forever, independent of Discord logging
         await redisCommand(['INCR', 'total_unique_visits']);
     }
 
@@ -106,10 +76,16 @@ export default async function handler(req, res) {
                     }]
                 })
             });
-        } catch (err) {
+        } catch {
             // Never let logging failures affect the visitor's experience
         }
     }
 
     return res.status(200).json({ ok: true, logged: true });
+}
+
+export default async function handler(req, res) {
+    if (req.method === 'GET') return count(req, res);
+    if (req.method === 'POST') return track(req, res);
+    return res.status(405).json({ error: 'Method not allowed' });
 }
