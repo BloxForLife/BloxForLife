@@ -2,6 +2,8 @@ import crypto from 'crypto';
 import { readSession, OWNER_DISCORD_ID } from './_session.js';
 import { redisConfigured, redisCommand } from './_redis.js';
 import { getClientIp, hashIp } from './_ip.js';
+import { isBanned } from './_bans.js';
+import { containsSlur } from './_filter.js';
 
 const LIST_KEY = 'song_requests';
 const MAX_KEPT = 30;   // how many the list holds
@@ -52,6 +54,8 @@ export default async function handler(req, res) {
     const song = typeof req.body?.song === 'string' ? req.body.song.trim() : '';
     if (!song) return res.status(400).json({ error: 'Missing song' });
     if (song.length > 100) return res.status(400).json({ error: 'Too long' });
+    if (await isBanned(req)) return res.status(403).json({ error: 'Blocked' });
+    if (containsSlur(song)) return res.status(400).json({ error: "That's not allowed here." });
 
     const ipHash = hashIp(getClientIp(req));
     if (!isOwner) {
@@ -65,6 +69,7 @@ export default async function handler(req, res) {
         by: session ? session.name : 'a visitor',
         avatar: session ? session.avatar : null,
         discordId: session ? session.id : null,
+        ipHash,
         ts: Date.now()
     };
 

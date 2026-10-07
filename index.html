@@ -674,6 +674,30 @@
             }
         }
 
+        async function banWallEntry(id, row) {
+            if (!confirm('Delete this note AND ban its author?\n\nThis also removes everything else they posted (notes and song requests) and blocks them from posting again.')) return;
+            try {
+                const res = await fetch(`/api/guestbook/${encodeURIComponent(id)}`, {
+                    method: 'DELETE',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ban: true })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) { alert(data.error || 'Could not ban.'); return; }
+                row.remove();
+                if (data.banned) {
+                    alert(`Banned. Removed ${data.removedNotes} note(s) and ${data.removedSongs} song request(s).`);
+                    loadGuestbookWall();
+                    loadSongRequests();
+                } else {
+                    alert('Note deleted, but it was posted before bans existed so there was nothing stored to ban by.');
+                }
+            } catch {
+                alert('Could not ban.');
+            }
+        }
+
         async function editWallEntry(id, editToken, entry, msgEl, timeEl) {
             const next = prompt('Edit your message:', entry.message);
             if (next === null) return;
@@ -807,6 +831,16 @@
                 deleteBtn.textContent = 'Delete';
                 deleteBtn.addEventListener('click', () => deleteWallEntry(entry.id, myEditToken, row));
                 actions.appendChild(deleteBtn);
+
+                if (discordMe.loggedIn && discordMe.isOwner && !isOwnNote) {
+                    const banBtn = document.createElement('button');
+                    banBtn.type = 'button';
+                    banBtn.className = 'wall-action-btn danger';
+                    banBtn.textContent = 'Ban';
+                    banBtn.title = 'Delete this note, ban the author, and remove everything else they posted';
+                    banBtn.addEventListener('click', () => banWallEntry(entry.id, row));
+                    actions.appendChild(banBtn);
+                }
 
                 row.appendChild(actions);
             }

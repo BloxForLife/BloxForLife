@@ -6,14 +6,10 @@ import { readSession, OWNER_DISCORD_ID } from './_session.js';
 import { redisConfigured, redisCommand, redisPipeline } from './_redis.js';
 import { getClientIp, hashIp } from './_ip.js';
 import { reactionsKey, reactorKey, summarizeReactions } from './_reactions.js';
+import { isBanned } from './_bans.js';
+import { containsSlur } from './_filter.js';
 
 const GUESTBOOK_ENABLED = true;
-
-// Manual blocklist — add a HASHED IP here to instantly reject them.
-// (Get the hash from the "IP hash" field in the Discord embed on any note they've left.)
-const BLOCKED_IP_HASHES = [
-    // "a1b2c3d4e5f6a7b8",
-];
 
 const RATE_LIMIT_SECONDS = 12 * 60 * 60; // 12 hours
 const IP_HASH_SALT = process.env.IP_HASH_SALT || 'bloxforlife-default-salt';
@@ -126,7 +122,8 @@ async function trimWall() {
 // edit token whose hash is stored alongside the note — a fallback way for an
 // anonymous submitter to prove ownership later. A logged-in submitter's
 // Discord id is stored too, which works as ownership proof across browsers.
-async function createEntry(name, message, discordUser) {
+// The IP hash is kept (never shown publicly) so the owner can ban an author.
+async function createEntry(name, message, discordUser, ipHash) {
     if (!redisConfigured()) return null;
 
     const id = crypto.randomUUID();
@@ -137,6 +134,7 @@ async function createEntry(name, message, discordUser) {
         name,
         message,
         ts,
+        ipHash,
         editTokenHash: hashToken(editToken),
         discordId: discordUser?.id || null,
         discordName: discordUser?.name || null,
@@ -163,11 +161,14 @@ async function sign(req, res) {
         return res.status(400).json({ error: 'Too long' });
     }
 
-    const ipHash = hashIp(getClientIp(req));
-    if (BLOCKED_IP_HASHES.includes(ipHash)) {
+    if (await isBanned(req)) {
         return res.status(403).json({ error: 'Blocked' });
     }
+    if (containsSlur(name) || containsSlur(message)) {
+        return res.status(400).json({ error: "That's not allowed here." });
+    }
 
+    const ipHash = hashIp(getClientIp(req));
     const discordUser = readSession(req);
     const isOwner = discordUser?.id === OWNER_DISCORD_ID;
 
@@ -205,7 +206,7 @@ async function sign(req, res) {
             return res.status(502).json({ error: 'Discord rejected the message' });
         }
 
-        const created = await createEntry(name, message, discordUser);
+        const created = await createEntry(name, message, discordUser, ipHash);
         return res.status(200).json({ ok: true, id: created?.id ?? null, editToken: created?.editToken ?? null });
     } catch {
         return res.status(500).json({ error: 'Failed to send' });

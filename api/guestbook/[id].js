@@ -1,11 +1,15 @@
 // Everything that acts on one note, /api/guestbook/<id>:
 //   PATCH  { message, editToken? }  -> edit (own note only)
 //   DELETE { editToken? }           -> delete (own note, or owner moderating)
+//   DELETE { ban: true }            -> owner only: delete, ban the author, and
+//                                      remove everything else they've posted
 //   POST   { emoji }                -> toggle a reaction
 import crypto from 'crypto';
 import { readSession, safeEqual, OWNER_DISCORD_ID } from '../_session.js';
 import { redisConfigured, redisCommand } from '../_redis.js';
 import { REACTION_EMOJIS, reactionsKey, reactorKey, summarizeReactions } from '../_reactions.js';
+import { isBanned, banAuthor } from '../_bans.js';
+import { containsSlur } from '../_filter.js';
 
 const IP_HASH_SALT = process.env.IP_HASH_SALT || 'bloxforlife-default-salt';
 
@@ -68,11 +72,16 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: 'Note not found' });
     }
 
-    if (req.method === 'POST') return react(req, res, id);
-
-    const { editToken, message } = req.body || {};
+    const { editToken, message, ban } = req.body || {};
     const session = readSession(req);
     const admin = !!(session && session.id === OWNER_DISCORD_ID);
+
+    if (!admin && await isBanned(req)) {
+        return res.status(403).json({ error: 'Blocked' });
+    }
+
+    if (req.method === 'POST') return react(req, res, id);
+
     const isOwnNote = !!(session && entry.discordId && session.id === entry.discordId) || ownsViaToken(entry, editToken);
 
     if (req.method === 'DELETE') {
@@ -84,6 +93,18 @@ export default async function handler(req, res) {
         await redisCommand(['ZREM', 'guestbook_wall_index', id]);
         await redisCommand(['DEL', reactionsKey(id)]);
         await redisCommand(['INCR', 'guestbook_version']);
+
+        if (ban) {
+            if (!admin) {
+                return res.status(403).json({ error: 'Owner only' });
+            }
+            if (!entry.ipHash && !entry.discordId) {
+                // Pre-ban-feature note with nothing stored to ban by.
+                return res.status(200).json({ ok: true, banned: false });
+            }
+            const removed = await banAuthor({ ipHash: entry.ipHash || null, discordId: entry.discordId || null });
+            return res.status(200).json({ ok: true, banned: true, ...removed });
+        }
         return res.status(200).json({ ok: true });
     }
 
@@ -96,6 +117,9 @@ export default async function handler(req, res) {
     }
     if (message.length > 300) {
         return res.status(400).json({ error: 'Too long' });
+    }
+    if (containsSlur(message)) {
+        return res.status(400).json({ error: "That's not allowed here." });
     }
 
     const updated = { ...entry, message: message.trim(), editedTs: Date.now() };

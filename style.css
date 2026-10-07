@@ -279,6 +279,8 @@ input[type=range]::-moz-range-thumb { height: 13px; width: 13px; border-radius: 
     transition: color 0.2s ease;
 }
 .wall-action-btn:hover { color: var(--accent); }
+.wall-action-btn.danger { color: rgba(242, 63, 66, 0.7); }
+.wall-action-btn.danger:hover { color: #f23f42; }
 
 .guestbook-discord-area {
     display: flex; align-items: center; gap: 8px;
