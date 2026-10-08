@@ -27,6 +27,7 @@
                     <img src="blox.jpg" alt="Profile" class="avatar" id="discord-pfp">
                 </div>
                 <h1>BloxForLife</h1>
+                <div class="badge-row" id="discord-badges" style="display: none;"></div>
                 <p class="tagline">Discord Bot Developer</p>
 
                 <div class="status-row">
@@ -280,6 +281,26 @@
 
         fetchLanyardData();
         setInterval(fetchLanyardData, 10000);
+
+        // --- DISCORD PROFILE BADGES (Nitro, HypeSquad, Active Developer, ...) ---
+        fetch('/api/discord/profile')
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) console.warn('Discord profile:', data.error);
+                const row = document.getElementById('discord-badges');
+                row.innerHTML = '';
+                (data.badges || []).forEach(badge => {
+                    const img = document.createElement('img');
+                    img.src = badge.icon;
+                    img.alt = badge.description;
+                    img.title = badge.description;
+                    img.className = 'discord-badge';
+                    img.onerror = () => img.remove();
+                    row.appendChild(img);
+                });
+                row.style.display = row.children.length ? 'flex' : 'none';
+            })
+            .catch(() => {});
 
         // --- LIVE CLOCK ---
         function updateTime() {

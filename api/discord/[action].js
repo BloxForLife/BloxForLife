@@ -103,7 +103,42 @@ function me(req, res) {
     });
 }
 
-const actions = { login, callback, logout, me };
+// Public profile (badges, bio, pronouns) via dcdn.dstn.to — a public mirror of
+// Discord's /users/:id/profile that needs no token. Proxied here so the page
+// isn't at the mercy of that service's CORS, and edge-cached for 5 minutes.
+async function profile(req, res) {
+    let upstream;
+    try {
+        upstream = await fetch(`https://dcdn.dstn.to/profile/${OWNER_DISCORD_ID}`, {
+            headers: { Accept: 'application/json', 'User-Agent': 'bloxfor.life (+https://bloxfor.life)' }
+        });
+    } catch (err) {
+        return res.status(200).json({ badges: [], error: `upstream unreachable: ${err.message}` });
+    }
+    if (!upstream.ok) {
+        return res.status(200).json({ badges: [], error: `upstream ${upstream.status}` });
+    }
+
+    const data = await upstream.json().catch(() => null);
+    const badges = Array.isArray(data?.badges)
+        ? data.badges
+            .filter((b) => b && b.icon)
+            .map((b) => ({
+                id: b.id,
+                description: b.description || b.id,
+                icon: `https://cdn.discordapp.com/badge-icons/${b.icon}.png`
+            }))
+        : [];
+
+    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+    return res.status(200).json({
+        badges,
+        bio: data?.user_profile?.bio || data?.user?.bio || null,
+        pronouns: data?.user_profile?.pronouns || null
+    });
+}
+
+const actions = { login, callback, logout, me, profile };
 
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
