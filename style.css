@@ -71,7 +71,21 @@ h1 {
 }
 
 .badge-row { display: flex; justify-content: center; align-items: center; gap: 6px; margin: 2px 0 8px; }
-.discord-badge { width: 20px; height: 20px; object-fit: contain; }
+.discord-badge { width: 20px; height: 20px; object-fit: contain; cursor: pointer; transition: transform 0.15s ease, opacity 0.15s ease; }
+.discord-badge:hover, .discord-badge.active { transform: scale(1.25); }
+.badge-row:has(.active) .discord-badge:not(.active) { opacity: 0.5; }
+.badge-tip { font-size: 11px; color: var(--accent); margin: -2px 0 8px; }
+
+.discord-bio {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+.discord-bio-label { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.discord-bio-label i { color: #5865F2; font-size: 13px; }
+.discord-bio-text { font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-line; overflow-wrap: anywhere; }
 
 .tagline { font-size: 14px; color: var(--text-muted); margin-bottom: 14px; }
 

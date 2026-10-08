@@ -28,7 +28,8 @@
                 </div>
                 <h1>BloxForLife</h1>
                 <div class="badge-row" id="discord-badges" style="display: none;"></div>
-                <p class="tagline">Discord Bot Developer</p>
+                <div class="badge-tip" id="badge-tip" style="display: none;"></div>
+                <p class="tagline">Discord Bot Developer<span id="discord-pronouns"></span></p>
 
                 <div class="status-row">
                     <span class="live-dot" id="discord-status"></span>
@@ -48,6 +49,10 @@
             <section class="profile-section">
                 <div class="eyebrow">About</div>
                 <p class="section-copy">Hey! I'm BloxForLife, 14 years old. I'm a Discord bot developer and Python bot developer. Currently working some gigs to save up for the Technic Red Bull F1 Lego set, any donations are appreciated!!!</p>
+                <div class="discord-bio" id="discord-bio" style="display: none;">
+                    <div class="discord-bio-label"><i class="fa-brands fa-discord"></i> Discord bio</div>
+                    <div class="discord-bio-text" id="discord-bio-text"></div>
+                </div>
             </section>
 
             <div class="divider"></div>
@@ -288,17 +293,40 @@
             .then(data => {
                 if (data.error) console.warn('Discord profile:', data.error);
                 const row = document.getElementById('discord-badges');
+                const tip = document.getElementById('badge-tip');
                 row.innerHTML = '';
                 (data.badges || []).forEach(badge => {
                     const img = document.createElement('img');
                     img.src = badge.icon;
                     img.alt = badge.description;
-                    img.title = badge.description;
+                    img.title = badge.description;   // desktop hover
                     img.className = 'discord-badge';
                     img.onerror = () => img.remove();
+                    // tap/click: show the name below the row (phones have no hover)
+                    img.addEventListener('click', () => {
+                        const isOpen = tip.style.display !== 'none' && tip.dataset.badge === badge.id;
+                        row.querySelectorAll('.discord-badge').forEach(b => b.classList.remove('active'));
+                        if (isOpen) {
+                            tip.style.display = 'none';
+                            tip.dataset.badge = '';
+                            return;
+                        }
+                        tip.textContent = badge.description;
+                        tip.dataset.badge = badge.id;
+                        tip.style.display = 'block';
+                        img.classList.add('active');
+                    });
                     row.appendChild(img);
                 });
                 row.style.display = row.children.length ? 'flex' : 'none';
+
+                if (data.pronouns) {
+                    document.getElementById('discord-pronouns').textContent = ` · ${data.pronouns}`;
+                }
+                if (data.bio) {
+                    document.getElementById('discord-bio-text').textContent = data.bio;
+                    document.getElementById('discord-bio').style.display = 'block';
+                }
             })
             .catch(() => {});
 

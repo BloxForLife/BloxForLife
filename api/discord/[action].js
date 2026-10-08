@@ -122,7 +122,8 @@ async function profile(req, res) {
     const data = await upstream.json().catch(() => null);
     const badges = Array.isArray(data?.badges)
         ? data.badges
-            .filter((b) => b && b.icon)
+            // legacy_username's hover text is the old username — not for the site
+            .filter((b) => b && b.icon && b.id !== 'legacy_username')
             .map((b) => ({
                 id: b.id,
                 description: b.description || b.id,
