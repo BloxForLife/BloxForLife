@@ -695,6 +695,7 @@
                 .then(data => {
                     discordMe = data;
                     refreshDiscordLoginUI();
+                    if (discordMe.loggedIn && discordMe.isOwner) wireVisitorCountReset();
                     if (discordMe.loggedIn) {
                         const nameInput = document.getElementById('guestbook-name');
                         if (nameInput && !nameInput.value) nameInput.value = discordMe.name;
@@ -1161,17 +1162,46 @@
         }).catch(() => {});
 
         // --- REAL VISITOR COUNT (deduped, from our own Redis-backed counter) ---
+        let visitorCount = null;
         fetch('/api/visits')
             .then(res => res.json())
             .then(data => {
                 const el = document.getElementById('visitor-count');
                 if (data.count !== null) {
+                    visitorCount = data.count;
                     el.textContent = `${data.count.toLocaleString()} visitors`;
                 } else {
                     el.textContent = '';
                 }
             })
             .catch(() => {});
+
+        // Owner only: tap the visitor count to set it (e.g. after a spam run inflates it)
+        function wireVisitorCountReset() {
+            const el = document.getElementById('visitor-count');
+            el.classList.add('editable');
+            el.title = 'Tap to set the visitor count';
+            el.addEventListener('click', async () => {
+                const next = prompt('Set visitor count to:', visitorCount ?? '');
+                if (next === null) return;
+                const count = parseInt(next, 10);
+                if (!Number.isInteger(count) || count < 0) { alert('Enter a whole number.'); return; }
+                try {
+                    const res = await fetch('/api/visits', {
+                        method: 'PATCH',
+                        credentials: 'same-origin',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ count })
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) { alert(data.error || 'Could not set count.'); return; }
+                    visitorCount = data.count;
+                    el.textContent = `${data.count.toLocaleString()} visitors`;
+                } catch {
+                    alert('Could not set count.');
+                }
+            });
+        }
 
         checkYTMusic();
         setInterval(checkYTMusic, 20000);
