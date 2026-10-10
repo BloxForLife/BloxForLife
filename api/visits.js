@@ -6,7 +6,8 @@ import { redisConfigured, redisCommand, redisPipeline } from './_redis.js';
 import { getClientIp, hashIp } from './_ip.js';
 
 const DEDUPE_SECONDS = 60 * 60;     // only count/log the same IP once per hour
-const BURST_MAX_PER_MINUTE = 20;    // more new "unique" visitors than this in a minute is a bot run
+const BURST_MAX_PER_MINUTE = 10;    // more new "unique" visitors than this in a minute is a bot run
+const WEBHOOK_MAX_PER_HOUR = 30;    // Discord visit pings per hour, no matter what gets through
 
 // Obvious non-browser clients. Trivial to spoof, but it stops the lazy ones
 // and keeps search crawlers out of the count.
@@ -44,9 +45,34 @@ async function count(req, res) {
     }
 }
 
+// Browsers always send Origin on a fetch() POST, and it can't be set from page
+// script. Scripts hammering the endpoint directly usually don't bother — so a
+// missing or foreign Origin means "not a real page load".
+function fromOwnPage(req) {
+    const origin = req.headers.origin;
+    if (!origin) return false;
+    try {
+        return new URL(origin).host === req.headers.host;
+    } catch {
+        return false;
+    }
+}
+
+async function sendVisitWebhook(webhookUrl, embed) {
+    try {
+        await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ embeds: [embed] })
+        });
+    } catch {
+        // Never let logging failures affect the visitor's experience
+    }
+}
+
 async function track(req, res) {
     const userAgent = req.headers['user-agent'] || '';
-    if (BOT_UA.test(userAgent)) {
+    if (BOT_UA.test(userAgent) || !fromOwnPage(req)) {
         return res.status(200).json({ ok: true, logged: false });
     }
 
@@ -72,34 +98,42 @@ async function track(req, res) {
     }
 
     const webhookUrl = process.env.VISIT_LOG_WEBHOOK_URL;
+
+    // Hourly ceiling on Discord pings. The first visit over the limit sends one
+    // heads-up; everything after is silent until the hour rolls over.
+    if (webhookUrl && redisConfigured()) {
+        const hourKey = `visit_webhook:${Math.floor(Date.now() / 3600000)}`;
+        const [sent] = await redisPipeline([['INCR', hourKey], ['EXPIRE', hourKey, '7200']]);
+        if (typeof sent === 'number' && sent > WEBHOOK_MAX_PER_HOUR) {
+            if (sent === WEBHOOK_MAX_PER_HOUR + 1) {
+                await sendVisitWebhook(webhookUrl, {
+                    title: 'Visit flood — muting visit logs for the rest of this hour',
+                    description: `More than ${WEBHOOK_MAX_PER_HOUR} new visitors this hour. Visits are still being deduped and capped; logs resume next hour.`,
+                    color: 15548997
+                });
+            }
+            return res.status(200).json({ ok: true, logged: true });
+        }
+    }
+
     if (webhookUrl) {
         const country = req.headers['x-vercel-ip-country'] || 'Unknown';
         const cityRaw = req.headers['x-vercel-ip-city'];
         const city = cityRaw ? decodeURIComponent(cityRaw) : 'Unknown';
         const location = (country !== 'Unknown' || city !== 'Unknown') ? `${city}, ${country}` : 'Unknown';
         const { browser, os } = parseDevice(userAgent);
-        const path = (req.body && req.body.path) || 'Unknown';
+        const path = String((req.body && req.body.path) || 'Unknown').slice(0, 100);
 
-        try {
-            await fetch(webhookUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    embeds: [{
-                        title: 'New visit',
-                        fields: [
-                            { name: 'Page', value: path, inline: true },
-                            { name: 'Location', value: location, inline: true },
-                            { name: 'Device', value: `${browser} · ${os}`, inline: true },
-                            { name: 'IP hash', value: ipHash, inline: true }
-                        ],
-                        color: 5793266
-                    }]
-                })
-            });
-        } catch {
-            // Never let logging failures affect the visitor's experience
-        }
+        await sendVisitWebhook(webhookUrl, {
+            title: 'New visit',
+            fields: [
+                { name: 'Page', value: path, inline: true },
+                { name: 'Location', value: location, inline: true },
+                { name: 'Device', value: `${browser} · ${os}`, inline: true },
+                { name: 'IP hash', value: ipHash, inline: true }
+            ],
+            color: 5793266
+        });
     }
 
     return res.status(200).json({ ok: true, logged: true });
