@@ -7,7 +7,10 @@ import { getClientIp, hashIp } from './_ip.js';
 
 const DEDUPE_SECONDS = 60 * 60;     // only count/log the same IP once per hour
 const BURST_MAX_PER_MINUTE = 10;    // more new "unique" visitors than this in a minute is a bot run
-const WEBHOOK_MAX_PER_HOUR = 30;    // Discord visit pings per hour, no matter what gets through
+// Discord visit pings per hour, no matter what gets through. Override with the
+// VISIT_LOG_MAX_PER_HOUR env var on Vercel (0 = no visit pings at all).
+const envMax = parseInt(process.env.VISIT_LOG_MAX_PER_HOUR, 10);
+const WEBHOOK_MAX_PER_HOUR = Number.isNaN(envMax) ? 5 : Math.max(0, envMax);
 
 // Obvious non-browser clients. Trivial to spoof, but it stops the lazy ones
 // and keeps search crawlers out of the count.
@@ -97,7 +100,7 @@ async function track(req, res) {
         await redisCommand(['INCR', 'total_unique_visits']);
     }
 
-    const webhookUrl = process.env.VISIT_LOG_WEBHOOK_URL;
+    const webhookUrl = WEBHOOK_MAX_PER_HOUR > 0 ? process.env.VISIT_LOG_WEBHOOK_URL : null;
 
     // Hourly ceiling on Discord pings. The first visit over the limit sends one
     // heads-up; everything after is silent until the hour rolls over.
